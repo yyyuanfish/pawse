@@ -1,0 +1,60 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K495CVDB4RGPVB9GRRB3MB",
+  "session_id": "f26de430-fed0-4e2f-9153-095f0a16ff4e",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T14:43:15.529434787Z",
+  "branch": "fix/clinic-search-endpoint",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "web/src/components/InsuranceProfileForm.jsx",
+    "web/src/i18n.js",
+    "web/src/pages/Home.jsx",
+    "web/src/styles.css"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "8d573ff4e04f",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 48,
+    "cache_creation_tokens": 55270,
+    "cache_read_tokens": 1609064,
+    "output_tokens": 11103,
+    "api_call_count": 24
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T14:43:15.473464886Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 8,
+    "total_committed": 0,
+    "total_lines_changed": 8,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 11,
+      "user_lines_removed": 8,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "web/src/components/InsuranceProfileForm.jsx": 9,
+        "web/src/styles.css": 2
+      },
+      "user_removed_per_file": {
+        "web/src/components/InsuranceProfileForm.jsx": 4,
+        "web/src/i18n.js": 2,
+        "web/src/pages/Home.jsx": 2
+      }
+    }
+  ]
+}

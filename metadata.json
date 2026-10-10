@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K495CVDB4RGPVB9GRRB3MB",
   "strategy": "manual-commit",
   "branch": "fix/clinic-search-endpoint",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
     "web/src/components/InsuranceProfileForm.jsx",
     "web/src/i18n.js",
@@ -24,14 +24,21 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": "/1/prompt.txt"
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 38,
-    "cache_creation_tokens": 27335,
-    "cache_read_tokens": 1418670,
-    "output_tokens": 9542,
-    "api_call_count": 18,
+    "input_tokens": 86,
+    "cache_creation_tokens": 82605,
+    "cache_read_tokens": 3027734,
+    "output_tokens": 20645,
+    "api_call_count": 42,
     "subagent_tokens": {
       "input_tokens": 26,
       "cache_creation_tokens": 60413,

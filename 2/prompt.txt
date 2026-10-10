@@ -1,0 +1,9 @@
+The ai sometimes says cant acces your location. MAke it tyr to get it and otherse fal back to ZH
+
+---
+
+merge that to man
+
+---
+
+main
