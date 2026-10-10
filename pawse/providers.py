@@ -79,6 +79,8 @@ async def assess(req: CareRequest, client: httpx.AsyncClient):
         raise ProviderError("gemini_unavailable") from None
 
 
+# Horse and farm-animal clinics are tagged veterinary_care too; Pawse helps cat owners.
+LARGE_ANIMAL = re.compile(r"pferd|nutztier|grosstier|equine|equin|livestock|rinder|bovine", re.I)
 MIN_PLACE_REVIEWS = 5  # Google tags associations/homeopaths as veterinary_care too; real practices have opening hours or reviews
 
 
@@ -86,7 +88,7 @@ async def google_clinics(req, client):
     key = os.getenv("GOOGLE_PLACES_API_KEY")
     if not key:
         raise ProviderError("google_places_not_configured")
-    fields = "places.id,places.displayName,places.formattedAddress,places.location,places.internationalPhoneNumber,places.googleMapsUri,places.websiteUri,places.rating,places.currentOpeningHours,places.businessStatus,places.regularOpeningHours.weekdayDescriptions,places.userRatingCount"
+    fields = "places.id,places.displayName,places.formattedAddress,places.location,places.internationalPhoneNumber,places.googleMapsUri,places.websiteUri,places.rating,places.currentOpeningHours,places.businessStatus,places.regularOpeningHours.weekdayDescriptions,places.userRatingCount,places.primaryType"
     # Nearby Search by type alone also returns places Google merely tags as veterinary (homeopaths, associations,
     # a psychologist in Zurich); a vet text query with strict type filtering returns practices.
     r = await client.post("https://places.googleapis.com/v1/places:searchText", headers={"X-Goog-Api-Key": key, "X-Goog-FieldMask": fields}, json={
@@ -99,6 +101,8 @@ async def google_clinics(req, client):
     for p in r.json().get("places", []):
         location = Location(lat=p["location"]["latitude"], lng=p["location"]["longitude"])
         if distance(req.location, location) > req.radius_km:  # text search only biases towards the circle
+            continue
+        if p.get("primaryType", "veterinary_care") != "veterinary_care" or LARGE_ANIMAL.search(p["displayName"]["text"]):
             continue
         if p.get("businessStatus", "OPERATIONAL") != "OPERATIONAL" or not (p.get("regularOpeningHours") or p.get("userRatingCount", 0) >= MIN_PLACE_REVIEWS):
             continue

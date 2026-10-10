@@ -169,6 +169,28 @@ async def test_google_places_keeps_only_real_practices(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_google_places_drops_non_vets_and_large_animal_clinics(monkeypatch):
+    # Seen in Zurich (2026-10-10): a psychologist, a skin clinic, a bird charity and a human doctor tagged
+    # veterinary_care, plus the Tierspital's horse and farm-animal clinics. Pawse helps cat owners.
+    monkeypatch.setenv('GOOGLE_PLACES_API_KEY','test-only')
+    def place(i,name,**kw):return {'id':i,'displayName':{'text':name},'location':{'latitude':47.37,'longitude':8.54},'userRatingCount':40,**kw}
+    def handler(r):
+        assert 'places.primaryType' in r.headers['X-Goog-FieldMask']
+        return httpx.Response(200,json={'places':[
+            place('psy','Mrs. Dipl. Maria Gebhard Psychologin',primaryType='health'),
+            place('skin','Circle Clinic',primaryType='skin_care_clinic'),
+            place('birds','Mauersegler und Alpensegler Förderung',primaryType='pet_care'),
+            place('doc','Prof. Dr. Antonio Pozzi',primaryType='doctor'),
+            place('horse','Pferdekliniken',primaryType='veterinary_care'),
+            place('farm','Nutztierkliniken',primaryType='veterinary_care'),
+            place('vet','Kleintierklinik Oberstrass AG',primaryType='veterinary_care'),
+            place('untyped','Tierarztpraxis Enge')]})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        result=await google_clinics(CareRequest(**payload(location={'lat':47.37,'lng':8.54})),client)
+        assert [c.id for c in result]==['vet','untyped']
+
+
+@pytest.mark.asyncio
 async def test_mapify_actual_contract(monkeypatch):
     monkeypatch.setenv('MAPIFY_BASE_URL','https://mapify.example')
     def handler(r):
