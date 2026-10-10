@@ -1,0 +1,60 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K0SMQ0Q0TZSS23FM7V9A3A",
+  "session_id": "55c41300-67e7-4383-98be-daf41a01f2fa",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T13:42:18.08866398Z",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "README.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "29a5f7df777f",
+  "checkpoint_transcript_start": 116,
+  "transcript_lines_at_start": 116,
+  "compact_transcript_start": 13,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T13:42:18.061167858Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 2,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2,
+    "total_lines_changed": 2,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 197,
+      "user_lines_removed": 13,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "web/scripts/check-native-live.mjs": 17,
+        "web/src/agents/geminiLiveAgent.js": 9,
+        "web/src/agents/liveVoiceAgent.js": 10,
+        "web/src/contracts.js": 3,
+        "web/src/hooks/useMicLevel.js": 63,
+        "web/src/i18n.js": 8,
+        "web/src/pages/VoiceCall.jsx": 64,
+        "web/src/styles.css": 23
+      },
+      "user_removed_per_file": {
+        "web/src/agents/geminiLiveAgent.js": 6,
+        "web/src/contracts.js": 1,
+        "web/src/pages/VoiceCall.jsx": 6
+      }
+    }
+  ]
+}
