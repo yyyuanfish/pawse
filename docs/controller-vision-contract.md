@@ -1,23 +1,34 @@
-# Pawse Vision Controller Contract
+# Pet observation controller
 
-The Vision Agent separates what is visible from what the owner reports. **Current:** a photo can accompany a care request. **Proposed v1:** a separate observation resource, followed by bounded video input. [Multimodal contracts](MULTIMODAL_CONTRACTS.md) maps both stages to the other agents.
+`POST /api/v1/vision/observations` accepts `VisionRequest` and returns `VisionResult`.
+See generated [OpenAPI](openapi.json) and [TypeScript](../schemas/pawse.ts).
 
-## 1. Current photo boundary
+Request: `photo: {mime_type, data}` (base64 JPEG/PNG/WebP, max 3 MB),
+`share_with_ai: true`, optional `red_flags` using the existing care warning-sign enum.
+Consent is required server-side. Photos are forwarded inline to Gemini, not saved locally.
+`GEMINI_VISION_MODEL` defaults to the access-tested `gemini-3.8-flash`.
 
-There is no `/vision` controller today. Use either `POST /api/v1/care/requests` or `POST /api/v1/agents/runs` with nested `care`; do not send both. Schema: `CareRequest.photo: Photo | null` in [models.py](../pawse/models.py).
+Response: nullable `cat_detected`, `face_assessable`, `image_quality`, five named
+`visible_observations`, `limitations`, `questions_for_owner`, `model`, `urgency`, `disclaimer`.
+Unusable/non-cat images force all features to `not_visible`. Owner-reported red flags force
+`urgency: emergency`; otherwise urgency remains `unknown`, never a photographic all-clear.
+This endpoint does not establish identity, diagnose, calculate pain scores or place calls.
 
-| Field | Current contract |
-| --- | --- |
-| `photo.mime_type` | `image/jpeg`, `image/png` or `image/webp` |
-| `photo.data` | Strict base64, at most 4,200,000 encoded characters; decoded payload 12–3,000,000 bytes |
-| Image validation | Matches the expected JPEG/PNG/WebP signature; this is not a complete image-decoding/metadata sanitization pipeline |
-| `query` | Up to 4,000 characters; optional when a photo or reported warning sign is present |
-| `share_with_ai` | Explicit consent required before the photo is sent to Gemini |
-| Response | Existing `Assessment` inside `CareResult`; no separate observations, bounding boxes, media ID or timestamped evidence |
+Errors: 422 invalid photo/consent; 503 missing key; 502 upstream/invalid model output;
+429 shared voice/vision operation limit or public quota. Errors do not echo photographs or keys.
 
-Photos are sent to care assessment, not to the clinic discovery adapter. A photo cannot rule out an emergency. Owner-reported red flags retain the existing deterministic emergency rule even when Gemini fails or disagrees. Missing sharing consent keeps the fallback flow available without sending the image.
+## Try it
 
-The care model uses `GEMINI_CARE_MODEL`, otherwise `GEMINI_MODEL`, otherwise `gemini-3-flash-preview`. The selected upgrade is `gemini-3.8-flash`, with access evidence in [Model allocation](MODEL_ALLOCATION.md); this contract does not switch configuration. Unsupported PDF/video MIME types return 422. Existing care errors, deadlines and SSE behavior follow the [Care contract](controller-care-contract.md).
+1. Open `/app/?live=1`, choose **Check a cat photo**.
+2. Choose **Upload photo**, or **Take photo** on a supported phone. Desktop may offer a file picker.
+3. Review the local preview and opt in to sharing this photo with Gemini.
+4. Select **Analyze photo** and review observations, limitations and questions.
+5. Try a non-cat or blurred image: the app should abstain rather than invent features.
+
+This structured result view is separate from existing Live photo conversation. It does not yet
+pass observation results automatically into the care agent. No real-cat clinical validation is claimed.
+
+## Future case-bound design (not implemented)
 
 ## 2. Proposed observation controller
 

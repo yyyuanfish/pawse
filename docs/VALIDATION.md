@@ -61,3 +61,12 @@ The initial request exposed Gradium's streaming WAV headers with unknown RIFF/da
 A real owner-authorized sample reached Gradium and returned a source ID with a pending-readiness notice. The app previously rejected that successful-but-preparing result. A regression now preserves the ID for that exact notice, while other errors are still rejected. Through the local browser session, cloning then returned 201, German localization produced a candidate, readiness succeeded, and a German own-voice preview appeared as playable audio. Speaker similarity and permanent save still require the owner's listening approval. No real call was made. Neither the recording, voice IDs nor the preview are committed.
 
 The React enrollment now sequences clone → German localization → bounded readiness polling → preview with visible progress, top-of-page errors, a refresh action and a resume action. Recording directly in German skips localization. No cross-provider speed benchmark was performed. Provider voice storage is permanent only after save; current local browser-to-voice associations remain in server memory.
+
+### Structured cat-photo observations — 2026-10-10
+
+Added `/api/v1/vision/observations` and the home-screen **Check a cat photo** view.
+Mocked regression checks cover consent, malformed images, abstention, preserved reported emergency
+signs and redacted provider failures. A live Gemini 3.8 Flash request through this endpoint returned
+HTTP 200 for a synthetic blank image, correctly reporting no cat and unassessable features.
+Real cat-photo accuracy and mobile camera capture have not been validated. Desktop UI exposes
+upload, camera-capable file selection, explicit photo sharing, and structured results.

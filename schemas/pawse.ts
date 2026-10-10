@@ -236,3 +236,20 @@ export interface PolicyView {
   corpus_version: string;
   disclaimer: string;
 }
+
+export interface VisionRequest {
+  photo: { mime_type: 'image/jpeg' | 'image/png' | 'image/webp'; data: string };
+  share_with_ai: true;
+  red_flags?: RedFlag[];
+}
+export interface VisionResult {
+  cat_detected: boolean | null;
+  face_assessable: boolean;
+  image_quality: 'adequate' | 'limited' | 'unusable';
+  visible_observations: { ears: string; eyes: string; muzzle: string; whiskers: string; posture: string };
+  limitations: string[];
+  questions_for_owner: string[];
+  model: string;
+  urgency: 'emergency' | 'unknown';
+  disclaimer: string;
+}

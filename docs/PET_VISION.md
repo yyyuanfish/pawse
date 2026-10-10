@@ -15,13 +15,13 @@ Official reference: https://ai.google.dev/gemini-api/docs/image-understanding
 - `pawse/providers.py:assess` already sends `CareRequest.photo` to Gemini as inline image content and returns care preparation guidance.
 - `web/src/agents/geminiLiveAgent.js:sendImage` already sends selected JPEG/PNG/WebP images to the Live conversation. Camera preview alone is not streamed video.
 
-## Proposed observation contract (not yet implemented)
+## Implemented observation contract
 
-`POST /api/v1/vision/observations`, with `photo` using the existing bounded image schema and `share_with_ai: true`.
+See [controller contract](controller-vision-contract.md). `POST /api/v1/vision/observations`, with `photo` using the existing bounded image schema and `share_with_ai: true`.
 
 Return `cat_detected: true | false | null`, `face_assessable: boolean`, `image_quality: adequate | limited | unusable`, `visible_observations` (ears, eyes, muzzle, whiskers, head/body posture), `limitations`, and `questions_for_owner`. Each observation can be `not_visible`; a face crop must not imply that gait or breathing was assessed. No numeric pain score, diagnosis, identity match, or reassurance from a photograph alone.
 
-Flow: selected photo → cat/quality check → visible observations → existing care guidance → nearby vets → reviewed German handoff using the saved voice. Owner-reported emergency signs must retain priority if the photo is normal-looking or unassessable. For limping, ask what happened and obtain appropriate video evidence later rather than inventing movement from a still.
+Target care handoff (not automatically connected yet): selected photo → cat/quality check → visible observations → existing care guidance → nearby vets → reviewed German handoff using the saved voice. Owner-reported emergency signs must retain priority if the photo is normal-looking or unassessable. For limping, ask what happened and obtain appropriate video evidence later rather than inventing movement from a still.
 
 Pet identity matching (“is this Mimi?”) is a separate, unvalidated capability requiring enrolled reference photos, an unknown result, and owner confirmation. Do not market the observation feature as reliable face identification.
 

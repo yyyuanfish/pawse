@@ -12,7 +12,7 @@ const PETALS = [
   { left: '84%', delay: '4.5s', dur: '10s', size: 13 },
 ];
 
-export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
+export default function Home({ t, lang, setLang, onStart, onOwnVoice, onPetVision }) {
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState('');
   async function useLocation() {
@@ -69,6 +69,7 @@ export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
         {locationMessage && <p role="status">{locationMessage}</p>}
         {locationMessage && <button className="btn ghost" onClick={()=>{clearLocation();setLocationMessage('Location cleared.');}}>Clear location</button>}
 
+        <button className="btn soft" onClick={onPetVision}>Check a cat photo</button>
         <button className="btn soft" onClick={onOwnVoice}>Record my voice · emergency rehearsal</button>
         <p><a href="?live=1">Use backend agents</a> · <a href="?demo=1">Simulated rehearsal</a></p>
         {IS_MOCK && <span className="badge">{t.mockBadge}</span>}

@@ -644,6 +644,47 @@
         }
       }
     },
+    "/api/v1/vision/observations": {
+      "post": {
+        "tags": [
+          "Pet observations"
+        ],
+        "summary": "Observe",
+        "operationId": "observe_api_v1_vision_observations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demo/mimi": {
       "get": {
         "tags": [
@@ -2618,6 +2659,157 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisibleFeatures": {
+        "properties": {
+          "ears": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Ears"
+          },
+          "eyes": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Eyes"
+          },
+          "muzzle": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Muzzle"
+          },
+          "whiskers": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Whiskers"
+          },
+          "posture": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Posture"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ears",
+          "eyes",
+          "muzzle",
+          "whiskers",
+          "posture"
+        ],
+        "title": "VisibleFeatures"
+      },
+      "VisionRequest": {
+        "properties": {
+          "photo": {
+            "$ref": "#/components/schemas/Photo"
+          },
+          "share_with_ai": {
+            "type": "boolean",
+            "const": true,
+            "title": "Share With Ai"
+          },
+          "red_flags": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "breathing_difficulty",
+                "collapse",
+                "seizure",
+                "unable_to_urinate",
+                "suspected_poisoning",
+                "major_trauma"
+              ]
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Red Flags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "photo",
+          "share_with_ai"
+        ],
+        "title": "VisionRequest"
+      },
+      "VisionResult": {
+        "properties": {
+          "cat_detected": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cat Detected"
+          },
+          "face_assessable": {
+            "type": "boolean",
+            "title": "Face Assessable"
+          },
+          "image_quality": {
+            "type": "string",
+            "enum": [
+              "adequate",
+              "limited",
+              "unusable"
+            ],
+            "title": "Image Quality"
+          },
+          "visible_observations": {
+            "$ref": "#/components/schemas/VisibleFeatures"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Limitations"
+          },
+          "questions_for_owner": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Questions For Owner"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": [
+              "emergency",
+              "unknown"
+            ],
+            "title": "Urgency",
+            "default": "unknown"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Visual observations only, not a diagnosis or identity check. A photo cannot rule out an emergency."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "cat_detected",
+          "face_assessable",
+          "image_quality",
+          "visible_observations",
+          "limitations",
+          "questions_for_owner",
+          "model"
+        ],
+        "title": "VisionResult"
       },
       "VoiceConsent": {
         "properties": {
