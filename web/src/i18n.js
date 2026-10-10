@@ -96,6 +96,10 @@ export const strings = {
 
     clinicsTitle: '选一家诊所',
     clinicsSub: '按距离排序 · Pawse 用德语打过去，用中文向你汇报',
+    clinicsSubDistance: '按距离排序',
+    clinicsSubMaps: '按 Google 地图顺序 · 未提供距离',
+    clinicsSubLive: 'Pawse 准备好德语对话，由你拨打',
+    retrievedAt: '获取于',
     clinicsLoading: '正在找附近营业的诊所…',
     clinicsError: '暂时没找到诊所。',
     retry: '再试一次',
@@ -219,6 +223,10 @@ export const strings = {
 
     clinicsTitle: 'Pick a clinic',
     clinicsSub: 'Sorted by distance · Pawse calls in German and reports back in English',
+    clinicsSubDistance: 'Sorted by distance',
+    clinicsSubMaps: 'In Google Maps order · distance not shared',
+    clinicsSubLive: 'Pawse prepares the German conversation, you place the call',
+    retrievedAt: 'retrieved',
     clinicsLoading: 'Finding open clinics nearby…',
     clinicsError: "Couldn't find clinics right now.",
     retry: 'Try again',

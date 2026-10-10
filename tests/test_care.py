@@ -272,3 +272,10 @@ def test_clinic_search_caps_concurrent_lookups_per_owner():
         finally:
             clinic_lookups.clear()
     assert r.status_code == 429
+
+
+def test_rank_keeps_provider_order_when_distance_is_unknown():
+    # Google Maps grounding gives no coordinates; a rating must not masquerade as nearness.
+    base = {'source': 'gemini_maps', 'retrieved_at': '2026-10-10'}
+    near, far = Clinic(id='near', name='Near', rating=3.9, **base), Clinic(id='far', name='Far', rating=4.9, **base)
+    assert [c.id for c in rank_clinics([near, far])] == ['near', 'far']
