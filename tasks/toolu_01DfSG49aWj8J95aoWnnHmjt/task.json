@@ -1,0 +1,7 @@
+{
+  "tool_use_id": "toolu_01DfSG49aWj8J95aoWnnHmjt",
+  "agent_id": "af8258790de4244f2",
+  "subagent_type": "general-purpose",
+  "task_description": "Browser-test the web app",
+  "started_at": "2026-10-10T12:40:39.706403299Z"
+}

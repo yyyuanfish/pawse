@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_018riZ6W8eyDHT7VfUzn6bS9",
+  "agent_id": "aae7ba77f4debba9a",
+  "subagent_type": "general-purpose",
+  "task_description": "Gradium voice for whole call",
+  "token_usage": {
+    "input_tokens": 68,
+    "cache_creation_tokens": 85217,
+    "cache_read_tokens": 2727674,
+    "output_tokens": 380,
+    "api_call_count": 34
+  },
+  "started_at": "2026-10-10T12:41:52.64131826Z",
+  "completed_at": "2026-10-10T12:49:27.501396906Z"
+}
