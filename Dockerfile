@@ -21,6 +21,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY pawse/ pawse/
 COPY research/ research/
+COPY site/ site/
 COPY --from=web /web/dist web/dist
 RUN useradd --create-home pawse
 USER pawse
