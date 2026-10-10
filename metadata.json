@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K6JJEHF4ERGQ5QAD135Z1W",
   "strategy": "manual-commit",
   "branch": "fix/persist-pending-voice-clone",
-  "checkpoints_count": 5,
+  "checkpoints_count": 6,
   "files_touched": [
     "docs/VOICE_TESTING.md",
     "pawse/voice.py",
@@ -39,6 +39,13 @@
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
@@ -48,11 +55,11 @@
     "output_tokens": 9683,
     "api_call_count": 14,
     "subagent_tokens": {
-      "input_tokens": 42,
-      "cache_creation_tokens": 34872,
-      "cache_read_tokens": 1063477,
-      "output_tokens": 203,
-      "api_call_count": 21
+      "input_tokens": 46,
+      "cache_creation_tokens": 36143,
+      "cache_read_tokens": 1213711,
+      "output_tokens": 231,
+      "api_call_count": 23
     }
   }
 }
