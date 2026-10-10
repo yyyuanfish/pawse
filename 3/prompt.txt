@@ -1,0 +1,144 @@
+# goal
+Create an isiniatl versimn of the 2 minute demo
+
+# COntext
+- shoudl eb abel to run it ideally with gardium working for speak and gemini for LLM logic
+- Get this task to as fawr as osible:
+
+# Outputs
+- inevsatieg 
+- real 2 minute reecording of our real app, idealy thigs runig live but if mocked also ok
+
+
+
+<pasted_content id="33dd">
+Skip to content
+yyyuanfish
+pawse
+Repository navigation
+Code
+Issues
+17
+ (17)
+Pull requests
+1
+ (1)
+Agents
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+Demo: flesh out the 2 minute demo (story, script, live path, backup)
+ #7
+Open
+Open
+Demo: flesh out the 2 minute demo (story, script, live path, backup)
+#7
+Description
+@AriJordan
+AriJordan
+opened 2h ago
+Collaborator
+Goal
+Flesh out the 2 minute hackathon demo: the story, the exact script, and what must work live.
+
+Context
+docs/SPEC.md demo acceptance checklist: real spoken request, real tool execution, honest failure, working features clearly separated from future plans.
+Building blocks: voice Voice: try Gradium setup (STT + TTS) or choose an alternative #3, phone calling Phone calling for the cat agent (telephony integration) #4, doctor/hospital booking Tool: find a nearby doctor/hospital and book an appointment #5, frontend Frontend + design: cat companion UI (states, mic, transcript, results) #6.
+Tasks
+
+Story: who is the user, what problem, why a voice cat (one sentence hook).
+
+Script with timings (about 2:00 total): hook, live demo flow (e.g. "find me a doctor nearby and book" from Tool: find a nearby doctor/hospital and book an appointment #5, optionally a phone call via Phone calling for the cat agent (telephony integration) #4), wrap-up.
+
+Define the "must work live" path and a backup (recorded video or fallback flow) if Wi-Fi or an API fails.
+
+Align with owners of Voice: try Gradium setup (STT + TTS) or choose an alternative #3 to Frontend + design: cat companion UI (states, mic, transcript, results) #6 on what is demo-ready by when; cut anything not ready.
+
+Pitch points for judges: Gemini Live + tool calling (Google DeepMind prize), sponsor tech used, what is next.
+
+Dry run at least twice with a timer; prepare the device, mic, and accounts.
+Done when
+A written script and shot list are posted here, and a full timed dry run fits in 2 minutes.
+Activity
+
+AriJordan
+self-assigned this
+2h ago
+
+AriJordan
+mentioned this in 3 issues 2h ago
+Submission: market and user problem for 'Detailed explanation of your solution' #8
+Submission: ensure full hackathon submission is complete (deadline 19:00) #9
+Onboarding workflow: first-run experience for new users #11
+
+Shivamm08
+mentioned this 1h ago
+Phone calling for the cat agent (telephony integration) #4
+
+AriJordan
+mentioned this 1h ago
+feat(demo): scripted demo video recorder with a mocked Mimi story #16
+Gemini Live voice session with tool calling (DeepMind prize core) #18
+
+AriJordan
+added a commit that references this issue 1h ago
+feat(demo): scripted demo video recorder with a mocked Mimi story (#16)
+
+Verified
+c6d02f6
+Add a comment
+new Comment
+Markdown input: edit mode selected.
+Write
+Preview
+Use Markdown to format your comment
+
+Please follow this repository's contributing guidelines and security policy.
+Metadata
+Assignees
+Labels
+No labels
+Projects
+No projects
+Milestone
+No milestone
+Relationships
+None yet
+Development
+ for this issue or link a pull request.
+NotificationsCustomize
+You're receiving notifications because you're subscribed to this thread.
+
+Participants
+@AriJordan
+Issue actions
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+</pasted_content id="33dd">
+
+---
+
+in the end have video and pount me to it
+
+---
+
+<task-notification>
+<task-id>blbw5d8g1</task-id>
+<tool-use-id>toolu_01Cs892hMB7oRG5XWSQX1kVN</tool-use-id>
+<output-file>/tmp/claude-1000/-home-azureuser-pawse/f7602d27-95c7-443c-8e70-cab1637416eb/tasks/blbw5d8g1.output</output-file>
+<status>completed</status>
+<summary>Background command "Install PulseAudio for audio capture" completed (exit code 0)</summary>
+</task-notification>
