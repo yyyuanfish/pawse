@@ -1,0 +1,272 @@
+Merge 
+
+<pasted_content id="1247">
+Skip to content
+yyyuanfish
+pawse
+Repository navigation
+Code
+Issues
+11
+ (11)
+Pull requests
+3
+ (3)
+Agents
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+feat: production look for the main page; demo content moves to /?demo=1- #57
+#57
+Loading merge status
+Open
+AriJordan
+wants to merge 1 commit into
+main
+from
+feat/production-landing
++365
+-293
+Lines changed: 365 additions & 293 deletions
+Conversation0 (0)
+Commits1 (1)
+Checks0 (0)
+Files changed6 (6)
+Open
+feat: production look for the main page; demo content moves to /?demo=1
+#57
+AriJordan
+wants to merge 1 commit into
+main
+from
+feat/production-landing
+Conversation
+@AriJordan
+AriJordan
+commented
+46 minutes ago
+Collaborator
+Makes / read like a real product instead of a hackathon demo.
+
+Default /
+
+Header: honest live status chip (green Live / amber Limited / red Offline) from GET /api/v1/health + /api/v1/voice/status, re-checked every 60 s; tooltip names what is unavailable. No fake counters.
+Removed: "Built for Tech Europe / Hackathon prototype", ASCII cat, eyebrow slogans, "01 / Tell us" counters, "GEMINI + GRADIUM" pill, the agent-workflow dev checkbox, .env instructions, API docs / source links.
+Care request now sits right under the hero; lat/lng/radius tucked into "Adjust search area".
+Voice banner only shows when a service is unavailable, in owner-facing words.
+/?demo=1 (same convention as /app/?demo=1): Mimi rehearsal (with its simulated labels, unchanged), synthetic policy, agent graph, run trace, legacy CatAgent. Linked quietly from the footer as "Demo walkthrough". AGENTS.md and README updated.
+
+Verified
+
+bash scripts/check.sh green (123 passed).
+Playwright: / and /?demo=1 at 1280 and 390 px, no console errors, no horizontal overflow; rehearsal advances; story/policy/agents hidden on /.
+e2e layout + upload: 20 passed. 2 failures in test_simulated_rehearsal_is_labelled_on_screen (React /app/?demo=1 badge) fail on main too, since Clinic search endpoint + connected-insurance card #56 removed that badge. Not touched here.
+🤖 Generated with Claude Code
+
+Mention @copilot in a comment to make changes to this pull request.
+@AriJordan
+@claude
+feat: make the main page look like a production app; move demo conten… 
+0cc3996
+Merge info
+Loading
+Checking for the ability to merge automatically...
+Hang in there while we check the branch's status.
+
+You can also merge this with the command line. 
+Still in progress?
+@AriJordan
+
+
+Add a comment
+Comment
+ 
+
+Add your comment here...
+Remember, contributions to this repository should follow its contributing guidelines and security policy.
+ ProTip! Add .patch or .diff to the end of URLs for Git’s plaintext views.
+Reviewers
+Copilot code review
+Copilot
+Copilot review effort
+Suggestions
+
+@yyyuanfish
+yyyuanfish
+Still in progress?
+Assignees
+No one—
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+
+None yet
+
+
+Notifications
+Customize
+You’re receiving notifications because you authored the thread.
+1 participant
+@AriJordan
+ Archive pull request
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+</pasted_content id="1247">
+
+---
+
+and:
+--
+
+
+<pasted_content id="1247">
+Skip to content
+yyyuanfish
+pawse
+Repository navigation
+Code
+Issues
+11
+ (11)
+Pull requests
+3
+ (3)
+Agents
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+fix(web): /app/ runs the real agents by default; scripted runs are labelled on every screen- #66
+#66
+Open
+AriJordan
+wants to merge 1 commit into
+main
+from
+fix/app-simulated-label
++109
+-71
+Lines changed: 109 additions & 71 deletions
+Conversation0 (0)
+Commits1 (1)
+Checks0 (0)
+Files changed12 (12)
+Open
+fix(web): /app/ runs the real agents by default; scripted runs are labelled on every screen
+#66
+AriJordan
+wants to merge 1 commit into
+main
+from
+fix/app-simulated-label
+Conversation
+@AriJordan
+AriJordan
+commented
+23 minutes ago
+Collaborator
+Root cause. test_simulated_rehearsal_is_labelled_on_screen started failing after #56 removed the "Demo mode · scripted" badge. Underneath: the Dockerfile builds web/ with no VITE_* settings, so config.js fell back to 'mock' and the public /app/ ran the scripted voice, clinic and phone agents (verified in the deployed bundle). With the badge gone, owners saw a scripted conversation with no simulated label (rule 3). #63 then rewrote the test to only look for a "Simulated rehearsal" link in settings, which passed without the problem being fixed.
+
+Fix
+
+web/src/config.js: default 'live'; scripted only via ?demo=1 or explicit VITE_*=mock (docker-compose already set live).
+web/src/App.jsx: role="note" banner "Simulated rehearsal · scripted, no real calls or bookings" above every screen while any agent is scripted or the phone rehearsal runs. The production /app/ stays badge-free, as Clinic search endpoint + connected-insurance card #56 intended.
+Docs: web/.env.example, web/README.md, AGENTS.md dev line.
+Tests (red first)
+
+e2e: label in viewport on /app/?demo=1 home and still visible on the call screen; absent on /app/.
+web/scripts/check-config.mjs: a build without VITE_* picks the live agents (added to npm run check).
+Sweep, 5 more e2e tests that were red on main (test drift): own-voice helper opens the settings (feat(web): guide the phone assistant one step at a time #63); live tool-call expects insurance in context (Clinic search endpoint + connected-insurance card #56); denied-mic picks its own .cap-error line.
+Verified: bash scripts/check.sh green (170 passed); PAWSE_E2E=1 pytest tests/e2e: 80 passed, 10 skipped (main: 5 failed).
+
+⚠️ After deploy, the public /app/ link uses the live backend (Gemini keys / quota), and the scripted story is at /app/?demo=1.
+
+🤖 Generated with Claude Code
+
+Mention @copilot in a comment to make changes to this pull request.
+@AriJordan
+@claude
+fix(web): /app/ runs the real agents by default; scripted runs are la… 
+e731578
+Merge info
+This branch has conflicts that must be resolved
+Use the web editor or the command line to resolve conflicts before continuing.
+
+tests/e2e/test_browser_layout.py
+web/package.json
+You can also merge this with the command line. 
+Still in progress?
+@AriJordan
+
+
+Add a comment
+Comment
+ 
+
+Add your comment here...
+Remember, contributions to this repository should follow its contributing guidelines and security policy.
+ ProTip! Add comments to specific lines under Files changed.
+Reviewers
+Copilot code review
+Copilot
+Copilot review effort
+Suggestions
+
+@yyyuanfish
+yyyuanfish
+Still in progress?
+Assignees
+No one—
+Labels
+None yet
+Projects
+None yet
+Milestone
+No milestone
+Development
+Successfully merging this pull request may close these issues.
+
+None yet
+
+
+Notifications
+Customize
+You’re receiving notifications because you authored the thread.
+1 participant
+@AriJordan
+ Archive pull request
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+</pasted_content id="1247">
+
+--
