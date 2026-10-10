@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JZSQRAPGBQZ5CT1T45WMTG",
+  "strategy": "manual-commit",
+  "branch": "feat/insurance-policy-view",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/openapi.json",
+    "pawse/knowledge.py",
+    "pawse/static/app.js",
+    "pawse/static/index.html",
+    "pawse/static/style.css",
+    "schemas/pawse.ts",
+    "tests/test_knowledge.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 40,
+    "cache_creation_tokens": 23986,
+    "cache_read_tokens": 4480390,
+    "output_tokens": 16081,
+    "api_call_count": 20
+  }
+}
