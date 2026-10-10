@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K4GK30D1A8HHV9M7M5BA5A",
   "strategy": "manual-commit",
   "branch": "feat/demo-real-video",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
     "demo/real/README.md",
     "demo/real/make-cut.py",
@@ -37,13 +37,20 @@
       "compact_transcript": "/2/transcript.jsonl",
       "content_hash": "/2/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/3/metadata.json",
+      "transcript": "/3/full.jsonl",
+      "compact_transcript": "/3/transcript.jsonl",
+      "content_hash": "/3/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 122,
-    "cache_creation_tokens": 147588,
-    "cache_read_tokens": 4627545,
-    "output_tokens": 30362,
-    "api_call_count": 59
+    "input_tokens": 170,
+    "cache_creation_tokens": 181316,
+    "cache_read_tokens": 7043206,
+    "output_tokens": 42387,
+    "api_call_count": 82
   }
 }
