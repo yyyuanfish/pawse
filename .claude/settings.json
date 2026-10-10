@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "_comment": "Pre-allow the safe, frequent check commands so agents don't stall on prompts; deny reading real env files. Deny rules are prefix matches, so they are a speed bump, not a sandbox: keys still must never be pasted into chat.",
+  "_comment": "Pre-allow the safe, frequent check commands so agents don't stall on prompts; deny reading real env files. Deny rules are prefix matches, so they are a speed bump, not a sandbox: keys still must never be pasted into chat. Hooks: the entire ones record sessions; .claude/hooks/root-checkout-guard.sh (PreToolUse Bash) denies switching the root checkout off main; .claude/hooks/worktree-create.sh (WorktreeCreate) puts managed worktrees at ../pawse-wt/<name> off origin/main. See AGENTS.md, Branching and worktrees.",
   "hooks": {
     "PostToolUse": [
       {
@@ -29,6 +29,29 @@
           {
             "type": "command",
             "command": "sh -c 'if ! command -v entire >/dev/null 2>&1; then exit 0; fi; exec entire hooks claude-code pre-task'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/root-checkout-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking root checkout…"
+          }
+        ]
+      }
+    ],
+    "WorktreeCreate": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/worktree-create.sh\"",
+            "timeout": 60,
+            "statusMessage": "Creating the worktree in ../pawse-wt…"
           }
         ]
       }
