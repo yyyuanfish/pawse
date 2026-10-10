@@ -1,0 +1,3 @@
+- ⚠️ The browser tests: 20 passed and 2 failed. The 2 failures are in test_simulated_rehearsal_is_labelled_on_screen, which tests the phone assistant's demo badge at /app/?demo=1. They also fail on main, because #56 removed that badge, and this PR doesn't touch them.
+--
+Investiahte and fix
