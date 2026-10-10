@@ -17,3 +17,7 @@ assert.match(wounded,/contact a veterinarian today/);
 assert.match(wounded,/heavy or uncontrolled bleeding/);
 assert.doesNotMatch(observationMessage({cat_detected:false}),/contact a veterinarian today/);
 assert.match(observationMessage({urgency:'emergency'}),/Emergency veterinary care now/);
+const facial=observationMessage({facial_estimate:{concern:'contact_vet',total:5}});
+assert.match(facial,/contacting a veterinarian today/);
+assert.match(facial,/experimental, never a validated FGS pain score/);
+assert.match(facial,/Do not invent a total when null/);

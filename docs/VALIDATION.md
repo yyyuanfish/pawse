@@ -101,3 +101,27 @@ received 1,989,164 bytes of WAV audio from Gradium using `voice=my_voice`. The a
 `tmp/`. This validates the provider chain independently of the unavailable device location; it did
 not telephone a clinic. Browser inspection with the owner-supplied injury photo confirmed that the
 care card and location retry remain in the same conversation.
+
+### Experimental facial cues — 2026-10-10
+
+The upload/camera observation response now includes five facial cue estimates and a deterministic,
+explicitly experimental total when all assessment conditions are met. Automated tests cover
+missing features, non-cats, low-quality photos, unsuitable activity, printed answer overlays,
+out-of-range model values, threshold handling, and emergency priority. These are software contract
+tests, not sensitivity/specificity measurements. No guaranteed pain recognition, clinical severity
+classification, automatic diagnosis, or medication advice is provided.
+
+The supplied three screenshots contain printed FGS answers. They are exploratory API fixtures,
+not a blinded accuracy test; the server suppresses scores when such overlays are detected.
+Images are not committed or used as a training dataset. A blinded, independently vet-labelled
+set and physical-phone camera tests are still required before any reliability claim.
+
+Live Gemini checks on all three supplied screenshots returned HTTP 200 with cat detection and
+individual visual descriptions (including narrowed eyes and outward/flattened ears). Each overlay
+was detected and its numerical total suppressed. These observations do not demonstrate accuracy
+on unlabelled photos. The original images and raw responses remain outside Git.
+
+Verification for this change: 115 backend tests passed, frontend contract checks and production
+build passed (existing bundle-size warning). Browser smoke check confirmed the built app,
+simulated conversation and Upload photo / Take photo menu load without console errors.
+The new result card has not yet been exercised end-to-end on a physical phone.

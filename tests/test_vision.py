@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from pawse.app import app
 from pawse import vision
 
+CUES={'context':'uncertain','score_overlay_present':False,**{k:{'score':None,'evidence':'Not assessable'} for k in ['ears','eyes','muzzle','whiskers','head_position']}}
 PNG='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aX1sAAAAASUVORK5CYII='
 def test_consent_and_photo_validation():
     with TestClient(app) as c:
@@ -13,7 +14,7 @@ def test_consent_and_photo_validation():
 def test_abstention_and_reported_emergency(monkeypatch):
     monkeypatch.setenv('GEMINI_API_KEY','test')
     factory=httpx.AsyncClient
-    observation={'injury':{},'cat_detected':False,'face_assessable':True,'image_quality':'unusable','visible_observations':{k:'invented' for k in vision.VisibleFeatures.model_fields},'limitations':['Too small'],'questions_for_owner':['Can you take a clearer photo?']}
+    observation={'facial_cues':CUES,'injury':{},'cat_detected':False,'face_assessable':True,'image_quality':'unusable','visible_observations':{k:'invented' for k in vision.VisibleFeatures.model_fields},'limitations':['Too small'],'questions_for_owner':['Can you take a clearer photo?']}
     import json
     def reply(r):
         assert r.headers['x-goog-api-key']=='test'
@@ -37,7 +38,7 @@ def test_suspected_wound_routes_to_vet_without_claiming_active_bleeding(monkeypa
     import json
     monkeypatch.setenv('GEMINI_API_KEY','test')
     factory=httpx.AsyncClient
-    observation={'cat_detected':True,'face_assessable':False,'image_quality':'limited','visible_observations':{k:'not_visible' for k in vision.VisibleFeatures.model_fields},'limitations':['Still photo'],'questions_for_owner':['Is bleeding ongoing?'], 'injury':{'wound':'suspected','blood_like_material':'suspected','location':'near ear','description':'Red skin with dark crust.', 'active_bleeding':'model incorrectly claims active bleeding'}}
+    observation={'facial_cues':CUES,'cat_detected':True,'face_assessable':False,'image_quality':'limited','visible_observations':{k:'not_visible' for k in vision.VisibleFeatures.model_fields},'limitations':['Still photo'],'questions_for_owner':['Is bleeding ongoing?'], 'injury':{'wound':'suspected','blood_like_material':'suspected','location':'near ear','description':'Red skin with dark crust.', 'active_bleeding':'model incorrectly claims active bleeding'}}
     monkeypatch.setattr(vision.httpx,'AsyncClient',lambda:factory(transport=httpx.MockTransport(lambda r:httpx.Response(200,json={'candidates':[{'content':{'parts':[{'text':json.dumps(observation)}]}}]}))))
     with TestClient(app) as c:
         r=c.post('/api/v1/vision/observations',json={'photo':{'mime_type':'image/png','data':PNG},'share_with_ai':True})
@@ -45,3 +46,22 @@ def test_suspected_wound_routes_to_vet_without_claiming_active_bleeding(monkeypa
     assert r.json()['urgency']=='contact_vet'
     assert r.json()['injury']['active_bleeding']=='cannot_determine_from_photo'
     assert 'heavy' in r.json()['next_step']
+
+def test_facial_cues_integrate_with_route_and_emergency_priority(monkeypatch):
+    import json
+    monkeypatch.setenv('GEMINI_API_KEY','test')
+    factory=httpx.AsyncClient
+    cues={'context':'awake_resting','score_overlay_present':False,**{k:{'score':1,'evidence':'Visible cue'} for k in vision.CUE_NAMES}}
+    observation={'facial_cues':cues,'injury':{},'cat_detected':True,'face_assessable':True,'image_quality':'adequate','visible_observations':{k:'Visible' for k in vision.VisibleFeatures.model_fields},'limitations':[],'questions_for_owner':[]}
+    monkeypatch.setattr(vision.httpx,'AsyncClient',lambda:factory(transport=httpx.MockTransport(lambda r:httpx.Response(200,json={'candidates':[{'content':{'parts':[{'text':json.dumps(observation)}]}}]}))))
+    with TestClient(app) as c:
+        body={'photo':{'mime_type':'image/png','data':PNG},'share_with_ai':True}
+        result=c.post('/api/v1/vision/observations',json=body).json()
+        assert result['facial_estimate']['total']==5 and result['urgency']=='contact_vet'
+        assert 'Possible pain-related' in result['next_step']
+        result=c.post('/api/v1/vision/observations',json={**body,'red_flags':['collapse']}).json()
+        assert result['urgency']=='emergency'
+        cues['score_overlay_present']=True
+        result=c.post('/api/v1/vision/observations',json=body).json()
+        assert result['facial_estimate']['total'] is None
+        assert all(v['score'] is None for k,v in result['facial_cues'].items() if k in vision.CUE_NAMES)

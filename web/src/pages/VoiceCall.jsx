@@ -1,3 +1,4 @@
+import FacialCues from '../components/FacialCues.jsx';
 import InjuryHandoff from '../components/InjuryHandoff.jsx';
 import { hasVisibleInjury } from '../agents/injuryHandoff.js';
 import { observePhoto, observationMessage } from '../agents/petVision.js';
@@ -207,7 +208,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
   };
 
   const status = listening ? null : speaking === 'ai' ? t.aiSpeaking : aiLine ? '' : t.connecting;
-  const sheetVisible = triage && sheetOpen && !hasVisibleInjury(photoResult);
+  const sheetVisible = triage && sheetOpen && !hasVisibleInjury(photoResult) && !photoResult?.facial_estimate;
   const lastPhoto = photos[photos.length - 1];
 
   return (
@@ -294,7 +295,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
             {photoBusy&&<p role="status">Analyzing your photo…</p>}
             {photoResult?.injury&&(photoResult.injury.wound==='suspected'||photoResult.injury.blood_like_material==='suspected')&&<div role="alert" className="cap-error"><strong>Possible injury / blood-like material</strong><p>{photoResult.injury.description}</p><p>{photoResult.next_step}</p><p>Is it bleeding now? Is the bleeding heavy or not stopping?</p></div>}
             {hasVisibleInjury(photoResult)&&<InjuryHandoff observation={photoResult} lang={lang} shareWithGemini={consent} onContext={sendContext}/>}
-            {photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.injury&&<p>Injury observation: {photoResult.injury.description} Active bleeding cannot be determined from a photo.</p>}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
+            <FacialCues result={photoResult}/>{photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.injury&&<p>Injury observation: {photoResult.injury.description} Active bleeding cannot be determined from a photo.</p>}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error">{error}</p>}
             {VOICE_WANTS_AUDIO && mic.error && <p className="cap-error">{t.micUnavailable}</p>}

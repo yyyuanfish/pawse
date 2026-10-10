@@ -180,3 +180,23 @@ No diagnosis, medication dosing or appointment confirmation is inferred from a p
 reference: [PDSA wounds and skin injuries](https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/wounds-and-skin-injuries)
 (reviewed 2026-10-10). Prompt regression tests check these requirements; they do not establish clinical
 accuracy or guarantee every generated response.
+
+### Experimental facial-cue observations
+
+Both upload and native camera capture continue to use `POST /api/v1/vision/observations`.
+The response adds `facial_cues` (ears, eyes, muzzle, whiskers, head position; each an ordinal
+0/1/2 or null with visual evidence) and server-computed `facial_estimate`.
+
+Only an adequate, assessable cat face in an apparently awake/resting context, with all five
+units visible and no printed score overlay, receives a total. Otherwise `total=null` and
+`status=not_assessable`. Non-cat, unsuitable context, limited images and labelled screenshots
+have their unit scores cleared by the server. Missing units never become zeros.
+A complete estimate >=4 routes to `contact_vet`; a visible subtotal >=4 can also recommend contact without displaying an incomplete/overlay total. Owner-reported emergency flags retain priority.
+This conservative product rule is not validation of automated FGS scoring. Never label a low
+estimate as pain-free or prescribe medicine. Show the experimental limitation beside the result,
+not only in a tooltip. Live dialogue receives the same limitation and must not invent a missing total.
+
+Reference: [FGS official observation guidance](https://www.felinegrimacescale.com/practice-your-skills),
+checked 2026-10-10. The original scale requires an undisturbed observation, with sleeping/eating/
+grooming/vocalising cats excluded until appropriate. A still photo cannot confirm that condition.
+The model and this application are not endorsed or clinically validated by the FGS authors.

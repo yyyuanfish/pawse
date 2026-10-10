@@ -242,7 +242,10 @@ export interface VisionRequest {
   share_with_ai: true;
   red_flags?: RedFlag[];
 }
+export interface FacialCue { score: 0 | 1 | 2 | null; evidence: string }
 export interface VisionResult {
+  facial_cues: { context: 'awake_resting' | 'sleeping_or_active' | 'uncertain'; score_overlay_present: boolean; ears: FacialCue; eyes: FacialCue; muzzle: FacialCue; whiskers: FacialCue; head_position: FacialCue };
+  facial_estimate: { status: 'experimental' | 'not_assessable'; total: number | null; concern: 'contact_vet' | 'unknown'; note: string };
   injury: { wound: 'suspected' | 'not_seen' | 'uncertain'; blood_like_material: 'suspected' | 'not_seen' | 'uncertain'; location: string; description: string; active_bleeding: 'cannot_determine_from_photo' };
   next_step: string;
   cat_detected: boolean | null;
