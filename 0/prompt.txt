@@ -1,0 +1,332 @@
+Remobve the things here tah tmake it lok liek a demo and make it look like a prodcuton app:
+--
+
+
+<pasted_content id="cc60">
+🐾 pawse
+A little help.
+Right when it matters.
+
+✦   Mimi’s story
+♫   My voice
+♡   Care now
+⌖   Nearby vets
+♡   Insurance
+◉   My cat's agent
+Built for Tech Europe
+Hackathon prototype · MIT
+●   YOUR CAT'S CARE COMPANION
+Zurich, Switzerland · editable location
+LET'S TAKE THE NEXT STEP, TOGETHER
+
+Their care.
+Your voice. In your language.
+Tell Pawse what’s happening in your language. Prepare a German vet call in your own voice, find nearby care, and make the next decision together.
+
+Meet Mimi’s care team ↗
+Set up my voice
+▲   ▲
+• ᴥ •
+I'm here to help.
+ONE APP. A FEW LESS THINGS TO WORRY ABOUT.
+
+Mimi’s two-minute story
+INTERACTIVE REHEARSAL
+A limp. A German-speaking vet. One very worried owner. Walk through the decisions with Pawse.
+
+Interactive story rehearsal. All calls, replies, calendar slots, prices and coverage are simulated. No appointments or taxi rides are booked.
+
+01 Notice
+0:00–0:17
+02 Understand
+0:17–0:30
+03 Vet
+0:30–0:58
+04 Insurance
+0:58–1:30
+05 Confirm
+1:30–1:42
+06 Together
+1:42–2:00
+0:00–0:17 · simulated scenario
+Zurich. You don't speak German.
+Mimi is limping. You describe what happened in your own language. In this rehearsal the video is part of the story; live intake currently accepts photos and audio.
+
+🐈
+“My cat is limping. Please help me.”
+
+Your language. A calm place to start.
+SIMULATED CASE
+Mimi’s case
+Zurich, Switzerland
+Concern: limping
+Input: a photo, audio or text
+Live video analysis is not connected.
+← Previous
+1 of 6 · no real calls
+Continue →
+SOUND LIKE YOU. GET THE WORDS RIGHT.
+
+Your voice, ready for a German conversation.
+GEMINI + GRADIUM
+Speak Mandarin Chinese, English, German or Hindi. Review a German script with subtitles, then generate audio to play or download. Pawse introduces itself as your AI assistant.
+
+Gradium configured · Set up your own voice below. Gemini is ready for multilingual messages.
+01 / Make it your voice
+PRIVATE BY DEFAULT
+Record 10–30 seconds in a quiet room. The sample stays in this browser until you choose “Clone my voice”.
+
+Sample language
+English
+Hello, I am recording my own voice for Pawse. My cat means a lot to me, and I want to explain what happened clearly. Please help me prepare for a conversation with the vet, and keep me involved in every decision.
+◉ Record my voice
+Upload audio
+Aim for about 15 seconds. Use only your own voice.
+
+This is my own voice and I consent to creating a synthetic version of it.
+Share this sample and requested German speech with Gradium. My created voice is stored by Gradium until I delete it.
+Clone my voice
+↗
+Voice setup belongs to this local browser session. Delete created voices here before closing the session. No recording is saved by Pawse.
+
+02 / Say it in your language
+GERMAN OUTPUT
+I speak
+English
+Speaking to
+A vet
+Your message
+My cat Mimi is limping after jumping off a wardrobe. Can a vet see her today?
+
+◉ Record a message
+Upload audio
+Up to 60 seconds. Listen locally before transcribing.
+
+Share my message or selected recording with Google Gemini for transcription and translation.
+Transcribe recording
+Use message for care ↓
+Subtitle language
+English
+Prepare my German script
+↗
+German speaking voice
+My own voice (set up first)
+Send the reviewed German script to Gradium to create audio.
+♫ Generate German audio
+Copy script
+Gemini handles multilingual input and translation; Gradium creates the German voice. Telephone calling is not connected. Playback does not inject audio into a phone call. Review the words before sharing.
+
+LET’S FIND YOUR NEXT STEP
+
+Care starts with what you’ve noticed.
+Need urgent help? If your cat is struggling to breathe, collapses, cannot urinate, or may have been poisoned, contact an emergency vet now. Don't wait for these results.
+What’s happening?
+01 / Tell us
+Your cat's name
+My cat
+Care language
+English
+Describe your concern
+What changed? When did it start? Is your cat eating, drinking, and using the litter tray?
+
+＋ Add a photo
+◉ Dictate
+Optional · JPEG, PNG or WebP · up to 3 MB
+
+Any of these warning signs?
+Find care nearby
+Use my location ↗
+Default: Zurich city centre. Adjust or use your location.
+
+Latitude
+47.3769
+Longitude
+8.5417
+Radius (km)
+10
+Insurance contact optional
+Share my concern and optional photo with Google Gemini for AI assistance.
+Share these coordinates with the configured clinic search provider.
+Coordinate my care with the agent workflow and show each agent’s result.
+Find my next step
+↗
+Target: under a minute. Partial results appear if a service is unavailable. This does not book care or place a call.
+
+Your care plan
+02 / Take action
+✦
+A little clarity starts here.
+Your next steps, nearby clinics, and call notes will appear together.
+
+WHAT YOUR POLICY SAYS
+
+Mimi’s insurance policy
+DEMO POLICY · SYNTHETIC
+Demo policy schedule and an English adaptation of real Swiss terms only. These excerpts do not establish an owner's real insurance coverage or constitute insurer approval.
+
+Policy schedule
+Pawse Demo Pet Insurance (fictional)
+Policy number
+PAWSE-DEMO-2026-000001
+Term
+2026-09-15 to 2027-09-14 (tacit, yearly)
+Illness covered from
+2026-10-15 (30-day waiting period)
+Annual deductible
+CHF 300, per cat, per policy year; prevention costs count toward it
+Reimbursement
+80% after the deductible
+Terms (AVB)
+Edition 2025-12, modeled on Calingo Insurance AG, AVB Unfall- & Krankenversicherung fuer Hunde und Katzen, Ausgabe Dezember 2025
+Insured cats
+Mimi (咪咪)
+orange tabby (橘猫) · 3 years at start · indoor outdoor
+
+Xiaohua (小花)
+Dragon Li (狸花猫) · 2 years at start · indoor only
+
+Dahuang (大黄)
+British Shorthair (英短) · 5 years at start · indoor outdoor · known: mild arthritis (轻微关节炎), diagnosed 2025-03
+
+What is covered
+✓ Covered
+Accident illness base
+CHF 5'000 a year · general treatment, dental treatment, emergency treatment
+
+Annual limit below CHF 12'000, so extra costs of a vet house call are NOT covered (AVB 1.2.5).
+
+✓ Covered
+Prevention
+CHF 200 a year
+
+Paid only after the annual deductible is used up (AVB 1.2.3). No waiting period.
+
+✓ Covered
+Emergency pet care
+CHF 40 a day, up to 10 days
+
+Boarding when the policyholder or a family member is hospitalised in an emergency (AVB 1.2.4). Limit is per cat. Not a vet cost, so this demo schedule pays it in full up to the limit, outside the deductible.
+
+✓ Covered
+Prescription diet
+CHF 300 a year
+
+Sub-limit inside the base annual limit (AVB 1.2.9).
+
+✗ Not covered
+Complementary medicine
+Physiotherapy, acupuncture, hydrotherapy, osteopathy, laser therapy, homeopathy NOT covered (AVB 1.2.6).
+
+✗ Not covered
+Advanced treatments
+Stem cells, gene therapy, prostheses NOT covered (AVB 1.2.7).
+
+✗ Not covered
+Behavioural medicine
+Behavioural specialist treatment NOT covered (AVB 1.2.8).
+
+✗ Not covered
+Pre existing conditions
+Add-on not taken for any cat. Pre-existing conditions and their consequences are excluded (AVB 1.4 e).
+
+Making a claim
+Submit within 30 days via online claim form (demo).
+
+original vet invoice: first-diagnosis date, treatment date, animal name, diagnosis, services and medicines, amounts, vet name/address/phone
+receipts and prescriptions
+medical history on request
+Read the full terms (19 clauses)
+SEVEN RESPONSIBILITIES. ONE CARE PLAN.
+
+Meet the agents behind your next step.
+OBSERVABLE WORKFLOW
+A coordinator brings together care guidance, clinic information and a clear handoff. Each responsibility has a visible status, and external actions need their own connections and review.
+
+01 / deterministic
+Intake and safety
+Validate input and consent; immediately surface owner-reported warning signs.
+
+implemented
+Team owner: llm
+
+02 / model
+Care guidance
+Use text and an optional photo to prepare questions for a veterinarian; no diagnosis.
+
+configured not verified
+gemini-3-flash-preview
+
+Team owner: llm
+
+03 / tool
+Nearby veterinary practices
+Retrieve provider-backed clinics, contacts and reported opening hours; unknowns stay unknown.
+
+needs configuration
+Team owner: rag data
+
+04 / tool
+Policy evidence
+Retrieve cited demo policy clauses. A live case needs the owner's actual policy and confirmed coverage; synthetic terms are never applied.
+
+local synthetic only
+Team owner: rag data
+
+05 / deterministic
+Ranking and cost rules
+Rank clinics by reported opening status, distance and rating; use arithmetic only for evidenced cost inputs.
+
+implemented
+Team owner: llm
+
+06 / deterministic
+Case coordinator
+Merge available evidence with a deadline, retain partial results, and expose review and connection gates.
+
+implemented
+Team owner: llm
+
+07 / model and voice tools
+Multilingual communication
+Prepare reviewed German scripts and subtitles with Gemini; use Gradium for an owner-consented voice. Telephone transport is not connected.
+
+review required
+gemini-3-flash-preview
+
+Team owner: voice
+
+Configured means a credential or URL exists, not a successful live check. The current run executes care guidance, clinic retrieval, ranking and handoff; policy retrieval and voice have separate contracts. Model calls are bounded; there is no recursive agent loop.
+
+Try the workflow with your care request ↑
+YOUR EXISTING CATAGENT
+
+One home for the rest of their care.
+CONNECTED CAPABILITIES
+Daily care, device context, reports, and multi-cat insights. Existing features need their backend services; availability is shown below.
+
+care navigation · implemented
+gemini text and photo · configured
+nearby clinics · configured
+insurance contact · user provided
+click to call · implemented
+multilingual audio and scripts · configured
+gradium voice clone and german audio · configured not verified
+mimi story · synthetic demo
+outbound phone calls · not connected
+Explore existing agent capabilities
+Cat ID
+1
+Task
+Chat with CatAgent
+Message
+Ask about your cat’s care or device data
+
+Ask existing agent
+needs configuration. Catalogued source capabilities are not a runtime guarantee. Knowledge collections, device services, storage and legacy model credentials may still be required.
+
+Care navigation, not a diagnosis. Phone numbers and availability come from providers or you; confirm before travelling.
+API documentation · Source code · Photos are processed per request and are not stored by Pawse. Result summaries expire after 15 minutes.
+</pasted_content id="cc60">
+
+--
+Like show "live" but nt in a cringe/unrealistic way
