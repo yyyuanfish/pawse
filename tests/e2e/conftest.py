@@ -9,7 +9,7 @@ import os
 
 import pytest
 
-from e2e_helpers import KEYS, ensure_web_build, fake_mic_args, serve
+from e2e_helpers import KEYS, ensure_web_build, fake_mic_args, guest_state, serve
 
 if os.getenv("PAWSE_E2E") != "1" or importlib.util.find_spec("playwright") is None:
     collect_ignore_glob = ["test_browser_*.py"]
@@ -44,7 +44,7 @@ def browser_type_launch_args(browser_type_launch_args, speech_wav):
 @pytest.fixture(scope="session")
 def browser_context_args(browser_context_args, app_server):
     return {**browser_context_args, "base_url": app_server, "permissions": ["microphone"], "locale": "en-US",
-            "viewport": {"width": 1440, "height": 900}}
+            "viewport": {"width": 1440, "height": 900}, "storage_state": guest_state(app_server)}
 
 
 @pytest.fixture(autouse=True)

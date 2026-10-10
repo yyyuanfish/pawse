@@ -9,7 +9,7 @@ import wave
 
 import pytest
 
-from e2e_helpers import serve
+from e2e_helpers import guest_state, serve
 from speech_metrics import LANGUAGES, TARGETS, error_rate, in_native_script, live_speech_enabled, load_manifest
 
 pytestmark = pytest.mark.skipif(bool(live_speech_enabled()), reason=live_speech_enabled() or "")
@@ -62,7 +62,7 @@ def test_spoken_message_survives_the_live_call(browser_type, live_app, language)
         seconds = f.getnframes() / f.getframerate()
     browser = browser_type.launch(args=["--autoplay-policy=no-user-gesture-required"])
     try:
-        page = browser.new_page(base_url=live_app, viewport={"width": 1440, "height": 900})
+        page = browser.new_page(base_url=live_app, viewport={"width": 1440, "height": 900}, storage_state=guest_state(live_app))
         page.route("**/__e2e/recording.wav", lambda r: r.fulfill(body=entry["path"].read_bytes(), content_type="audio/wav"))
         page.add_init_script(RECORDING_AS_MIC)
         page.goto("/app/?live=1")

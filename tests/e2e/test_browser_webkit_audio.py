@@ -7,7 +7,7 @@ engine on Linux, not a real iPhone: docs/VALIDATION.md says so.
 """
 import pytest
 
-from e2e_helpers import FakeLive, wait_for
+from e2e_helpers import FakeLive, guest_state, wait_for
 
 # A tap is the synchronous dispatch of a click: capture on window opens it, bubbling back to window closes it.
 TAP_SPY = """
@@ -30,7 +30,7 @@ TAP_SPY = """
 def webkit_page(playwright, app_server):
     browser = playwright.webkit.launch()
     context = browser.new_context(base_url=app_server, locale="en-US", viewport={"width": 390, "height": 844},
-                                  permissions=["microphone"], service_workers="block")  # the SW would bypass page.route
+                                  permissions=["microphone"], service_workers="block", storage_state=guest_state(app_server))  # the SW would bypass page.route
     page = context.new_page()
     page.add_init_script(TAP_SPY)
     yield page

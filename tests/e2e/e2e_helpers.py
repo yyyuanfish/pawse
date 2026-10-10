@@ -47,6 +47,12 @@ def serve(env):
     raise RuntimeError("uvicorn did not become healthy within 10 s")
 
 
+def guest_state(base_url):
+    """Browser storage of an owner who already chose "Continue as guest" on /app's welcome screen (43ad519).
+    Contexts start from it so each test lands on Home; test_browser_steps.py covers the welcome screen itself."""
+    return {"cookies": [], "origins": [{"origin": base_url.rstrip("/"), "localStorage": [{"name": "pawse.guest", "value": "1"}]}]}
+
+
 def fake_mic_args(wav_path, loop=True):
     """Chromium's fake capture device plays this WAV as the microphone (no real hardware)."""
     return ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream",

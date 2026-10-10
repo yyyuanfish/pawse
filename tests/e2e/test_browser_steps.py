@@ -153,3 +153,19 @@ def test_skipping_audio_still_completes_the_step(page: Page):
     expect(page.get_by_text("No audio made")).to_be_visible()
     page.get_by_role("button", name="Done, back to plan").click()
     expect(page.locator(".action-row").nth(0)).to_contain_text("Prepared, no call placed")
+
+
+def test_first_open_asks_to_sign_in_and_remembers_continue_as_guest(browser, browser_context_args):
+    context = browser.new_context(**{**browser_context_args, "storage_state": None})  # a browser that never chose
+    try:
+        page = context.new_page()
+        page.goto("/app/")
+        expect(page.get_by_role("heading", name="Welcome to Pawse")).to_be_visible()
+        expect(page.locator(".start-btn")).to_have_count(0)
+        page.get_by_role("button", name="Continue as guest").click()
+        expect(page.locator(".start-btn")).to_be_visible()
+        page.reload()
+        expect(page.locator(".start-btn")).to_be_visible()  # the guest choice is remembered on this device
+        expect(page.get_by_role("heading", name="Welcome to Pawse")).to_have_count(0)
+    finally:
+        context.close()
