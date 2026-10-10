@@ -118,9 +118,13 @@ def test_desktop_centres_the_app_column(page: Page, width, height):
 
 @pytest.mark.parametrize("width,height", [SIZES[0], SIZES[-1]], ids=ids([SIZES[0], SIZES[-1]]))
 def test_simulated_rehearsal_is_labelled_on_screen(page: Page, width, height):
+    """Rule 3: the scripted demo never passes for a real call. Its phone call carries a visible "simulated" badge."""
     page.set_viewport_size({"width": width, "height": height})
-    page.goto("/app/?demo=1")
-    # The home badge is gone; the rehearsal is reached (and labelled) through the home settings.
-    page.goto("/app/")
-    page.locator("details.home-settings summary").click()
-    expect(page.get_by_role("link", name="Simulated rehearsal")).to_be_in_viewport()
+    page.goto("/app/?demo=1&speed=20")
+    page.locator(".start-btn").click()
+    sheet = page.locator(".sheet")
+    expect(sheet).to_be_visible(timeout=20_000)  # the scripted conversation ends in Pawse's advice
+    sheet.locator(".action-row").nth(1).get_by_role("button").click()  # let Pawse call the insurer
+    badge = page.locator(".pc-head .sim-badge")
+    expect(badge).to_have_text("Simulated call: no real phone call is made")
+    expect(badge).to_be_in_viewport()
