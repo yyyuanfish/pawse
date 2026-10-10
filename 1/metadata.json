@@ -1,0 +1,60 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K0HXJC7EQGFAATCE4AFVBD",
+  "session_id": "56cc1617-8084-4543-bf97-f23060a23cdd",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T13:38:07.303196023Z",
+  "branch": "test/browser-voice-contract",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/VALIDATION.md",
+    "docs/WEB_AGENT_INTEGRATION.md",
+    "tests/e2e/README.md",
+    "tests/e2e/audio_fixtures.py",
+    "tests/e2e/conftest.py",
+    "tests/e2e/e2e_helpers.py",
+    "tests/e2e/frontend_contract.py",
+    "tests/e2e/test_browser_layout.py",
+    "tests/e2e/test_browser_live.py",
+    "tests/e2e/test_browser_live_voice.py",
+    "tests/e2e/test_browser_mic.py",
+    "tests/e2e/test_browser_real_speech.py",
+    "tests/e2e/test_browser_recording.py",
+    "tests/e2e/test_browser_upload.py",
+    "tests/e2e/test_real_recordings_api.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "4ae1925aeac3",
+  "checkpoint_transcript_start": 758,
+  "transcript_lines_at_start": 758,
+  "compact_transcript_start": 101,
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 28045,
+    "cache_read_tokens": 4262516,
+    "output_tokens": 21118,
+    "api_call_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T13:38:07.206555691Z",
+    "agent_lines": 990,
+    "agent_removed": 10,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 990,
+    "total_lines_changed": 1000,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
