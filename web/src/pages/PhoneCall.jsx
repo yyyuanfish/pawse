@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
 import ProviderChips from '../components/ProviderChips.jsx';
-import { createPhoneCall, IS_LIVE_PHONE } from '../agents/index.js';
+import { createPhoneCall, IS_LIVE_PHONE, DEBUG } from '../agents/index.js';
 import { resolveVoiceName, onVoicesChanged } from '../agents/speech.js';
 import { phoneProviders } from '../agents/providers.js';
 import { validateResult } from '../contracts.js';
@@ -206,8 +206,9 @@ export default function PhoneCall({ t, lang, target, clinic, context, gradium, r
         <p className="muted">
           {callee.role} · {statusText}
         </p>
-        <span className="sim-badge">{t.simulatedCall}</span>
-        <ProviderChips t={t} items={phoneProviders({ live: IS_LIVE_PHONE, target, voice, browser })} />
+        {/* One label: the call is simulated, and whose voice speaks it. The full provider row is for ?debug=1. */}
+        <span className="sim-badge">{voice && voice.voice === 'gradium' ? t.simulatedCallGradium : t.simulatedCall}</span>
+        {DEBUG && <ProviderChips t={t} items={phoneProviders({ live: IS_LIVE_PHONE, target, voice, browser })} />}
       </header>
 
       <section className={`bridge mode-${bridgeMode}`} aria-live="polite">
