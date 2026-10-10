@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4JZCKVRCZP8AHXTSR3RV46C",
   "strategy": "manual-commit",
   "branch": "docs/public-demo-url",
-  "checkpoints_count": 1,
+  "checkpoints_count": 3,
   "files_touched": [
     ".dockerignore",
     "Dockerfile",
@@ -23,13 +23,27 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 14,
-    "cache_creation_tokens": 14737,
-    "cache_read_tokens": 1445316,
-    "output_tokens": 11104,
-    "api_call_count": 7
+    "input_tokens": 22,
+    "cache_creation_tokens": 18476,
+    "cache_read_tokens": 1798671,
+    "output_tokens": 12409,
+    "api_call_count": 10,
+    "subagent_tokens": {
+      "input_tokens": 14,
+      "cache_creation_tokens": 3835,
+      "cache_read_tokens": 613210,
+      "output_tokens": 134,
+      "api_call_count": 6
+    }
   }
 }
