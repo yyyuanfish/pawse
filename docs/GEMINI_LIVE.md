@@ -26,7 +26,7 @@ Response:
 ```json
 { "token": "auth_tokens/...", "model": "gemini-3.8-live", "api_version": "v1alpha",
   "expires_at": "...Z", "new_session_expires_at": "...Z",
-  "tools": ["assess_and_find_vets", "search_policy", "draft_vet_call_script", "open_clinic_call"] }
+  "tools": ["assess_and_find_vets", "search_policy", "draft_vet_call_script", "open_clinic_call", "set_insurance_profile"] }
 ```
 
 - The token works for one session (`uses: 1`). The session must start within 60 seconds, and the token expires after 30 minutes.
@@ -52,6 +52,7 @@ Response: `{ "id", "name", "response": { ... }, "ui": { ... } | null }`.
 | `assess_and_find_vets` | The agent workflow (`/agents/runs`): care guidance plus ranked clinics | `{ care: CareResult, trace: AgentTrace[] }` |
 | `search_policy` | `/knowledge/search` (demo corpus, cited) | `KnowledgeResult` |
 | `draft_vet_call_script` | The reviewed German script logic behind `/voice/scripts`, with subtitles in `context.language` | `CallScript` |
+| `set_insurance_profile` | Saves the owner's insurer and plan from the conversation to this browser | `{ action: "save_insurance_profile", ... }` |
 | `open_clinic_call` | Looks up a clinic from this session's last search | `{ action: "confirm_call", clinic_name, phone, call_url }` |
 
 **`confirm_call` is an app gate:** show a confirm dialog, and only open `call_url` (`tel:`) if the owner confirms. Pawse never places or joins the call.

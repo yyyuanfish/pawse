@@ -167,7 +167,8 @@ def test_token_failure_is_explained(page: Page):
     page.goto(LIVE)
     page.locator(".start-btn").click()
     page.get_by_role("button", name="Agree and start").click()
-    expect(page.locator(".cap-error")).to_contain_text("not configured")
+    expect(page.locator(".cap-error")).to_contain_text("Live voice is unavailable right now, so this is the simulated rehearsal.")
+    expect(page.locator(".cap-ai").first).to_be_visible()  # the scripted rehearsal starts instead
     assert live.socket is None
 
 

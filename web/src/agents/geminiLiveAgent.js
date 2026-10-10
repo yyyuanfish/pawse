@@ -8,9 +8,11 @@ import { getLocation } from './location.js';
 // Injectable transport/audio factories keep protocol tests offline and deterministic.
 // voice={engine:'gradium',voiceId}: Gemini Live still runs the conversation and tools, but Gradium hears the
 // owner (streaming STT, its text goes to Live) and speaks Pawse's replies from Live's transcript.
+// onStartFailed(err): if the session never connected (token refused, socket error) the agent shuts down silently and
+// hands over instead of emitting error+ended, so a wrapper can fall back (see fallbackVoiceAgent.js).
 export function createGeminiLiveAgent({lang='en',shareWithGemini=false,voice=null,
   clientFactory=async options=>new (await import('@google/genai')).GoogleGenAI(options), audioFactory=createNativeAudio, locate=getLocation,
-  sttFactory=createGradiumStt, replyFactory=createGradiumReply}={}) {
+  sttFactory=createGradiumStt, replyFactory=createGradiumReply, onStartFailed=null}={}) {
   const listeners=new Set(), pending=new Set(), toolIds=new Set(), cancelledTools=new Set();
   let started=false, ended=false, session=null, audio=null, media=null, muted=true, outputMuted=false, timer=null;
   let audioEpoch=0;
@@ -118,7 +120,8 @@ export function createGeminiLiveAgent({lang='en',shareWithGemini=false,voice=nul
         if(media&&!muted)await audio.attach(media);
         emit({type:'listening',on:!muted});
         send({text:'Introduce yourself briefly as Pawse, an AI cat-care assistant, and ask how you can help. Do not invent a concern.'});
-      }catch(e){if(!ended){error(e.message?.includes('key')?'Live audio could not start. Check server configuration.':e.message||'Live audio could not start.');end();}}
+      }catch(e){if(!ended&&!session&&onStartFailed){ended=true;clearTimeout(timer);for(const c of pending)c.abort();pending.clear();stt?.close();media=null;audio?.close().catch(()=>{});onStartFailed(e);return;}
+        if(!ended){error(e.message?.includes('key')?'Live audio could not start. Check server configuration.':e.message||'Live audio could not start.');end();}}
     },
     end,
     sendText(text){if(!session){error('Wait for the Live connection, then try again.');return;}const s=String(text||'').trim();if(!s||s.length>4000)return;bargeIn();userOpen=false;inputText='';outputText='';send({text:s});emit({type:'transcript',role:'user',text:s});},

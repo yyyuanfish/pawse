@@ -36,7 +36,7 @@ Ranking, cost calculations and execution control use deterministic tools. The co
 
 ## Key Capabilities
 
-- Gemini Live (`gemini-3.8-live`) session and server-run tool backend: care guidance, nearby vets, cited policy evidence, German scripts and a confirm-before-dialing gate. The server session has been checked; browser microphone capture and playback are still to do. See [Gemini Live](docs/GEMINI_LIVE.md).
+- Gemini Live (`gemini-3.8-live`) session and server-run tool backend: care guidance, nearby vets, cited policy evidence, German scripts and a confirm-before-dialing gate. The browser client is done: `/app` uses Gemini Live (reasoning and tool calls) by default, with Gradium for speech-to-text and voice, and falls back to the simulated rehearsal with an on-screen notice if Live cannot start. See [Gemini Live](docs/GEMINI_LIVE.md).
 - Text, photo and recorded-audio intake, with English, Mandarin Chinese, German and Hindi input options.
 - Structured care guidance, warning-sign handling and questions to prepare for the vet.
 - Nearby veterinary search through configurable clinic-data providers.
@@ -148,7 +148,7 @@ The `Dockerfile` builds the React app in `web/` and runs it with the API as one 
 
 This is a local hackathon prototype:
 
-- The Gemini Live backend (tokens and tools) is verified against the real API; the browser microphone and playback client is in progress.
+- The Gemini Live backend (tokens and tools) is verified against the real API; the browser client (`/app`, Gemini Live with Gradium speech) is built and covered by fake-socket browser tests. A human-microphone check in real Chrome is still pending (see [VALIDATION](docs/VALIDATION.md)).
 - Live clinic results require a configured provider. Unknown opening hours, services and insurance coverage remain unknown.
 - Gradium adapters are contract-tested; real cloning and voice quality still need a configured key and an owner sample. Chinese and Hindi input use Gemini; Gradium output in this app is German.
 - Telephone transport, calendar access, actual appointments, taxi bookings and claim submission are not connected. Dial links open a device dialer; generated audio is not injected into a phone call.

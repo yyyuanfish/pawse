@@ -84,3 +84,14 @@ None of this measures accuracy for human speakers; that still needs consented re
 - Not verified on the public URL: clinic search (no Places key or Mapify configured, so care results are `partial`), Gradium voice cloning, Gemini Live voice.
 - The React app (`/app/`) loads at desktop and 390px width with no console errors or horizontal overflow; its live flows were not walked on the public URL.
 - Known: `/favicon.ico` returns 404 on the rehearsal page (also locally).
+
+## Gemini Live as the /app default (feat/live-default)
+
+Change: the Docker web build sets `VITE_VOICE_AGENT=live`, so `/app` runs the Gemini Live conversation by default (Gradium stays the speech-to-text and voice; clinic search and phone agent are unchanged). `?demo=1` forces the scripted rehearsal. If Live fails before the session connects (token 503/502/429/422 or a socket error), the call switches to the scripted rehearsal and shows "Live voice is unavailable right now, so this is the simulated rehearsal." Failures after connecting keep the existing error-and-end behaviour.
+
+Verified by tests, no live Gemini traffic:
+- `web/scripts/check-live-fallback.mjs` (part of `npm run check`): fallback on 503, 429, 502, 422 and a connect error; no fallback after a successful connect or a later socket error; the Live agent is unchanged without the callback.
+- `tests/e2e/test_browser_live_voice.py::test_token_failure_is_explained`: with the token route returning 503 the browser shows the notice and the rehearsal starts.
+- `tests/test_live.py`: the token response never contains the `GEMINI_API_KEY` value.
+
+NOT yet verified: a real human speaking into the microphone in real Chrome against the deployed build with live keys (Gradium STT and voice, tool chip for "my cat is limping"). Needs a person at a browser; do not treat the Live default as field-verified until that is done.
