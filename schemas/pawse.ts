@@ -246,3 +246,25 @@ export interface PolicyView {
   corpus_version: string;
   disclaimer: string;
 }
+
+export interface VisionRequest {
+  photo: { mime_type: 'image/jpeg' | 'image/png' | 'image/webp'; data: string };
+  share_with_ai: true;
+  red_flags?: RedFlag[];
+}
+export interface FacialCue { score: 0 | 1 | 2 | null; evidence: string }
+export interface VisionResult {
+  facial_cues: { context: 'awake_resting' | 'sleeping_or_active' | 'uncertain'; score_overlay_present: boolean; ears: FacialCue; eyes: FacialCue; muzzle: FacialCue; whiskers: FacialCue; head_position: FacialCue };
+  facial_estimate: { status: 'experimental' | 'not_assessable'; total: number | null; concern: 'contact_vet' | 'unknown'; note: string };
+  injury: { wound: 'suspected' | 'not_seen' | 'uncertain'; blood_like_material: 'suspected' | 'not_seen' | 'uncertain'; location: string; description: string; active_bleeding: 'cannot_determine_from_photo' };
+  next_step: string;
+  cat_detected: boolean | null;
+  face_assessable: boolean;
+  image_quality: 'adequate' | 'limited' | 'unusable';
+  visible_observations: { ears: string; eyes: string; muzzle: string; whiskers: string; posture: string };
+  limitations: string[];
+  questions_for_owner: string[];
+  model: string;
+  urgency: 'emergency' | 'contact_vet' | 'unknown';
+  disclaimer: string;
+}

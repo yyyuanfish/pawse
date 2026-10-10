@@ -1,3 +1,7 @@
+import FacialCues from '../components/FacialCues.jsx';
+import InjuryHandoff from '../components/InjuryHandoff.jsx';
+import { hasVisibleInjury } from '../agents/injuryHandoff.js';
+import { observePhoto, observationMessage } from '../agents/petVision.js';
 import { useEffect, useRef, useState } from 'react';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
@@ -62,6 +66,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const [listening, setListening] = useState(false);
   const [chips, setChips] = useState([]);
   const [draft, setDraft] = useState('');
+  const [photoBusy,setPhotoBusy]=useState(false),[photoResult,setPhotoResult]=useState(null),[photoMenu,setPhotoMenu]=useState(false);
+  const photoRequest=useRef(null), captureRef=useRef(null);
   const [photos, setPhotos] = useState([]); // { url, received }
   const [error, setError] = useState('');
   const [sheetOpen, setSheetOpen] = useState(true);
@@ -72,6 +78,11 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const videoRef = useRef(null);
   const fileRef = useRef(null);
   const agentRef = useRef(null);
+  const contextMessages = useRef(new Set());
+  function sendContext(text) {
+    contextMessages.current.add(text);
+    agentRef.current?.sendText(text);
+  }
   const photoUrls = useRef([]);
   const onTriageRef = useRef(onTriage);
   onTriageRef.current = onTriage;
@@ -93,7 +104,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
       switch (e.type) {
         case 'transcript':
           if (e.role === 'ai') setAiLine(e.text);
-          else {
+          else if (!contextMessages.current.has(e.text)) {
             setUserLine(e.text);
             setUserPartial(!!e.partial);
           }
@@ -171,6 +182,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   useEffect(
     () => () => {
+      photoRequest.current?.abort();
       photoUrls.current.forEach((u) => URL.revokeObjectURL(u));
     },
     []
@@ -202,14 +214,32 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
     setDraft('');
   };
 
-  const onPhoto = (e) => {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    photoUrls.current.push(url);
-    setPhotos((p) => [...p, { url, received: false }]);
-    agentRef.current && agentRef.current.sendImage(file);
+  async function submitPhoto(file) {
+    if(!file || photoRequest.current)return;
+    setPhotoMenu(false);setError('');setPhotoResult(null);
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3000000){setError('Use JPEG, PNG or WebP up to 3 MB.');return;}
+    const url=URL.createObjectURL(file);photoUrls.current.push(url);
+    setPhotos(p=>[...p,{url,received:false}]);
+    if(!IS_LIVE_VOICE){agentRef.current?.sendImage(file);return;}
+    const controller=new AbortController();photoRequest.current=controller;setPhotoBusy(true);
+    const timer=setTimeout(()=>controller.abort(),45000);
+    try {
+      const result=await observePhoto(file,consent,controller.signal);
+      if(controller.signal.aborted)return;
+      setPhotoResult(result);setPhotos(p=>p.map(x=>x.url===url?{...x,received:true}:x));
+      sendContext(observationMessage(result));
+      setUserLine("Photo shared for visual observations.");
+    } catch(e) { if(!controller.signal.aborted)setError(e.message);else setError('Photo analysis stopped or timed out. Please retry.'); }
+    finally {clearTimeout(timer);photoRequest.current=null;setPhotoBusy(false);}
+  }
+  const onPhoto=e=>{const file=e.target.files?.[0];e.target.value='';submitPhoto(file);};
+  const takeFrame=()=>{
+    const video=videoRef.current;
+    if(!video?.videoWidth){setError('Camera is not ready. Allow camera access or upload a photo.');return;}
+    const canvas=document.createElement('canvas');const scale=Math.min(1,1280/video.videoWidth);
+    canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
+    canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+    canvas.toBlob(blob=>{if(blob)submitPhoto(new File([blob],'cat-camera.jpg',{type:'image/jpeg'}));},'image/jpeg',0.85);
   };
 
   const toggleMic = () => {
@@ -229,7 +259,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const status = listening ? null : speaking === 'ai' ? t.aiSpeaking : aiLine ? '' : t.connecting;
   const needsMic = wantsAudio && consent && !micOn && !mic.error;
   const bars = [0.55, 0.85, 1, 0.85, 0.55];
-  const sheetVisible = triage && sheetOpen;
+  const sheetVisible = triage && sheetOpen && !hasVisibleInjury(photoResult) && !photoResult?.facial_estimate;
   const lastPhoto = photos[photos.length - 1];
 
   return (
@@ -355,6 +385,10 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
                 <span>{lastPhoto.received ? `✓ ${t.photoSent}` : '…'}</span>
               </div>
             )}
+            {photoBusy&&<p role="status">Analyzing your photo…</p>}
+            {photoResult?.injury&&(photoResult.injury.wound==='suspected'||photoResult.injury.blood_like_material==='suspected')&&<div role="alert" className="cap-error"><strong>Possible injury / blood-like material</strong><p>{photoResult.injury.description}</p><p>{photoResult.next_step}</p><p>Is it bleeding now? Is the bleeding heavy or not stopping?</p></div>}
+            {hasVisibleInjury(photoResult)&&<InjuryHandoff observation={photoResult} lang={lang} shareWithGemini={consent} onContext={sendContext}/>}
+            <FacialCues result={photoResult}/>{photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.injury&&<p>Injury observation: {photoResult.injury.description} Active bleeding cannot be determined from a photo.</p>}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error" role="alert" data-testid="call-error">{error}</p>}
             {wantsAudio && mic.error && <p className="cap-error" role="alert" data-testid="mic-error">{t.micUnavailable}</p>}
@@ -377,7 +411,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               send(draft);
             }}
           >
-            <button type="button" className="type-icon" onClick={() => fileRef.current && fileRef.current.click()} aria-label={t.photo} title={t.photo}>
+            <button type="button" className="type-icon" disabled={photoBusy || (IS_LIVE_VOICE && !consent)} onClick={() => setPhotoMenu(v=>!v)} aria-label={t.photo} title={t.photo}>
               <Icon name="camera" size={20} />
             </button>
             <input
@@ -393,7 +427,11 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               <Icon name="send" size={18} />
             </button>
           </form>
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} />
+          {photoMenu&&<div className="kw-chips" role="group" aria-label="Photo options"><button type="button" onClick={()=>fileRef.current?.click()}>Upload photo</button><button type="button" onClick={()=>captureRef.current?.click()}>Take photo</button></div>}
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onPhoto}/>
+          <input ref={captureRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto}/>
+          {camOn&&<button className="btn soft" disabled={photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={takeFrame}>Capture and analyze</button>}
+          {cam.error&&<p role="alert">Camera unavailable. Allow access or upload a photo.</p>}
 
           <nav className="call-controls" aria-label="Call controls">
             <button

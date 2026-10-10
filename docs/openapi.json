@@ -1046,6 +1046,47 @@
         }
       }
     },
+    "/api/v1/vision/observations": {
+      "post": {
+        "tags": [
+          "Pet observations"
+        ],
+        "summary": "Observe",
+        "operationId": "observe_api_v1_vision_observations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisionResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/demo/mimi": {
       "get": {
         "tags": [
@@ -2320,6 +2361,127 @@
         ],
         "title": "Evidence"
       },
+      "FacialCue": {
+        "properties": {
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "score",
+          "evidence"
+        ],
+        "title": "FacialCue"
+      },
+      "FacialCues": {
+        "properties": {
+          "context": {
+            "type": "string",
+            "enum": [
+              "awake_resting",
+              "sleeping_or_active",
+              "uncertain"
+            ],
+            "title": "Context"
+          },
+          "score_overlay_present": {
+            "type": "boolean",
+            "title": "Score Overlay Present"
+          },
+          "ears": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "eyes": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "muzzle": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "whiskers": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "head_position": {
+            "$ref": "#/components/schemas/FacialCue"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context",
+          "score_overlay_present",
+          "ears",
+          "eyes",
+          "muzzle",
+          "whiskers",
+          "head_position"
+        ],
+        "title": "FacialCues"
+      },
+      "FacialEstimate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "experimental",
+              "not_assessable"
+            ],
+            "title": "Status"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "concern": {
+            "type": "string",
+            "enum": [
+              "contact_vet",
+              "unknown"
+            ],
+            "title": "Concern",
+            "default": "unknown"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "note"
+        ],
+        "title": "FacialEstimate"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -2359,6 +2521,51 @@
           "title"
         ],
         "title": "HistoryEntry"
+      },
+      "InjuryObservation": {
+        "properties": {
+          "wound": {
+            "type": "string",
+            "enum": [
+              "suspected",
+              "not_seen",
+              "uncertain"
+            ],
+            "title": "Wound",
+            "default": "uncertain"
+          },
+          "blood_like_material": {
+            "type": "string",
+            "enum": [
+              "suspected",
+              "not_seen",
+              "uncertain"
+            ],
+            "title": "Blood Like Material",
+            "default": "uncertain"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Location",
+            "default": "unknown"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 800,
+            "title": "Description",
+            "default": "Cannot assess from this image."
+          },
+          "active_bleeding": {
+            "type": "string",
+            "const": "cannot_determine_from_photo",
+            "title": "Active Bleeding",
+            "default": "cannot_determine_from_photo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InjuryObservation"
       },
       "Insurance": {
         "properties": {
@@ -3333,6 +3540,175 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VisibleFeatures": {
+        "properties": {
+          "ears": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Ears"
+          },
+          "eyes": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Eyes"
+          },
+          "muzzle": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Muzzle"
+          },
+          "whiskers": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Whiskers"
+          },
+          "posture": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Posture"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ears",
+          "eyes",
+          "muzzle",
+          "whiskers",
+          "posture"
+        ],
+        "title": "VisibleFeatures"
+      },
+      "VisionRequest": {
+        "properties": {
+          "photo": {
+            "$ref": "#/components/schemas/Photo"
+          },
+          "share_with_ai": {
+            "type": "boolean",
+            "const": true,
+            "title": "Share With Ai"
+          },
+          "red_flags": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "breathing_difficulty",
+                "collapse",
+                "seizure",
+                "unable_to_urinate",
+                "suspected_poisoning",
+                "major_trauma"
+              ]
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Red Flags"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "photo",
+          "share_with_ai"
+        ],
+        "title": "VisionRequest"
+      },
+      "VisionResult": {
+        "properties": {
+          "facial_cues": {
+            "$ref": "#/components/schemas/FacialCues"
+          },
+          "injury": {
+            "$ref": "#/components/schemas/InjuryObservation"
+          },
+          "cat_detected": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cat Detected"
+          },
+          "face_assessable": {
+            "type": "boolean",
+            "title": "Face Assessable"
+          },
+          "image_quality": {
+            "type": "string",
+            "enum": [
+              "adequate",
+              "limited",
+              "unusable"
+            ],
+            "title": "Image Quality"
+          },
+          "visible_observations": {
+            "$ref": "#/components/schemas/VisibleFeatures"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "Limitations"
+          },
+          "questions_for_owner": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Questions For Owner"
+          },
+          "facial_estimate": {
+            "$ref": "#/components/schemas/FacialEstimate"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "urgency": {
+            "type": "string",
+            "enum": [
+              "emergency",
+              "contact_vet",
+              "unknown"
+            ],
+            "title": "Urgency",
+            "default": "unknown"
+          },
+          "next_step": {
+            "type": "string",
+            "title": "Next Step",
+            "default": "Ask a vet if concerned; a photo cannot rule out injury."
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Visual observations only, not a diagnosis or identity check. A photo cannot rule out an emergency."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "facial_cues",
+          "injury",
+          "cat_detected",
+          "face_assessable",
+          "image_quality",
+          "visible_observations",
+          "limitations",
+          "questions_for_owner",
+          "facial_estimate",
+          "model"
+        ],
+        "title": "VisionResult"
       },
       "VoiceConsent": {
         "properties": {
