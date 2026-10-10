@@ -12,7 +12,7 @@ Checked on 10 October 2026. The React app lives in `web/`. Build with `npm ci --
 | Speech | `POST /api/v1/voice/speech` | Reviewed draft, separate Gradium consent, selected approved own voice or explicitly selected standard voice. Binary WAV with playback/download; no silent fallback. |
 | Voice enrollment | Existing `/` voice interface | Same-origin browser session; existing clone/localization/preview/save lifecycle. |
 
-The new live handoff uses `LiveHandoff.jsx` and `agents/handoff.js`. It bypasses the older story-backed `livePhoneAgent.js`; that legacy helper remains covered by its existing tests but is not used by the live page. Mock phone agents remain rehearsal-only. A validated `tel:` link opens the owner's dialer; audio is not injected into calls.
+The new live handoff uses `LiveHandoff.jsx` and `agents/handoff.js`. It bypasses the older story-backed `livePhoneAgent.js`; the explicit “Open simulated Mimi phone rehearsal” button opens that helper with Gradium sharing initially off. The owner can then enable the teammate’s whole-call Gradium rehearsal. All recipient replies/results remain simulated. Mock phone agents remain rehearsal-only. A validated `tel:` link opens the owner's dialer; audio is not injected into calls.
 
 The language selector offers EN/ZH/DE/HI. German and Hindi use English UI labels where translations are not supplied; their API language and subtitle codes are preserved. Current conversation audio is turn-based transcription and browser speech, not a Gemini Live WebSocket session. No claim of real-time Live integration is made for this React client.
 

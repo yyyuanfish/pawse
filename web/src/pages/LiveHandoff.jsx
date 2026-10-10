@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { draftHandoff, searchDemoPolicy, generateSpeech } from '../agents/handoff.js';
 
-export default function LiveHandoff({ lang, target, clinic, context, onDone }) {
+export default function LiveHandoff({ lang, target, clinic, context, onDone, onRehearse }) {
   const [message, setMessage] = useState(context.summary || '');
   const [consent, setConsent] = useState(false);
   const [gradiumConsent, setGradiumConsent] = useState(false);
@@ -56,6 +56,7 @@ export default function LiveHandoff({ lang, target, clinic, context, onDone }) {
     </section>}
     {callUrl && <section className="card"><p>Open your device dialer for {clinic.name}. Pawse cannot join or speak into this call.</p><a className="btn soft" href={callUrl}>Open dialer: {clinic.phone}</a></section>}
     {busy && <p role="status">Preparing…</p>}{error && <p role="alert">{error}</p>}
+    {onRehearse && <button className="btn soft" onClick={onRehearse}>Open simulated Mimi phone rehearsal</button>}
     <button className="btn ghost" onClick={() => onDone(null)}>Back to care summary</button>
   </main>;
 }

@@ -3,7 +3,6 @@ import Home from './pages/Home.jsx';
 import VoiceCall from './pages/VoiceCall.jsx';
 import ClinicList from './pages/ClinicList.jsx';
 import LiveHandoff from './pages/LiveHandoff.jsx';
-import { IS_LIVE_PHONE } from './agents/index.js';
 import PhoneCall from './pages/PhoneCall.jsx';
 import Plan from './pages/Plan.jsx';
 import { strings, detectLang, saveLang } from './i18n.js';
@@ -33,6 +32,7 @@ export default function App() {
   const [insurance, setInsurance] = useState(null);
   const [clinic, setClinic] = useState(null);
   const [target, setTarget] = useState(null);
+  const [rehearsal, setRehearsal] = useState(false);
   const [gradiumOn, setGradiumOnState] = useState(loadGradiumChoice);
   const [voiceStatus, setVoiceStatus] = useState(null);
 
@@ -62,7 +62,7 @@ export default function App() {
   const ownVoice = !!(voiceStatus && voiceStatus.my_voice_ready);
 
   const t = strings[lang] || strings.en;
-  const Handoff = IS_LIVE_PHONE ? LiveHandoff : PhoneCall;
+  const Handoff = IS_LIVE_PHONE && !rehearsal ? LiveHandoff : PhoneCall;
 
   const setLang = (l) => {
     setLangState(l);
@@ -83,6 +83,7 @@ export default function App() {
   };
 
   const call = (to) => {
+    setRehearsal(false);
     primeSpeech();
     if (to === 'vet') {
       setView('clinics');
@@ -93,6 +94,7 @@ export default function App() {
   };
 
   const pickClinic = (c) => {
+    setRehearsal(false);
     primeSpeech();
     setClinic(c);
     setTarget('vet');
@@ -140,6 +142,7 @@ export default function App() {
           estimate: vet ? vet.estimate : undefined,
         }}
         onDone={callDone}
+        onRehearse={() => { setGradiumOn(false); setRehearsal(true); }}
       />
     );
   }
