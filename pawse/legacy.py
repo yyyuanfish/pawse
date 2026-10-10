@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import httpx
 from .models import ANALYSIS_TYPES
-from .providers import ProviderError
+from .providers import ProviderError, snapshot_path
 
 
 def model_ids():
@@ -29,7 +29,8 @@ def capabilities():
         {"id": "mimi_story", "status": "synthetic_demo"},
         {"id": "outbound_phone_calls", "status": "not_connected"}],
         "models": model_ids(),
-        "clinic_providers": [n for n, on in (("google_places", os.getenv("GOOGLE_PLACES_API_KEY")), ("mapify", os.getenv("MAPIFY_BASE_URL"))) if on],
+        "clinic_providers": [n for n, on in (("google_places", os.getenv("GOOGLE_PLACES_API_KEY")), ("gemini_maps", os.getenv("GEMINI_API_KEY")),
+                                             ("mapify", os.getenv("MAPIFY_BASE_URL")), ("openstreetmap_snapshot", snapshot_path().is_file())) if on],
         "legacy_bridge": "configured_not_verified" if configured else "needs_configuration",
         "legacy_intents": catalog["intents"], "legacy_tools": catalog["tools"],
         "analysis_types": list(ANALYSIS_TYPES),
