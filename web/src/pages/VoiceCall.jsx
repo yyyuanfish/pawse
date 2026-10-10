@@ -354,8 +354,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               </div>
             )}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
-            {error && <p className="cap-error">{error}</p>}
-            {wantsAudio && mic.error && <p className="cap-error">{t.micUnavailable}</p>}
+            {error && <p className="cap-error" role="alert" data-testid="call-error">{error}</p>}
+            {wantsAudio && mic.error && <p className="cap-error" role="alert" data-testid="mic-error">{t.micUnavailable}</p>}
           </div>
 
           {chips.length > 0 && (

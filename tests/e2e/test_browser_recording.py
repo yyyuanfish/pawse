@@ -46,7 +46,7 @@ def test_rest_fallback_sends_the_chosen_language(page: Page, transcriptions):
 def test_rest_fallback_with_denied_microphone_is_explained(page: Page, transcriptions):
     page.add_init_script(DENY_MIC)
     start_rest_call(page)
-    expect(page.locator(".cap-error")).to_contain_text("Couldn't open the microphone")
+    expect(page.get_by_test_id("mic-error")).to_contain_text("Couldn't open the microphone")
     expect(page.get_by_role("textbox")).to_be_enabled()
     assert transcriptions == []
 

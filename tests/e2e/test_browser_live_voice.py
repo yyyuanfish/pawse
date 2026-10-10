@@ -167,7 +167,7 @@ def test_token_failure_is_explained(page: Page):
     page.goto(LIVE)
     page.locator(".start-btn").click()
     page.get_by_role("button", name="Agree and start").click()
-    expect(page.locator(".cap-error")).to_contain_text("Live voice is unavailable right now, so this is the simulated rehearsal.")
+    expect(page.get_by_test_id("call-error")).to_contain_text("Live voice is unavailable right now, so this is the simulated rehearsal.")
     expect(page.locator(".cap-ai").first).to_be_visible()  # the scripted rehearsal starts instead
     assert live.socket is None
 
@@ -177,7 +177,7 @@ def test_denied_microphone_is_explained_and_typing_still_works(page: Page):
     live = FakeLive(page)
     open_call(page, live)
     mic_button(page).click()
-    expect(page.locator(".cap-error", has_text="Couldn't open the microphone")).to_be_visible()
+    expect(page.get_by_test_id("mic-error")).to_contain_text("Couldn't open the microphone")
     box = page.get_by_role("textbox")
     box.fill("My cat is limping")
     box.press("Enter")
@@ -190,7 +190,7 @@ def test_dropped_socket_is_reported_and_the_mic_released(page: Page):
     open_call(page, live)
     turn_mic_on(page, live)
     live.socket.close(code=1011, reason="internal error")
-    expect(page.locator(".cap-error")).to_contain_text("disconnected")
+    expect(page.get_by_test_id("call-error")).to_contain_text("disconnected")
     page.wait_for_function(MIC_RELEASED)
 
 
