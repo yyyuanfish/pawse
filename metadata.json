@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4JYS46XCE6FVDPFRRN7222S",
   "strategy": "manual-commit",
   "branch": "fix/gradium-streamed-wav",
-  "checkpoints_count": 6,
+  "checkpoints_count": 7,
   "files_touched": [
     "docs/VALIDATION.md",
     "pawse/voice.py",
@@ -23,6 +23,13 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
@@ -30,6 +37,13 @@
     "cache_creation_tokens": 67274,
     "cache_read_tokens": 3942070,
     "output_tokens": 36521,
-    "api_call_count": 50
+    "api_call_count": 50,
+    "subagent_tokens": {
+      "input_tokens": 24,
+      "cache_creation_tokens": 15565,
+      "cache_read_tokens": 1621252,
+      "output_tokens": 228,
+      "api_call_count": 12
+    }
   }
 }
