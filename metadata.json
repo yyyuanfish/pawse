@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JYWJPWVRKXGW2FV3QSPF2P",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "web/scripts/check-agents.mjs",
+    "web/src/App.jsx",
+    "web/src/agents/mockPhoneAgent.js",
+    "web/src/agents/mockScripts.js",
+    "web/src/agents/speech.js",
+    "web/src/contracts.js",
+    "web/src/i18n.js",
+    "web/src/pages/PhoneCall.jsx",
+    "web/src/styles.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 10,
+    "cache_creation_tokens": 2724,
+    "cache_read_tokens": 417368,
+    "output_tokens": 2142,
+    "api_call_count": 5
+  }
+}

@@ -1,0 +1,170 @@
+Add as part of the relevant iseu to send these kyes to teammates:
+--
+
+
+<pasted_content id="0ec0">
+
+all lines go to Gradium
+the browser-voice fallback still works
+
+uns the full check, then squash-merges its PR. Both agents may change the phone-call code, so whichever merges
+nd will rebase onto the other first. I'll report when each one finishes.
+
+ing for 2 background agents to finish
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔ copied 269 chars to tmux buffer · paste with prefix + ]
+
+tw who probably has tehse keys? ⚠️ Clinic search returns nothing unless GOOGLE_PLACES_API_KEY or MAPIFY_BASE_U…
+
+I can't tell for sure from what's in this conversation. Nothing here says who holds those keys, and keys only ever live in each person's local .env.
+
+The best guess is Yuan (yyyuanfish):
+- Yuan owns the repo.
+- Yuan is assigned https://github.com/yyyuanfish/pawse/issues/5 ("Tool: find a nearby doctor/hospital and book an appointment"), which is the clinic-search work.
+- In docs/AGENT_DEVELOPMENT.md, the Google Places and Mapify clinic adapters belong to the RAG/open-data module (feat/rag-open-data). Whoever built that branch probably tested with one of those keys.
+
+A few other leads:
+- MAPIFY_BASE_URL looks like a hackathon partner service. The event organisers or the Mapify sponsor booth may hand it out, like the event Gemini key.
+- GOOGLE_PLACES_API_KEY could probably come from the same Google Cloud project as the event Gemini key. AGENTS.md warns that one leaked event key revokes every key in that project, so be careful.
+</pasted_content id="0ec0">
+
+--
+
+---
+
+How to use gardium?:
+--
+
+
+<pasted_content id="0ec0">
+GradiumGradium
+Studio
+Text-to-Speech
+Speech-to-Text
+Translation
+Voices
+Voice catalog
+Voice cloning
+Voice Design
+Vocabularies
+Platform
+Usage
+Subscription
+Invoices
+Referrals
+API keys
+Credits
+100%
+145.0k of 145.0k credits left
+
+
+Platform
+Subscription
+Free
+
+Gmx
+
+Ari Jordan
+145,000
+credits remaining till November 10, 2026
+0% used
+
+Allow overages
+Overages are not available on the Free plan. Upgrade your plan to enable.
+Current plan
+Free
+Monthly
+$0
+Credits
+45,000
+Concurrency
+3
+Instant clones
+6
+Extra credits
+$6.90 per 100k
+Upgrade your plan
+Get more features and higher limits
+
+XS
+$13
+/mo
+Unlock more concurrent requests and use our models for commercial applications.
+
+Credits
+225,000
+Concurrency
+5
+Instant clones
+1,000
+Extra credits
+$6.90 per 100k
+S
+$43
+/mo
+Support your project growth with more credits.
+
+Credits
+900,000
+Concurrency
+5
+Instant clones
+1,000
+Extra credits
+$5.04 per 100k
+M
+$340
+/mo
+Access higher concurrency limits to grow your projects.
+
+Credits
+9,000,000
+Concurrency
+10
+Instant clones
+1,000
+Extra credits
+$3.97 per 100k
+L
+$1,615
+/mo
+Our larger standard plan to scale your use cases.
+
+Credits
+45,000,000
+Concurrency
+15
+Instant clones
+1,000
+Extra credits
+$3.77 per 100k
+Tailored
+Custom
+Tailor made for your needs. Tell us more by filling up your needs.
+
+Credits
+Your needs
+Concurrency
+Your needs
+Instant clones
+Your needs
+Extra credits
+Custom per 100k
+Gradium Studio
+
+1Password menu is available. Press down arrow to select.1Password menu is available. Press down arrow to select.
+</pasted_content id="0ec0">
+
+--
+I mean how do ai add my API key?
+
+---
+
+I added in /home/azureuser/pawse/.env
+
+---
+
+erstaret and tets it works
+
+---
+
+yeah fix
