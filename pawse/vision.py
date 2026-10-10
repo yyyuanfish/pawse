@@ -23,7 +23,15 @@ class VisibleFeatures(Model):
     whiskers: str = Field(max_length=300)
     posture: str = Field(max_length=300)
 
+class InjuryObservation(Model):
+    wound: Literal['suspected', 'not_seen', 'uncertain'] = 'uncertain'
+    blood_like_material: Literal['suspected', 'not_seen', 'uncertain'] = 'uncertain'
+    location: str = Field(default='unknown', max_length=300)
+    description: str = Field(default='Cannot assess from this image.', max_length=800)
+    active_bleeding: Literal['cannot_determine_from_photo'] = 'cannot_determine_from_photo'
+
 class Observation(Model):
+    injury: InjuryObservation
     cat_detected: bool | None
     face_assessable: bool
     image_quality: Literal['adequate', 'limited', 'unusable']
@@ -33,7 +41,8 @@ class Observation(Model):
 
 class VisionResult(Observation):
     model: str
-    urgency: Literal['emergency', 'unknown'] = 'unknown'
+    urgency: Literal['emergency', 'contact_vet', 'unknown'] = 'unknown'
+    next_step: str = 'Ask a vet if concerned; a photo cannot rule out injury.'
     disclaimer: str = 'Visual observations only, not a diagnosis or identity check. A photo cannot rule out an emergency.'
 
 @router.post('/observations', response_model=VisionResult)
@@ -46,7 +55,7 @@ async def observe(payload: VisionRequest, request: Request):
               'Do not identify individuals, diagnose, give pain scores, infer emotion or reassure safety. '
               'For absent, obscured, blurred, multiple ambiguous cats or tiny images, abstain. '
               'Use not_visible for features that cannot be assessed. A still cannot establish gait or breathing. '
-              'Return JSON matching the schema; questions should request missing context from the owner.')
+              'Always include the injury object with wound, blood_like_material, location, description and active_bleeding fields. Inspect visible skin and body for wounds, exposed skin, red or dark blood-like material and crusting, even if the face is not assessable. Describe location and appearance, not cause, infection or depth. Redness alone is not proof of blood. Never determine active bleeding from a still. For suspected wounds ask whether bleeding is ongoing/heavy and when it happened. Return JSON matching the schema; questions should request missing context from the owner.')
     async with operation(request.state.owner), httpx.AsyncClient() as client:
         try:
             r = await client.post(f'https://generativelanguage.googleapis.com/v1beta/models/{quote(model, safe="")}:generateContent',
@@ -56,10 +65,22 @@ async def observe(payload: VisionRequest, request: Request):
                     'generationConfig': {'responseMimeType': 'application/json', 'responseJsonSchema': Observation.model_json_schema(), 'temperature': 0.1}}, timeout=35)
             r.raise_for_status()
             text = ''.join(p.get('text', '') for p in r.json()['candidates'][0]['content']['parts'] if not p.get('thought'))
-            result = Observation.model_validate(json.loads(text))
+            data = json.loads(text)
+            # This limitation is a server invariant, never a model judgement.
+            if not isinstance(data, dict):
+                raise ValueError('Expected observation object')
+            if isinstance(data.get('injury'), dict):
+                data['injury']['active_bleeding'] = 'cannot_determine_from_photo'
+            result = Observation.model_validate(data)
         except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
             raise HTTPException(502, 'Image analysis unavailable. Try again or contact a vet without waiting.') from None
     if result.cat_detected is not True or result.image_quality == 'unusable':
+        result.injury = InjuryObservation()
         result.face_assessable = False
         result.visible_observations = VisibleFeatures(**{k: 'not_visible' for k in VisibleFeatures.model_fields})
-    return VisionResult(**result.model_dump(), model=model, urgency='emergency' if payload.red_flags else 'unknown')
+    suspected = result.injury.wound == 'suspected' or result.injury.blood_like_material == 'suspected'
+    urgency = 'emergency' if payload.red_flags else 'contact_vet' if suspected else 'unknown'
+    next_step = ('Contact an emergency veterinarian now. Do not wait for image analysis.' if payload.red_flags else
+                 'Contact a veterinarian about this suspected injury. If bleeding is heavy or will not stop, or your cat collapses or struggles to breathe, seek emergency veterinary care now.' if suspected else
+                 'No reliable all-clear is possible from a photo. Contact a vet if concerned.')
+    return VisionResult(**result.model_dump(), model=model, urgency=urgency, next_step=next_step)

@@ -81,3 +81,20 @@ Proposed synchronous failures follow the Case error contract, plus 413 for size/
 Keep source media, sampled frames and derived observations private with a proposed 24-hour expiry, at most ten retained visual assets and 30 MB of source media per case, and explicit deletion. Deletion must invalidate dependent evidence/drafts and clear provider copies if any were created. The deletion-status route tracks cleanup; ordinary reads return 404 once deleted. A deleted/cancelled result may not reappear when an old worker completes.
 
 Acceptance covers a valid photo, poor visibility, spoofed formats, malformed image decoding, excessive dimensions, unsupported video, timestamps, provider timeout, deletion during work and a late result for an edited concern. Keep live media understanding verification separate from the existing successful synthetic-image model probe.
+
+## Visible wounds and blood-like material
+
+`injury` reports `wound` and `blood_like_material` as `suspected`, `not_seen`, or `uncertain`,
+plus location and a visual description. `active_bleeding` is always
+`cannot_determine_from_photo`: redness, dark crust and stains are not proof of ongoing bleeding.
+Unusable/non-cat images reset injury findings to unknown. Suspected wounds or blood-like material
+produce `urgency: contact_vet` and a fixed escalation message; reported red flags retain emergency
+priority. The conversation shows an injury notice and asks whether bleeding is ongoing/heavy.
+The observations are handed to the LLM, not converted to a diagnosis or pain score.
+
+The chat camera menu's **Take photo** always invokes the `accept="image/*" capture="environment"`
+file input, requesting native rear-camera capture on supported mobile browsers. **Capture and analyze**
+is separate and captures the desktop/in-app preview. Native camera behavior is controlled by the
+browser/OS; desktop may show a file picker. JPEG/PNG/WebP up to 3 MB remain accepted by the API.
+
+Escalation reference: https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/medications/first-aid-for-bleeding

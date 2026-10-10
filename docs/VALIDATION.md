@@ -70,3 +70,14 @@ signs and redacted provider failures. A live Gemini 3.8 Flash request through th
 HTTP 200 for a synthetic blank image, correctly reporting no cat and unassessable features.
 Real cat-photo accuracy and mobile camera capture have not been validated. Desktop UI exposes
 upload, camera-capable file selection, explicit photo sharing, and structured results.
+
+### Wound observation extension — 2026-10-10
+
+An owner-supplied example image was tested through the real Gemini 3.8 Flash endpoint.
+The final HTTP 200 response reported suspected wound and blood-like material near the eye/ear,
+with exposed pink skin and dark crusting, and routed to `contact_vet`. Active bleeding remains
+server-fixed as indeterminable from a still. Earlier attempts exposed a missing injury field and
+noncanonical limitation text; injury is now required and the limitation is enforced server-side.
+This is one example, not a sensitivity/specificity evaluation. The image and raw response stay
+outside Git. Mobile native-camera launch is requested via capture=environment but has not been
+verified on physical iOS/Android hardware.

@@ -243,6 +243,8 @@ export interface VisionRequest {
   red_flags?: RedFlag[];
 }
 export interface VisionResult {
+  injury: { wound: 'suspected' | 'not_seen' | 'uncertain'; blood_like_material: 'suspected' | 'not_seen' | 'uncertain'; location: string; description: string; active_bleeding: 'cannot_determine_from_photo' };
+  next_step: string;
   cat_detected: boolean | null;
   face_assessable: boolean;
   image_quality: 'adequate' | 'limited' | 'unusable';
@@ -250,6 +252,6 @@ export interface VisionResult {
   limitations: string[];
   questions_for_owner: string[];
   model: string;
-  urgency: 'emergency' | 'unknown';
+  urgency: 'emergency' | 'contact_vet' | 'unknown';
   disclaimer: string;
 }

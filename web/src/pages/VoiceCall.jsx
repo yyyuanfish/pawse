@@ -284,7 +284,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
               </div>
             )}
             {photoBusy&&<p role="status">Analyzing your photo…</p>}
-            {photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
+            {photoResult?.injury&&(photoResult.injury.wound==='suspected'||photoResult.injury.blood_like_material==='suspected')&&<div role="alert" className="cap-error"><strong>Possible injury / blood-like material</strong><p>{photoResult.injury.description}</p><p>{photoResult.next_step}</p><p>Is it bleeding now? Is the bleeding heavy or not stopping?</p></div>}
+            {photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.injury&&<p>Injury observation: {photoResult.injury.description} Active bleeding cannot be determined from a photo.</p>}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error">{error}</p>}
             {VOICE_WANTS_AUDIO && mic.error && <p className="cap-error">{t.micUnavailable}</p>}
@@ -323,9 +324,9 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
               <Icon name="send" size={18} />
             </button>
           </form>
-          {photoMenu&&<div className="kw-chips" role="group" aria-label="Photo options"><button type="button" onClick={()=>fileRef.current?.click()}>Upload photo</button><button type="button" onClick={()=>camOn?takeFrame():captureRef.current?.click()}>Take photo</button></div>}
+          {photoMenu&&<div className="kw-chips" role="group" aria-label="Photo options"><button type="button" onClick={()=>fileRef.current?.click()}>Upload photo</button><button type="button" onClick={()=>captureRef.current?.click()}>Take photo</button></div>}
           <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onPhoto}/>
-          <input ref={captureRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" hidden onChange={onPhoto}/>
+          <input ref={captureRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto}/>
           {camOn&&<button className="btn soft" disabled={photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={takeFrame}>Capture and analyze</button>}
           {cam.error&&<p role="alert">Camera unavailable. Allow access or upload a photo.</p>}
 

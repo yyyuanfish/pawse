@@ -1777,6 +1777,51 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "InjuryObservation": {
+        "properties": {
+          "wound": {
+            "type": "string",
+            "enum": [
+              "suspected",
+              "not_seen",
+              "uncertain"
+            ],
+            "title": "Wound",
+            "default": "uncertain"
+          },
+          "blood_like_material": {
+            "type": "string",
+            "enum": [
+              "suspected",
+              "not_seen",
+              "uncertain"
+            ],
+            "title": "Blood Like Material",
+            "default": "uncertain"
+          },
+          "location": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Location",
+            "default": "unknown"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 800,
+            "title": "Description",
+            "default": "Cannot assess from this image."
+          },
+          "active_bleeding": {
+            "type": "string",
+            "const": "cannot_determine_from_photo",
+            "title": "Active Bleeding",
+            "default": "cannot_determine_from_photo"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InjuryObservation"
+      },
       "Insurance": {
         "properties": {
           "company": {
@@ -2736,6 +2781,9 @@
       },
       "VisionResult": {
         "properties": {
+          "injury": {
+            "$ref": "#/components/schemas/InjuryObservation"
+          },
           "cat_detected": {
             "anyOf": [
               {
@@ -2787,10 +2835,16 @@
             "type": "string",
             "enum": [
               "emergency",
+              "contact_vet",
               "unknown"
             ],
             "title": "Urgency",
             "default": "unknown"
+          },
+          "next_step": {
+            "type": "string",
+            "title": "Next Step",
+            "default": "Ask a vet if concerned; a photo cannot rule out injury."
           },
           "disclaimer": {
             "type": "string",
@@ -2801,6 +2855,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "injury",
           "cat_detected",
           "face_assessable",
           "image_quality",
