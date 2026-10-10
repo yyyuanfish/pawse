@@ -42,4 +42,16 @@ assert.equal(calls.length, 0);
 // http error
 reply = { ok: false, status: 422, json: async () => ({}) };
 await assert.rejects(() => liveSearchClinics({ location: loc }), /422/);
+// 429 "a care request is already active" (the voice agent's last advice still running): retry, then succeed
+backend.clinics = [{ id: 'x', name: 'X', distance_km: 1, open_now: true }];
+let busy = 2;
+calls = [];
+globalThis.fetch = async (url, init) => {
+  calls.push({ url });
+  if (busy-- > 0) return { ok: false, status: 429, json: async () => ({ detail: 'A care request is already active; try again shortly' }) };
+  return { ok: true, status: 201, json: async () => backend };
+};
+const retried = await liveSearchClinics({ location: loc, retryDelayMs: 1 });
+assert.equal(retried.clinics.length, 1);
+assert.equal(calls.length, 3);
 console.log('check-clinics: OK');

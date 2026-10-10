@@ -44,7 +44,11 @@ export function mapClinic(c, location) {
   return out;
 }
 
-export async function liveSearchClinics({ lang = 'en', location = null, triage = null } = {}) {
+// The backend allows one care request per owner at a time, and the voice agent's last advice
+// request may still be running when the owner taps "Call the vet" (HTTP 429). Wait and retry.
+const BUSY_RETRIES = 3;
+
+export async function liveSearchClinics({ lang = 'en', location = null, triage = null, retryDelayMs = 1500 } = {}) {
   if (!location) throw new Error('Location is needed to find nearby clinics (permission denied or unavailable).');
   const body = {
     query: 'Find nearby veterinary clinics for a cat.',
@@ -53,11 +57,16 @@ export async function liveSearchClinics({ lang = 'en', location = null, triage =
     share_location: true,
     share_with_ai: false,
   };
-  const res = await fetch((CLINIC_SEARCH_URL || '') + ENDPOINT, {
+  const post = () => fetch((CLINIC_SEARCH_URL || '') + ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+  let res = await post();
+  for (let i = 0; res.status === 429 && i < BUSY_RETRIES; i++) {
+    await new Promise((r) => setTimeout(r, retryDelayMs * (i + 1)));
+    res = await post();
+  }
   if (!res.ok) {
     const error = await res.json().catch(() => ({}));
     throw new Error(typeof error.detail === 'string' ? error.detail : `Clinic search failed (${res.status})`);

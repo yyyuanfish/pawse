@@ -23,6 +23,7 @@ Pawse 用语音回答、给出分级和下一步建议，然后先列出附近�
 npm install
 npm run dev        # 浏览器打开 localhost:5173
 npm run check      # 纯 Node 检查演示数据、接口契约和金额（不需要装依赖）
+node e2e/mock-path.mjs  # 浏览器走查（Playwright，需后端在 :8777 提供 /app；见文件头）
 ```
 
 - 想演快一点：`localhost:5173/?speed=3`（倍速时不出声，只走字幕）。

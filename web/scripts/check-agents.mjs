@@ -7,6 +7,7 @@ import { createMockPhoneCall } from '../src/agents/mockPhoneAgent.js';
 import { reimbursement } from '../src/agents/mockScripts.js';
 import { validateTriage, validateResult, validateClinics } from '../src/contracts.js';
 import { buildSummary } from '../src/utils/summary.js';
+import { strings } from '../src/i18n.js';
 
 const SPEED = 400;
 let n = 0;
@@ -128,10 +129,13 @@ for (const lang of ['zh', 'en']) {
   assert.match(lines[0].original, /KI-Assistent/, 'Pawse must say it is an AI first');
   assert.ok(lines.every((l) => l.original && l.text));
   ok('first line discloses AI; every line has German + translation');
+  assert.ok(lines.filter((l) => l.who === 'callee').every((l) => l.simulated === true));
+  ok('every scripted callee line is marked simulated (no real call happens)');
   const vr = vet.events.find((e) => e.type === 'result');
   assert.deepEqual(validateResult('vet', vr), []);
   assert.equal(vr.time, '16:30');
   assert.equal(vr.place, chosen.name);
+  assert.equal(vr.simulated, true);
   ok('vet result: valid appointment at 16:30 at the chosen clinic');
 
   const ins = await runPhone('insurance', lang, { estimate: vr.estimate });
@@ -139,6 +143,8 @@ for (const lang of ['zh', 'en']) {
   assert.deepEqual(validateResult('insurance', ir), []);
   assert.equal(ir.reimbursed, 240);
   assert.equal(ir.outOfPocket, 360);
+  assert.equal(ir.simulated, true);
+  assert.ok(ins.events.filter((e) => e.type === 'line' && e.who === 'callee').every((l) => l.simulated === true));
   assert.ok(ir.points.some((p) => p.ref === 'AVB 1.2.5') && ir.points.some((p) => p.ref === 'AVB 1.2.6'));
   ok('insurance result: 600 → 240 back, 360 out of pocket, AVB clauses listed');
 
@@ -189,6 +195,15 @@ for (const lang of ['zh', 'en']) {
   assert.ok(summary.includes('16:30') && summary.includes('360') && summary.includes('AVB 1.2.5'));
   ok('case summary includes appointment, out-of-pocket and clauses');
 }
+
+console.log('contract');
+assert.ok(validateResult('vet', { kind: 'appointment', time: '16:30', estimate: 600 }).some((m) => /simulated/.test(m)));
+ok('a phone result must say whether it was simulated');
+
+for (const l of ['en', 'zh']) {
+  assert.ok(!/booked|已预约/i.test(strings[l].appointmentSim + strings[l].slotSim));
+}
+ok('simulated vet results never say "booked" (en + zh)');
 
 console.log('maths');
 assert.equal(reimbursement(600), 240);

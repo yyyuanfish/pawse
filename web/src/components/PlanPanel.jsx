@@ -21,7 +21,7 @@ function ActionRow({ icon, title, sub, doneText, button, onClick }) {
 
 export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
   if (!triage) return null;
-  const vetDone = vet ? `✓ ${t.booked} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}` : '';
+  const vetDone = vet ? `✓ ${vet.simulated === false ? t.booked : t.slotSim} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}` : '';
   const insDone = insurance ? `✓ ${t.outOfPocket} ≈ ${insurance.currency || 'CHF'} ${insurance.outOfPocket}` : '';
 
   return (

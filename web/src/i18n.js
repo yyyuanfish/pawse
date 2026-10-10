@@ -44,6 +44,7 @@ export const strings = {
     call: '转接',
     callAgain: '再打',
     booked: '已预约',
+    slotSim: '模拟时段',
     outOfPocket: '预计自付',
     done: '完成',
 
@@ -64,6 +65,7 @@ export const strings = {
     listeningIn: '正在旁听',
     pawse: 'Pawse',
     appointment: '已预约',
+    appointmentSim: '诊所给出的时间',
     estimate: '预估费用',
     prov: {
       title: '由谁提供',
@@ -157,6 +159,7 @@ export const strings = {
     call: 'Call',
     callAgain: 'Again',
     booked: 'Booked',
+    slotSim: 'Simulated slot',
     outOfPocket: 'You pay about',
     done: 'Done',
 
@@ -177,6 +180,7 @@ export const strings = {
     listeningIn: 'Listening in',
     pawse: 'Pawse',
     appointment: 'Appointment booked',
+    appointmentSim: 'Time the vet offered',
     estimate: 'Estimate',
     prov: {
       title: 'Powered by',

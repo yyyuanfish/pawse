@@ -405,6 +405,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
   display: flex; flex-direction: column; gap: 8px; animation: rise 0.3s ease;
 }
 .result-card h3 { font-size: 15px; color: var(--brand-strong); }
+.result-card .sim-badge { align-self: flex-start; margin-left: 0; }
 .result-big { font-size: 40px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
 .money { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
 .money > div { background: var(--soft); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; }

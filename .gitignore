@@ -44,3 +44,4 @@ backend/.knowledge_base_state.json
 demo/demo-out/
 demo/test-results/
 demo/playwright-report/
+e2e-shots/

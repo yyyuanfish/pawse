@@ -69,7 +69,9 @@ export function createMockPhoneCall({ target = 'vet', lang = 'zh', context = {},
       if (ended) return;
       if (line.step) emit({ type: 'progress', text: L(line.step) });
       emit({ type: 'speaking', who: line.who });
-      emit({ type: 'line', who: line.who, original: line.de, text: L(line.text) });
+      const ev = { type: 'line', who: line.who, original: line.de, text: L(line.text) };
+      if (line.who === 'callee') ev.simulated = true; // scripted reply, nobody was called
+      emit(ev);
       await speak(line.de, 'de', { speed, silent: !listening, pitch: line.who === 'callee' ? 0.8 : 1.15 });
       if (ended) return;
       emit({ type: 'speaking', who: 'none' });
@@ -93,7 +95,7 @@ export function createMockPhoneCall({ target = 'vet', lang = 'zh', context = {},
             typeof context.homeVisitFee === 'number' ? context.homeVisitFee : 0
           )
         : buildVetResult(lang, context.clinic, answers.slot);
-    emit({ type: 'result', ...result });
+    emit({ type: 'result', ...result, simulated: true });
     emit({ type: 'status', state: 'ended' });
   }
 
