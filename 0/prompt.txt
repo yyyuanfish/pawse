@@ -1,0 +1,5 @@
+Finsih thsi or disacrd:
+-
+2. ⚠️ Uncommitted Dockerfile work in /home/azureuser/pawse-wt-web (branch feat/deploy-web-app). It changes 3 files, including the Dockerfile and a "Phone assistant" link. #48 probably made most of it redundant, so check it before throwing it away.
+--
+maek sure the voice assistant is depoyed and accesible
