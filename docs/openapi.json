@@ -2465,6 +2465,127 @@
         ],
         "title": "Evidence"
       },
+      "FacialCue": {
+        "properties": {
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "score",
+          "evidence"
+        ],
+        "title": "FacialCue"
+      },
+      "FacialCues": {
+        "properties": {
+          "context": {
+            "type": "string",
+            "enum": [
+              "awake_resting",
+              "sleeping_or_active",
+              "uncertain"
+            ],
+            "title": "Context"
+          },
+          "score_overlay_present": {
+            "type": "boolean",
+            "title": "Score Overlay Present"
+          },
+          "ears": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "eyes": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "muzzle": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "whiskers": {
+            "$ref": "#/components/schemas/FacialCue"
+          },
+          "head_position": {
+            "$ref": "#/components/schemas/FacialCue"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "context",
+          "score_overlay_present",
+          "ears",
+          "eyes",
+          "muzzle",
+          "whiskers",
+          "head_position"
+        ],
+        "title": "FacialCues"
+      },
+      "FacialEstimate": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "experimental",
+              "not_assessable"
+            ],
+            "title": "Status"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          },
+          "concern": {
+            "type": "string",
+            "enum": [
+              "contact_vet",
+              "unknown"
+            ],
+            "title": "Concern",
+            "default": "unknown"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "note"
+        ],
+        "title": "FacialEstimate"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -3852,6 +3973,9 @@
       },
       "VisionResult": {
         "properties": {
+          "facial_cues": {
+            "$ref": "#/components/schemas/FacialCues"
+          },
           "injury": {
             "$ref": "#/components/schemas/InjuryObservation"
           },
@@ -3898,6 +4022,9 @@
             "maxItems": 5,
             "title": "Questions For Owner"
           },
+          "facial_estimate": {
+            "$ref": "#/components/schemas/FacialEstimate"
+          },
           "model": {
             "type": "string",
             "title": "Model"
@@ -3926,6 +4053,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "facial_cues",
           "injury",
           "cat_detected",
           "face_assessable",
@@ -3933,6 +4061,7 @@
           "visible_observations",
           "limitations",
           "questions_for_owner",
+          "facial_estimate",
           "model"
         ],
         "title": "VisionResult"

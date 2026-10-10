@@ -1,23 +1,33 @@
-# Pawse Vision Controller Contract
+# Pet observation controller
 
-The Vision Agent separates what is visible from what the owner reports. **Current:** a photo can accompany a care request. **Proposed v1:** a separate observation resource, followed by bounded video input. [Multimodal contracts](MULTIMODAL_CONTRACTS.md) maps both stages to the other agents.
+`POST /api/v1/vision/observations` accepts `VisionRequest` and returns `VisionResult`.
+See generated [OpenAPI](openapi.json) and [TypeScript](../schemas/pawse.ts).
 
-## 1. Current photo boundary
+Request: `photo: {mime_type, data}` (base64 JPEG/PNG/WebP, max 3 MB),
+`share_with_ai: true`, optional `red_flags` using the existing care warning-sign enum.
+Consent is required server-side. Photos are forwarded inline to Gemini, not saved locally.
+`GEMINI_VISION_MODEL` defaults to the access-tested `gemini-3.8-flash`.
 
-There is no `/vision` controller today. Use either `POST /api/v1/care/requests` or `POST /api/v1/agents/runs` with nested `care`; do not send both. Schema: `CareRequest.photo: Photo | null` in [models.py](../pawse/models.py).
+Response: nullable `cat_detected`, `face_assessable`, `image_quality`, five named
+`visible_observations`, `limitations`, `questions_for_owner`, `model`, `urgency`, `disclaimer`.
+Unusable/non-cat images force all features to `not_visible`. Owner-reported red flags force
+`urgency: emergency`; otherwise urgency remains `unknown`, never a photographic all-clear.
+This endpoint does not establish identity, diagnose, calculate pain scores or place calls.
 
-| Field | Current contract |
-| --- | --- |
-| `photo.mime_type` | `image/jpeg`, `image/png` or `image/webp` |
-| `photo.data` | Strict base64, at most 4,200,000 encoded characters; decoded payload 12–3,000,000 bytes |
-| Image validation | Matches the expected JPEG/PNG/WebP signature; this is not a complete image-decoding/metadata sanitization pipeline |
-| `query` | Up to 4,000 characters; optional when a photo or reported warning sign is present |
-| `share_with_ai` | Explicit consent required before the photo is sent to Gemini |
-| Response | Existing `Assessment` inside `CareResult`; no separate observations, bounding boxes, media ID or timestamped evidence |
+Errors: 422 invalid photo/consent; 503 missing key; 502 upstream/invalid model output;
+429 shared voice/vision operation limit or public quota. Errors do not echo photographs or keys.
 
-Photos are sent to care assessment, not to the clinic discovery adapter. A photo cannot rule out an emergency. Owner-reported red flags retain the existing deterministic emergency rule even when Gemini fails or disagrees. Missing sharing consent keeps the fallback flow available without sending the image.
+## Try it
 
-The care model uses `GEMINI_CARE_MODEL`, otherwise `GEMINI_MODEL`, otherwise `gemini-3-flash-preview`. The selected upgrade is `gemini-3.8-flash`, with access evidence in [Model allocation](MODEL_ALLOCATION.md); this contract does not switch configuration. Unsupported PDF/video MIME types return 422. Existing care errors, deadlines and SSE behavior follow the [Care contract](controller-care-contract.md).
+1. Open `/app/?live=1`, start the Pawse conversation and confirm Gemini sharing.
+2. Click the camera icon in the conversation input bar, then **Upload photo** or **Take photo**. With camera preview on, **Capture and analyze** submits the current frame.
+3. The selected photo is analyzed under the conversation’s explicit Gemini-sharing consent.
+4. Review **Photo observations** in the conversation. The LLM receives these observations as untrusted evidence and explains them in the conversation language.
+5. Try a non-cat or blurred image: the app should abstain rather than invent features.
+
+Structured observations are now handed to the existing conversation agent. They do not change the care tool schema or automatically trigger a clinic search. No real-cat clinical validation is claimed.
+
+## Future case-bound design (not implemented)
 
 ## 2. Proposed observation controller
 
@@ -71,3 +81,20 @@ Proposed synchronous failures follow the Case error contract, plus 413 for size/
 Keep source media, sampled frames and derived observations private with a proposed 24-hour expiry, at most ten retained visual assets and 30 MB of source media per case, and explicit deletion. Deletion must invalidate dependent evidence/drafts and clear provider copies if any were created. The deletion-status route tracks cleanup; ordinary reads return 404 once deleted. A deleted/cancelled result may not reappear when an old worker completes.
 
 Acceptance covers a valid photo, poor visibility, spoofed formats, malformed image decoding, excessive dimensions, unsupported video, timestamps, provider timeout, deletion during work and a late result for an edited concern. Keep live media understanding verification separate from the existing successful synthetic-image model probe.
+
+## Visible wounds and blood-like material
+
+`injury` reports `wound` and `blood_like_material` as `suspected`, `not_seen`, or `uncertain`,
+plus location and a visual description. `active_bleeding` is always
+`cannot_determine_from_photo`: redness, dark crust and stains are not proof of ongoing bleeding.
+Unusable/non-cat images reset injury findings to unknown. Suspected wounds or blood-like material
+produce `urgency: contact_vet` and a fixed escalation message; reported red flags retain emergency
+priority. The conversation shows an injury notice and asks whether bleeding is ongoing/heavy.
+The observations are handed to the LLM, not converted to a diagnosis or pain score.
+
+The chat camera menu's **Take photo** always invokes the `accept="image/*" capture="environment"`
+file input, requesting native rear-camera capture on supported mobile browsers. **Capture and analyze**
+is separate and captures the desktop/in-app preview. Native camera behavior is controlled by the
+browser/OS; desktop may show a file picker. JPEG/PNG/WebP up to 3 MB remain accepted by the API.
+
+Escalation reference: https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/medications/first-aid-for-bleeding
