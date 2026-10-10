@@ -45,18 +45,32 @@ const ctx = await browser.newContext({
   geolocation: { latitude: 47.3769, longitude: 8.5417 }, // Zurich, Kreis 1
 });
 // Camera stand-in: video requests get a stream of the Mimi clip, audio keeps the real (PulseAudio) microphone.
-// The clip is served from the app's own origin so captureStream() is allowed.
+// The clip is served from the app's own origin so the canvas stays untainted. One clip per page, played once: it is
+// drawn onto a canvas whose stream outlives the clip (the preview freezes on the last frame instead of the track
+// ending), and every camera request gets a clone of that one track, so reopening the camera never restarts Mimi.
+// window.__mimiCamTime() is the clip's clock, so the recorder can time the photo and the camera-off tap against it.
 if (MIMI_CAMERA) {
   await ctx.route('**/__mimi-camera.mp4', (route) => route.fulfill({ path: MIMI_CAMERA, contentType: 'video/mp4' }));
   await ctx.addInitScript(() => {
     if (!location.pathname.startsWith('/app')) return;
     const real = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    let clip = null;
+    const start = async () => {
+      const v = Object.assign(document.createElement('video'), { src: '/__mimi-camera.mp4', muted: true, playsInline: true, loop: false });
+      await new Promise((ok, fail) => { v.onloadeddata = ok; v.onerror = () => fail(new Error('Mimi clip did not load')); });
+      const canvas = Object.assign(document.createElement('canvas'), { width: v.videoWidth, height: v.videoHeight });
+      const g = canvas.getContext('2d');
+      const draw = () => { g.drawImage(v, 0, 0, canvas.width, canvas.height); if (!v.ended) v.requestVideoFrameCallback(draw); };
+      v.requestVideoFrameCallback(draw);
+      await v.play();
+      return { v, track: canvas.captureStream(30).getVideoTracks()[0] };
+    };
+    window.__mimiCamTime = () => (clip && clip.v ? (clip.v.ended ? clip.v.duration : clip.v.currentTime) : -1);
     navigator.mediaDevices.getUserMedia = async (c = {}) => {
       if (!c.video) return real(c);
-      const v = Object.assign(document.createElement('video'), { src: '/__mimi-camera.mp4', muted: true, playsInline: true });
-      await v.play();
-      const cam = v.captureStream();
-      const tracks = cam.getVideoTracks();
+      clip = clip || start().then((x) => (clip = x));
+      const { track } = await clip;
+      const tracks = [track.clone()];
       if (c.audio) tracks.push(...(await real({ audio: c.audio })).getAudioTracks());
       return new MediaStream(tracks);
     };
@@ -142,11 +156,20 @@ try {
   if (MIMI_CAMERA) {
     await stage('The owner shows Mimi', 'Camera preview stays on the phone. One photo goes to Gemini.', [['live', 'Gemini Live'], ['gen', 'Mimi footage']]);
     await tap(app.getByRole('button', { name: 'Camera', exact: true }));
-    await app.locator('video').first().waitFor({ timeout: 10000 }).catch(() => {});
-    await hold(3000); // the 8 s clip plays once: show it, send the photo, close the camera before it would repeat
+    await app.locator('video').first().waitFor({ timeout: 10000 }).catch(() => log('camera preview did not appear'));
+    // Timed on the clip's own clock, not fixed waits: under recording load the page runs late and a fixed hold can
+    // outlast the 8 s clip.
+    const clipAt = async (s) => {
+      for (let i = 0; i < 100 && ((await frame().evaluate(() => window.__mimiCamTime && window.__mimiCamTime()).catch(() => -1)) < s); i++) await hold(100);
+    };
+    await clipAt(2.5); // the still is cut from 2.5 s of the same clip
     if (MIMI_STILL) { await app.locator('input[type=file]').setInputFiles(MIMI_STILL); log('photo sent'); }
-    await hold(1500);
-    await tap(app.getByRole('button', { name: 'Camera', exact: true })); // camera off
+    await clipAt(5.5); // the tap glides for about a second, so the preview closes before the clip's last frame
+    const close = app.locator('.cam-tool[aria-label="Turn camera off"]');
+    await tap((await close.count()) ? close : app.getByRole('button', { name: 'Camera', exact: true }));
+    await app.locator('video').first().waitFor({ state: 'detached', timeout: 3000 })
+      .then(() => log('camera off'))
+      .catch(async () => { log('camera still on, toggling again'); await tap(app.getByRole('button', { name: 'Camera', exact: true })); });
   }
   await tap(app.locator('button.ctl').first()); // unmute the mic
   await hold(600);
