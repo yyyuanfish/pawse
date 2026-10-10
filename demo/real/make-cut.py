@@ -56,10 +56,16 @@ segs = keeps(pause)
 total = sum(b - a for a, b in segs)
 print(f"raw {duration:.1f}s, {len(silences)} silences, pause {pause:.1f}s -> {total:.1f}s in {len(segs)} segments")
 
-# Half a frame of slack so each span keeps exactly round((b - a) * fps) frames.
-half = 0.5 / fps
-spans = "+".join(f"between(t\\,{a - half:.4f}\\,{b - half:.4f})" for a, b in segs)
-parts, labels = [f"[0:v]select='{spans}',setpts=N/FRAME_RATE/TB[v];"], []
+# Each kept frame keeps its own timestamp minus the time cut before it (x11grab drops frames under load, so
+# renumbering frames would drift the picture ahead of the sound); -fps_mode cfr then fills dropped frames.
+# Half a frame of slack so a frame on a cut point lands in exactly one span.
+half, done, spans, shifts = 0.5 / fps, 0.0, [], []
+for a, b in segs:
+    span = f"between({{}}\\,{a - half:.4f}\\,{b - half:.4f})"
+    spans.append(span.format("t"))  # select calls the frame time t, setpts calls it T
+    shifts.append(f"{span.format('T')}*{a - done:.4f}")
+    done += b - a
+parts, labels = [f"[0:v]select='{'+'.join(spans)}',setpts='PTS-({'+'.join(shifts)})/TB'[v];"], []
 for i, (a, b) in enumerate(segs):
     parts.append(f"[0:a]atrim={a:.4f}:{b:.4f},asetpts=PTS-STARTPTS,"
                  f"afade=t=in:d=0.03,afade=t=out:st={max(0, b - a - 0.03):.4f}:d=0.03[a{i}];")
@@ -70,7 +76,7 @@ with tempfile.NamedTemporaryFile("w", suffix=".ffgraph", delete=False) as f:
     f.write(graph)
 try:
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-filter_complex_script", f.name,
-                    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+                    "-map", "[v]", "-map", "[a]", "-fps_mode", "cfr", "-r", f"{fps:g}", "-c:v", "libx264", "-preset", "medium", "-crf", "20",
                     "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", out], check=True)
 finally:
     os.unlink(f.name)
