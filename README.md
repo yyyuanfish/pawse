@@ -1,6 +1,6 @@
 # Pawse 🐾
 
-> Pawse is a multilingual AI cat-care companion. Talk to it live with Gemini Live: it gives vet guidance, finds nearby clinics, answers insurance questions, and drafts German calls in your own voice with Gradium. Coming next: vet booking, calendar sync and phone calls.
+> Your cat is limping, it's 9 pm, and every vet in Zürich answers in German. Just talk to Pawse in your own language. A team of AI agents, driven by a real-time **Gemini Live** conversation with tool calling, triages the symptoms, finds and ranks nearby vets, checks what your insurance covers, books a slot that fits your calendar, and calls the clinic in fluent German, in **your own cloned voice** with **Gradium**. From worried owner to booked appointment in one conversation.
 
 [Local Demo](http://127.0.0.1:8765) · [Engineering Docs](docs/README.md) · [API Docs](docs/API_CONTRACT.md) · [Architecture](docs/ARCHITECTURE.md)
 
