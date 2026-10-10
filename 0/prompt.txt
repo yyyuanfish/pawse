@@ -1,0 +1,4 @@
+cehck where stil somethig to do hwer or teammate did it?:
+_-
+7. ⚠️ Orphaned Gradium voice clone. Pawse — my voice (pzr2ZdBxk7wooDGu) exists in your Gradium library but the app doesn't know about it, and it counts against your 6 free clones. The session restarted the server on 8765 and was waiting for you to retry the clone.
+--
