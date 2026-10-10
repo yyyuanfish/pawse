@@ -126,6 +126,12 @@ export const strings = {
       vet: { icon: '🏥', name: '兽医诊所', short: '诊所', role: '最近营业中' },
       insurance: { icon: '🛡️', name: '宠物保险', short: '保险公司', role: '理赔热线' },
     },
+
+    rail: { talk: '说明情况', vet: '兽医', insurance: '保险', summary: '摘要' },
+    stepOf: (n, total) => `第 ${n} 步，共 ${total} 步`,
+    prepared: '已准备，尚未拨打电话',
+    prepare: '准备',
+    settings: '演示与声音设置',
   },
 
   en: {
@@ -259,6 +265,12 @@ export const strings = {
       vet: { icon: '🏥', name: 'Vet practice', short: 'the clinic', role: 'Nearest open' },
       insurance: { icon: '🛡️', name: 'Pet insurer', short: 'the insurer', role: 'Claims hotline' },
     },
+
+    rail: { talk: 'Talk', vet: 'Vet', insurance: 'Insurance', summary: 'Summary' },
+    stepOf: (n, total) => `Step ${n} of ${total}`,
+    prepared: 'Prepared, no call placed',
+    prepare: 'Prepare',
+    settings: 'Demo & voice settings',
   },
 };
 

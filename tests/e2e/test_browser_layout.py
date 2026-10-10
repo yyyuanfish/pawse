@@ -13,7 +13,9 @@ SHOTS = Path(__file__).resolve().parents[2] / "test-results" / "layout"
 VISIBLE_CONTROLS = """() => [...document.querySelectorAll("button, a[href], input:not([type=hidden]), select, textarea, summary, [role=button]")]
   .filter(el => { const s = getComputedStyle(el), r = el.getBoundingClientRect();
                   return s.visibility !== "hidden" && s.display !== "none" && r.width > 0 && r.height > 0
-                         && el.parentElement.closest("button, a, label, summary, [role=button]") === null; })
+                         && el.parentElement.closest("button, a, label, summary, [role=button]") === null
+                         // a closed <details> still lays its content out; only its <summary> is a real target
+                         && (d => d === null || (el.tagName === "SUMMARY" && el.parentElement === d))(el.closest("details:not([open])")); })
   .map(el => ({ name: el.getAttribute("aria-label") || el.id || el.textContent.trim().slice(0, 30) || el.tagName,
                 inline: el.tagName === "A" && getComputedStyle(el).display === "inline",
                 // one box per line, so a link that wraps is not one big rectangle
@@ -118,5 +120,7 @@ def test_desktop_centres_the_app_column(page: Page, width, height):
 def test_simulated_rehearsal_is_labelled_on_screen(page: Page, width, height):
     page.set_viewport_size({"width": width, "height": height})
     page.goto("/app/?demo=1")
-    expect(page.locator(".badge")).to_be_visible()
-    expect(page.locator(".badge")).to_be_in_viewport()
+    # The home badge is gone; the rehearsal is reached (and labelled) through the home settings.
+    page.goto("/app/")
+    page.locator("details.home-settings summary").click()
+    expect(page.get_by_role("link", name="Simulated rehearsal")).to_be_in_viewport()

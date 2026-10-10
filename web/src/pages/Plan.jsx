@@ -3,14 +3,16 @@ import { useState } from 'react';
 import Avatar from '../components/Avatar.jsx';
 import PlanPanel from '../components/PlanPanel.jsx';
 import { buildSummary } from '../utils/summary.js';
+import { nextAction } from '../utils/steps.js';
 import { copyText } from '../utils/copy.js';
 
-export default function Plan({ t, lang, triage, vet, insurance, onCall, onRestart }) {
+export default function Plan({ t, lang, triage, vet, insurance, rail, onCall, onRestart }) {
   const [copied, setCopied] = useState(false);
   const summary = buildSummary({ lang, triage, vet, insurance });
 
   return (
     <main className="plan">
+      {rail}
       <header className="plan-head">
         <Avatar size={56} />
         <h1>{t.planTitle}</h1>
@@ -20,7 +22,7 @@ export default function Plan({ t, lang, triage, vet, insurance, onCall, onRestar
         <PlanPanel t={t} triage={triage} vet={vet} insurance={insurance} onCall={onCall} />
       </div>
 
-      <section className="card">
+      <section className={nextAction({ vet, insurance }) === 'summary' ? 'card focus' : 'card'}>
         <div className="card-head">
           <h2>{t.summary}</h2>
           <button

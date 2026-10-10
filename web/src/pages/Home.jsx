@@ -54,8 +54,11 @@ export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
           {t.startCall}
         </button>
         <p className="muted">{t.startHint}</p>
-        <button className="btn soft" onClick={onOwnVoice}>Record my voice · emergency rehearsal</button>
-        <p><a href="?live=1">Use backend agents</a> · <a href="?demo=1">Simulated rehearsal</a></p>
+        <details className="home-settings">
+          <summary>{t.settings}</summary>
+          <button className="btn soft" onClick={onOwnVoice}>Record my voice · emergency rehearsal</button>
+          <p><a href="?live=1">Use backend agents</a> · <a href="?demo=1">Simulated rehearsal</a></p>
+        </details>
       </section>
 
       <InsuranceProfileForm />

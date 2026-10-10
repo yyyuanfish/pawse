@@ -9,6 +9,8 @@ import Plan from './pages/Plan.jsx';
 import { strings, detectLang, saveLang } from './i18n.js';
 import { primeSpeech } from './agents/speech.js';
 import { buildSummary } from './utils/summary.js';
+import { stepState } from './utils/steps.js';
+import StepRail from './components/StepRail.jsx';
 import { IS_LIVE_PHONE } from './agents/index.js';
 import { PHONE_AGENT_URL } from './config.js';
 
@@ -108,6 +110,9 @@ export default function App() {
     setView(triage ? 'plan' : 'home');
   };
 
+  // One progress rail through the story; shown once there is something to show progress on.
+  const rail = <StepRail t={t} steps={stepState({ view, target, triage, vet, insurance })} />;
+
   if (view === 'ownvoice') return <OwnVoice onBack={() => setView('home')} />;
   if (view === 'voice') {
     return (
@@ -118,6 +123,7 @@ export default function App() {
         vet={vet}
         insurance={insurance}
         onTriage={setTriage}
+        rail={triage ? rail : null}
         onCall={call}
         onEnd={() => setView(triage ? 'plan' : 'home')}
       />
@@ -125,7 +131,7 @@ export default function App() {
   }
   if (view === 'clinics') {
     // Going back from the list never restarts the voice call: show the plan instead.
-    return <ClinicList t={t} lang={lang} triage={triage} onPick={pickClinic} onBack={() => setView(triage ? 'plan' : 'home')} />;
+    return <ClinicList t={t} lang={lang} triage={triage} rail={rail} onPick={pickClinic} onBack={() => setView(triage ? 'plan' : 'home')} />;
   }
   if (view === 'phone') {
     return (
@@ -133,6 +139,7 @@ export default function App() {
         key={`${target}-${clinic ? clinic.id : ''}`}
         t={t}
         lang={lang}
+        rail={rail}
         target={target}
         clinic={target === 'vet' ? clinic : null}
         gradium={gradiumAvailable ? { on: gradiumOn, ownVoice, set: setGradiumOn } : null}
@@ -157,6 +164,7 @@ export default function App() {
         triage={triage}
         vet={vet}
         insurance={insurance}
+        rail={rail}
         onCall={call}
         onRestart={() => setView('home')}
       />

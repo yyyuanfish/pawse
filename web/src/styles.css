@@ -602,3 +602,18 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 @media (prefers-reduced-motion: reduce) { .voice-picker-icon i { animation: none !important; } }
 .voice-picker.compact { margin: 6px auto 2px; }
 .card .voice-picker { align-self: flex-start; margin-bottom: 4px; }
+
+/* Step-by-step flow: progress rail (Talk · Vet · Insurance · Summary), collapsed sub-steps, tucked settings */
+.step-rail ol { display: flex; gap: 6px; list-style: none; margin: 0 0 12px; padding: 0; }
+.step-rail li { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+.step-rail li::before { content: ''; align-self: stretch; height: 3px; border-radius: 2px; background: var(--line); }
+.step-rail .step-dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--soft); color: var(--muted); font-weight: 700; }
+.step-rail li.done::before, .step-rail li.current::before { background: var(--brand); }
+.step-rail li.done .step-dot { background: var(--brand); color: var(--brand-ink); }
+.step-rail li.current { color: var(--ink); font-weight: 700; }
+.step-rail li.current .step-dot { background: var(--surface); color: var(--brand-strong); box-shadow: 0 0 0 2px var(--brand); }
+.substep-done { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; border-radius: 14px; background: var(--soft); }
+.card.focus { box-shadow: 0 0 0 2px var(--brand); }
+.home-settings, .handoff-more { color: var(--muted); font-size: 14px; }
+.home-settings summary, .handoff-more summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 12px; }
+.home-settings[open], .handoff-more[open] { display: grid; gap: 8px; justify-items: center; }

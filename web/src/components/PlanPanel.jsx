@@ -1,10 +1,11 @@
 import { IS_LIVE_PHONE } from '../agents/index.js';
+import { nextAction } from '../utils/steps.js';
 // Pawse's advice + the two "let Pawse call for you" actions.
 // Used as the bottom sheet on the video call and at the top of the plan page.
 
 const GLYPH = { red: '!', yellow: '◷', green: '✓' };
 
-function ActionRow({ icon, title, sub, doneText, button, onClick }) {
+function ActionRow({ icon, title, sub, doneText, button, next, onClick }) {
   return (
     <div className={doneText ? 'action-row done' : 'action-row'}>
       <span className="action-icon" aria-hidden="true">{icon}</span>
@@ -12,7 +13,7 @@ function ActionRow({ icon, title, sub, doneText, button, onClick }) {
         <strong>{title}</strong>
         <span>{doneText || sub}</span>
       </div>
-      <button type="button" className={doneText ? 'btn soft small' : 'btn primary small'} onClick={onClick}>
+      <button type="button" className={next ? 'btn primary small' : 'btn soft small'} onClick={onClick}>
         {button}
       </button>
     </div>
@@ -21,8 +22,10 @@ function ActionRow({ icon, title, sub, doneText, button, onClick }) {
 
 export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
   if (!triage) return null;
-  const vetDone = vet ? `✓ ${t.booked} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}` : '';
-  const insDone = insurance ? `✓ ${t.outOfPocket} ≈ ${insurance.currency || 'CHF'} ${insurance.outOfPocket}` : '';
+  // A live "prepared" result is only a script; it never reads as a booking or a confirmed cover.
+  const vetDone = vet ? (vet.prepared ? `✓ ${t.prepared}` : `✓ ${t.booked} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}`) : '';
+  const insDone = insurance ? (insurance.prepared ? `✓ ${t.prepared}` : `✓ ${t.outOfPocket} ≈ ${insurance.currency || 'CHF'} ${insurance.outOfPocket}`) : '';
+  const next = nextAction({ vet, insurance });
 
   return (
     <div className="plan-panel">
@@ -63,7 +66,8 @@ export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
             title={IS_LIVE_PHONE ? 'Prepare vet conversation' : t.callVet}
             sub={IS_LIVE_PHONE ? 'Review a German script and audio; no automatic call' : t.callVetSub}
             doneText={vetDone}
-            button={IS_LIVE_PHONE ? 'Prepare' : vet ? t.callAgain : t.call}
+            next={next === 'vet'}
+            button={vet ? t.callAgain : IS_LIVE_PHONE ? t.prepare : t.call}
             onClick={() => onCall('vet')}
           />
           <ActionRow
@@ -71,7 +75,8 @@ export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
             title={IS_LIVE_PHONE ? 'Prepare insurer conversation' : t.callIns}
             sub={IS_LIVE_PHONE ? 'Demo policy evidence and a script; coverage unconfirmed' : t.callInsSub}
             doneText={insDone}
-            button={IS_LIVE_PHONE ? 'Prepare' : insurance ? t.callAgain : t.call}
+            next={next === 'insurance'}
+            button={insurance ? t.callAgain : IS_LIVE_PHONE ? t.prepare : t.call}
             onClick={() => onCall('insurance')}
           />
         </div>
