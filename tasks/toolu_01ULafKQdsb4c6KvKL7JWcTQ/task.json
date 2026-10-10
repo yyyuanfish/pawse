@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01ULafKQdsb4c6KvKL7JWcTQ",
+  "agent_id": "aa90a089ec40f776d",
+  "subagent_type": "general-purpose",
+  "task_description": "Fix CI missing web npm install",
+  "token_usage": {
+    "input_tokens": 22,
+    "cache_creation_tokens": 29962,
+    "cache_read_tokens": 457159,
+    "output_tokens": 136,
+    "api_call_count": 11
+  },
+  "started_at": "2026-10-10T15:03:47.669600487Z",
+  "completed_at": "2026-10-10T15:06:31.062066234Z"
+}

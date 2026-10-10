@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01NzyynaG1ArnPcZY7g4rM71",
+  "agent_id": "ac621506fe74595fa",
+  "subagent_type": "general-purpose",
+  "task_description": "Browser-check Mimi demo on main",
+  "token_usage": {
+    "input_tokens": 38,
+    "cache_creation_tokens": 39466,
+    "cache_read_tokens": 885960,
+    "output_tokens": 585,
+    "api_call_count": 19
+  },
+  "started_at": "2026-10-10T15:42:00.568307527Z",
+  "completed_at": "2026-10-10T15:45:39.349005895Z"
+}

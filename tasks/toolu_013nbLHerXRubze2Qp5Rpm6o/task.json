@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_013nbLHerXRubze2Qp5Rpm6o",
+  "agent_id": "ad2f032b968145da6",
+  "subagent_type": "general-purpose",
+  "task_description": "Fix distant clinic ranking + NaN km",
+  "token_usage": {
+    "input_tokens": 74,
+    "cache_creation_tokens": 80524,
+    "cache_read_tokens": 2725134,
+    "output_tokens": 3384,
+    "api_call_count": 37
+  },
+  "started_at": "2026-10-10T15:04:23.984596904Z",
+  "completed_at": "2026-10-10T15:11:47.211928365Z"
+}

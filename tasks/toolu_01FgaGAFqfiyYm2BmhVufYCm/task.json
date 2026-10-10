@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01FgaGAFqfiyYm2BmhVufYCm",
+  "agent_id": "a81e97a1f268b1391",
+  "subagent_type": "general-purpose",
+  "task_description": "Replace knowledge search with full policy",
+  "token_usage": {
+    "input_tokens": 100,
+    "cache_creation_tokens": 120715,
+    "cache_read_tokens": 4693498,
+    "output_tokens": 816,
+    "api_call_count": 50
+  },
+  "started_at": "2026-10-10T15:05:13.01462846Z",
+  "completed_at": "2026-10-10T15:12:34.23950969Z"
+}
