@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4KAAWDWPRV0N5DTMZ37K9PW",
+  "strategy": "manual-commit",
+  "branch": "feat/gradium-callee-voice",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".env.example",
+    "docs/openapi.json",
+    "pawse/voice.py",
+    "schemas/pawse.ts",
+    "tests/test_voice.py",
+    "web/scripts/check-phone.mjs",
+    "web/src/agents/livePhoneAgent.js"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2,
+    "cache_creation_tokens": 80,
+    "cache_read_tokens": 136596,
+    "output_tokens": 615,
+    "api_call_count": 1
+  }
+}
