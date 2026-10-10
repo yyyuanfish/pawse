@@ -11,7 +11,7 @@ import { primeSpeech } from './agents/speech.js';
 import { buildSummary } from './utils/summary.js';
 import { stepState } from './utils/steps.js';
 import StepRail from './components/StepRail.jsx';
-import { IS_LIVE_PHONE } from './agents/index.js';
+import { IS_LIVE_PHONE, IS_MOCK } from './agents/index.js';
 import { PHONE_AGENT_URL } from './config.js';
 
 const GRADIUM_KEY = 'pawse.gradium';
@@ -113,62 +113,72 @@ export default function App() {
   // One progress rail through the story; shown once there is something to show progress on.
   const rail = <StepRail t={t} steps={stepState({ view, target, triage, vet, insurance })} />;
 
-  if (view === 'ownvoice') return <OwnVoice onBack={() => setView('home')} />;
-  if (view === 'voice') {
-    return (
-      <VoiceCall
-        t={t}
-        lang={lang}
-        triage={triage}
-        vet={vet}
-        insurance={insurance}
-        onTriage={setTriage}
-        rail={triage ? rail : null}
-        onCall={call}
-        onEnd={() => setView(triage ? 'plan' : 'home')}
-      />
-    );
-  }
-  if (view === 'clinics') {
-    // Going back from the list never restarts the voice call: show the plan instead.
-    return <ClinicList t={t} lang={lang} triage={triage} rail={rail} onPick={pickClinic} onBack={() => setView(triage ? 'plan' : 'home')} />;
-  }
-  if (view === 'phone') {
-    return (
-      <Handoff
-        key={`${target}-${clinic ? clinic.id : ''}`}
-        t={t}
-        lang={lang}
-        rail={rail}
-        target={target}
-        clinic={target === 'vet' ? clinic : null}
-        gradium={gradiumAvailable ? { on: gradiumOn, ownVoice, set: setGradiumOn } : null}
-        context={{
-          gradiumConsent: gradiumAvailable && gradiumOn,
-          voice: ownVoice ? 'my_voice' : 'standard',
-          summary: buildSummary({ lang, triage, vet, insurance }),
-          clinic: target === 'vet' ? clinic : undefined,
-          estimate: vet ? vet.estimate : undefined,
-          homeVisitFee: vet ? vet.homeVisitFee : undefined,
-        }}
-        onDone={callDone}
-        onRehearse={() => { setGradiumOn(false); setRehearsal(true); }}
-      />
-    );
-  }
-  if (view === 'plan' && triage) {
-    return (
-      <Plan
-        t={t}
-        lang={lang}
-        triage={triage}
-        vet={vet}
-        insurance={insurance}
-        rail={rail}
-        onCall={call}
-        onRestart={() => setView('home')}
-      />
-    );
-  }
-  return <Home t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} />;
+  // Rule 3: while any agent is scripted (?demo=1, a VITE_*=mock build, or the phone rehearsal), every screen says so.
+  const simulated = IS_MOCK || (view === 'phone' && rehearsal);
+  const screen = (() => {
+    if (view === 'ownvoice') return <OwnVoice onBack={() => setView('home')} />;
+    if (view === 'voice') {
+      return (
+        <VoiceCall
+          t={t}
+          lang={lang}
+          triage={triage}
+          vet={vet}
+          insurance={insurance}
+          onTriage={setTriage}
+          rail={triage ? rail : null}
+          onCall={call}
+          onEnd={() => setView(triage ? 'plan' : 'home')}
+        />
+      );
+    }
+    if (view === 'clinics') {
+      // Going back from the list never restarts the voice call: show the plan instead.
+      return <ClinicList t={t} lang={lang} triage={triage} rail={rail} onPick={pickClinic} onBack={() => setView(triage ? 'plan' : 'home')} />;
+    }
+    if (view === 'phone') {
+      return (
+        <Handoff
+          key={`${target}-${clinic ? clinic.id : ''}`}
+          t={t}
+          lang={lang}
+          rail={rail}
+          target={target}
+          clinic={target === 'vet' ? clinic : null}
+          gradium={gradiumAvailable ? { on: gradiumOn, ownVoice, set: setGradiumOn } : null}
+          context={{
+            gradiumConsent: gradiumAvailable && gradiumOn,
+            voice: ownVoice ? 'my_voice' : 'standard',
+            summary: buildSummary({ lang, triage, vet, insurance }),
+            clinic: target === 'vet' ? clinic : undefined,
+            estimate: vet ? vet.estimate : undefined,
+            homeVisitFee: vet ? vet.homeVisitFee : undefined,
+          }}
+          onDone={callDone}
+          onRehearse={() => { setGradiumOn(false); setRehearsal(true); }}
+        />
+      );
+    }
+    if (view === 'plan' && triage) {
+      return (
+        <Plan
+          t={t}
+          lang={lang}
+          triage={triage}
+          vet={vet}
+          insurance={insurance}
+          rail={rail}
+          onCall={call}
+          onRestart={() => setView('home')}
+        />
+      );
+    }
+    return <Home t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} />;
+  })();
+  return (
+    <>
+      {simulated && <p className="sim-banner" role="note">{t.mockBadge}</p>}
+      {screen}
+    </>
+  );
 }

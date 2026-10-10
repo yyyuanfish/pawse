@@ -53,6 +53,7 @@ def test_rest_fallback_with_denied_microphone_is_explained(page: Page, transcrip
 
 def open_own_voice(page: Page):
     page.goto("/app/")
+    page.locator("details.home-settings summary").click()  # own voice lives in the settings since #63
     page.get_by_role("button", name="Record my voice · emergency rehearsal").click()
     expect(page.get_by_role("heading", name="My voice · emergency rehearsal")).to_be_visible()
 

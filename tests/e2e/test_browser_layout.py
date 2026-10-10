@@ -117,7 +117,7 @@ def test_desktop_centres_the_app_column(page: Page, width, height):
 
 
 @pytest.mark.parametrize("width,height", [SIZES[0], SIZES[-1]], ids=ids([SIZES[0], SIZES[-1]]))
-def test_simulated_rehearsal_is_labelled_on_screen(page: Page, width, height):
+def test_scripted_call_shows_its_simulated_badge(page: Page, width, height):
     """Rule 3: the scripted demo never passes for a real call. Its phone call carries a visible "simulated" badge."""
     page.set_viewport_size({"width": width, "height": height})
     page.goto("/app/?demo=1&speed=20")
@@ -128,3 +128,23 @@ def test_simulated_rehearsal_is_labelled_on_screen(page: Page, width, height):
     badge = page.locator(".pc-head .sim-badge")
     expect(badge).to_have_text("Simulated call: no real phone call is made")
     expect(badge).to_be_in_viewport()
+
+
+@pytest.mark.parametrize("width,height", [SIZES[0], SIZES[-1]], ids=ids([SIZES[0], SIZES[-1]]))
+def test_scripted_run_is_labelled_on_every_screen(page: Page, width, height):
+    """Rule 3: a scripted run is labelled on every screen, starting with the first one the owner sees."""
+    page.set_viewport_size({"width": width, "height": height})
+    page.goto("/app/?demo=1")
+    label = page.get_by_role("note").filter(has_text="Simulated")
+    expect(label).to_be_in_viewport()
+    page.locator(".start-btn").click()
+    expect(label).to_be_visible()
+
+
+def test_default_app_runs_the_real_agents_without_a_simulated_label(page: Page):
+    """A plain /app/ build (no VITE_* settings, as in the Dockerfile) is the production app, not the rehearsal."""
+    page.goto("/app/")
+    expect(page.locator(".start-btn")).to_be_visible()
+    expect(page.get_by_role("note").filter(has_text="Simulated")).to_have_count(0)
+    page.locator("details.home-settings summary").click()
+    expect(page.get_by_role("link", name="Simulated rehearsal")).to_be_visible()

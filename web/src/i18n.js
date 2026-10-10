@@ -135,6 +135,7 @@ export const strings = {
     prepared: '已准备，尚未拨打电话',
     prepare: '准备',
     settings: '演示与声音设置',
+    mockBadge: '模拟演练 · 脚本内容，不会真的打电话或预约',
   },
 
   en: {
@@ -277,6 +278,7 @@ export const strings = {
     prepared: 'Prepared, no call placed',
     prepare: 'Prepare',
     settings: 'Demo & voice settings',
+    mockBadge: 'Simulated rehearsal · scripted, no real calls or bookings',
   },
 };
 

@@ -118,6 +118,8 @@ call.on(cb); call.start(); call.hangup();
 
 ## 切换到真实工具
 
+默认就是真实后端（生产构建不设任何 `VITE_*`）。`?demo=1` 或 `VITE_*=mock` 才用脚本演练，页面顶部会一直显示“模拟演练”标签。
+
 在 `.env.local` 里（参考 `.env.example`），三块可以分开切：
 
 ```
