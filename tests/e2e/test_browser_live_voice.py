@@ -31,6 +31,11 @@ def mic_button(page: Page):
     return page.locator("nav.call-controls button").first
 
 
+def tool_card(page: Page, name: str):
+    """The call's card for one tool result (its own summary is the tool name; nested <details> may follow)."""
+    return page.locator("details.card").filter(has=page.locator("> summary", has_text=name))
+
+
 def turn_mic_on(page: Page, live: FakeLive):
     mic_button(page).click()
     expect(mic_button(page)).to_have_attribute("aria-pressed", "false")  # pressed = muted
@@ -135,18 +140,18 @@ def test_tool_call_is_forwarded_answered_and_rendered(page: Page, app_server):
     assert call["context"] == {"language": "en", "share_location": False, "insurance": None}  # no location without consent; no saved policy
     [answer] = live.frames("toolResponse")[0]["functionResponses"]
     assert (answer["id"], answer["name"], answer["response"]) == ("fc-1", "search_policy", {"ok": True, "echo": "fc-1"})
-    card = page.locator("details", has_text="search_policy")
-    card.locator("summary").click()
-    expect(card).to_contain_text("Demo policy")
-    expect(card).to_contain_text(evidence["evidence"][0]["snippet"][:40])
+    card = tool_card(page, "search_policy")
+    card.locator("> summary").click()
+    card.get_by_text("Demo policy shared with Pawse").click()  # the evidence is its own nested <details>
+    expect(card.get_by_text(evidence["evidence"][0]["snippet"][:40])).to_be_visible()
 
 
 def test_clinic_call_only_offers_the_dialer_and_places_no_call(page: Page):
     live = FakeLive(page, tool_ui={"open_clinic_call": CLINIC_UI})
     open_call(page, live)
     live.push({"toolCall": {"functionCalls": [{"id": "fc-2", "name": "open_clinic_call", "args": {"clinic_index": 0}}]}})
-    card = page.locator("details", has_text="open_clinic_call")
-    card.locator("summary").click()
+    card = tool_card(page, "open_clinic_call")
+    card.locator("> summary").click()
     expect(card).to_contain_text("No call placed")
     expect(card.get_by_role("link", name="Open device dialer for Tierarztpraxis Seefeld")).to_have_attribute("href", "tel:+41440000000")
 
@@ -167,7 +172,7 @@ def test_token_failure_is_explained(page: Page):
     page.goto(LIVE)
     page.locator(".start-btn").click()
     page.get_by_role("button", name="Agree and start").click()
-    expect(page.locator(".cap-error")).to_contain_text("Live voice is unavailable right now, so this is the simulated rehearsal.")
+    expect(page.get_by_test_id("call-error")).to_contain_text("Live voice is unavailable right now, so this is the simulated rehearsal.")
     expect(page.locator(".cap-ai").first).to_be_visible()  # the scripted rehearsal starts instead
     assert live.socket is None
 
@@ -177,7 +182,7 @@ def test_denied_microphone_is_explained_and_typing_still_works(page: Page):
     live = FakeLive(page)
     open_call(page, live)
     mic_button(page).click()
-    expect(page.locator(".cap-error", has_text="Couldn't open the microphone")).to_be_visible()
+    expect(page.get_by_test_id("mic-error")).to_contain_text("Couldn't open the microphone")
     box = page.get_by_role("textbox")
     box.fill("My cat is limping")
     box.press("Enter")
@@ -190,7 +195,7 @@ def test_dropped_socket_is_reported_and_the_mic_released(page: Page):
     open_call(page, live)
     turn_mic_on(page, live)
     live.socket.close(code=1011, reason="internal error")
-    expect(page.locator(".cap-error")).to_contain_text("disconnected")
+    expect(page.get_by_test_id("call-error")).to_contain_text("disconnected")
     page.wait_for_function(MIC_RELEASED)
 
 
