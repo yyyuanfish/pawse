@@ -109,3 +109,11 @@ matches. This is not verification of coverage.
 Clinic discovery can use Google Places, Gemini Maps grounding, or the configured clinic adapter,
 with an optional local OpenStreetMap snapshot. Snapshot files remain private runtime data and are
 not included in Git. Opening hours are listing text; `open_now` remains unknown without evidence.
+
+## Device location and owner insurance
+
+The home screen's **Use my current location** requests browser geolocation with a 15-second
+limit. It reports permission/unavailability errors explicitly, supports clearing, and retains
+coordinates only in page memory for two minutes. Clinic search and Gemini Live tool calls reuse
+this position with `share_location: true`. The Live agent retains the upstream central-Zurich fallback, explicitly labelled `location_source=zurich_default`; it is not the owner's location. The inline injury handoff instead requires successful location acquisition. Browser/OS permission is required. Location is shared with the backend
+and its clinic discovery providers only when care/search is requested.

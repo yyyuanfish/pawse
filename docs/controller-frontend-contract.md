@@ -144,3 +144,64 @@ Acceptance requires actual mic cleanup, mono PCM16 WAV conversion, safe transcri
 ## React client
 
 The additional `web/` client is served at `/app/` after building. Its backend mode, endpoint mapping, consent gates and evaluation scope are described in [React agent integration](WEB_AGENT_INTEGRATION.md). The original root interface remains available for voice enrollment.
+
+### Injury follow-up inside the voice conversation
+
+After `/vision/observations` returns a suspected wound or blood-like material, the conversation
+renders an inline care handoff. This stays visible instead of switching to the triage sheet.
+With an existing fresh device location it searches immediately; otherwise the owner taps
+**Use my location · find vets** and grants browser permission. No default coordinates are used.
+
+1. `POST /clinics/search`: device coordinates and `share_location=true`; no symptoms or AI-sharing flag are sent.
+   Keep server ranking and show source, unknown hours and missing phone numbers faithfully.
+2. Owner selects a returned practice and can add what happened/current bleeding information.
+   `POST /voice/scripts`: uncertain photo findings, separate owner report, selected practice,
+   `target_language=de`, owner-language subtitles, explicit existing Gemini consent.
+3. Show the draft in the same conversation. After owner review and Gradium consent,
+   `POST /voice/speech` with `voice=my_voice`, `language=de`; the server resolves the saved voice.
+4. Render audio playback/download and, when available, a validated `tel:` link. No automated call,
+   booking or phone-audio injection is performed. A missing saved voice disables generation.
+
+Requests time out after 60 seconds and are cancelled when this handoff is removed. Photo/care
+content is not persisted by this component. A missing provider or failed location shows an error;
+no simulated clinic results are substituted. Existing API schemas are unchanged.
+
+### Advice before follow-up for suspected injury
+
+Both the Gemini Live system instruction and the photo-to-conversation message require immediate
+care advice before the next question. A suspected wound triggers advice to contact a veterinarian
+today and prevent licking/scratching where safely possible, with explicit uncertainty about active
+bleeding, depth and infection. Reported heavy/uncontrolled bleeding, collapse or breathing difficulty
+requires emergency escalation before questions, location lookup or voice preparation. The existing
+server-provided next-step card remains visible even if the conversational model fails to respond.
+
+The assistant then asks one relevant question and offers nearby care and a reviewed German message.
+No diagnosis, medication dosing or appointment confirmation is inferred from a photo. Wound-care
+reference: [PDSA wounds and skin injuries](https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/wounds-and-skin-injuries)
+(reviewed 2026-10-10). Prompt regression tests check these requirements; they do not establish clinical
+accuracy or guarantee every generated response.
+
+### Experimental facial-cue observations
+
+Both upload and native camera capture continue to use `POST /api/v1/vision/observations`.
+The response adds `facial_cues` (ears, eyes, muzzle, whiskers, head position; each an ordinal
+0/1/2 or null with visual evidence) and server-computed `facial_estimate`.
+
+Only an adequate, assessable cat face in an apparently awake/resting context, with all five
+units visible and no printed score overlay, receives a total. Otherwise `total=null` and
+`status=not_assessable`. Non-cat, unsuitable context, limited images and labelled screenshots
+have their unit scores cleared by the server. Missing units never become zeros.
+A complete estimate >=4 routes to `contact_vet`; a visible subtotal >=4 can also recommend contact without displaying an incomplete/overlay total. Owner-reported emergency flags retain priority.
+This conservative product rule is not validation of automated FGS scoring. Never label a low
+estimate as pain-free or prescribe medicine. Show the experimental limitation beside the result,
+not only in a tooltip. Live dialogue receives the same limitation and must not invent a missing total.
+
+Reference: [FGS official observation guidance](https://www.felinegrimacescale.com/practice-your-skills),
+checked 2026-10-10. The original scale requires an undisturbed observation, with sleeping/eating/
+grooming/vocalising cats excluded until appropriate. A still photo cannot confirm that condition.
+The model and this application are not endorsed or clinically validated by the FGS authors.
+
+### Camera and upload are separate actions
+
+The conversation composer uses a **+ / Add photo** button with two labelled choices:
+**Upload photo** opens an existing-image file chooser. **Take a photo** opens the phone's native camera via `capture="environment"`; on desktop it opens a local camera preview with a capture button. A submitted photo uses the conversation's Gemini consent. Camera preview alone is not uploaded. These current controls are retained during the feature merge.

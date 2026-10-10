@@ -5,9 +5,15 @@
 
 import { phoneScripts, buildVetResult, buildInsuranceResult, DEFAULT_ESTIMATE, AUTO_REPLY_MS } from './mockScripts.js';
 import { speak, stopSpeech } from './speech.js';
+import { storyFacts, mockStory, buildConfirmResult, buildTaxiResult } from './story.js';
+
+/** The German lines of one call; the confirmation call follows the owner's option (clinic or home visit). */
+export function mockCallLines(target, context = {}) {
+  if (target === 'confirm') return phoneScripts.confirm.byChoice[context.choice === 'home' ? 'home' : 'clinic'];
+  return (phoneScripts[target] || phoneScripts.vet).lines;
+}
 
 export function createMockPhoneCall({ target = 'vet', lang = 'zh', context = {}, speed = 1 } = {}) {
-  const script = phoneScripts[target] || phoneScripts.vet;
   const L = (o) => o[lang] ?? o.en;
   const listeners = new Set();
   const timers = new Set();
@@ -67,7 +73,7 @@ export function createMockPhoneCall({ target = 'vet', lang = 'zh', context = {},
       }
       await wait(450);
       if (ended) return;
-      if (line.step) emit({ type: 'progress', text: L(line.step) });
+      if (line.step) emit({ type: 'progress', text: L(line.step), ...(line.who === 'callee' ? { simulated: true } : {}) });
       emit({ type: 'speaking', who: line.who });
       const ev = { type: 'line', who: line.who, original: line.de, text: L(line.text) };
       if (line.who === 'callee') ev.simulated = true; // scripted reply, nobody was called
@@ -83,18 +89,21 @@ export function createMockPhoneCall({ target = 'vet', lang = 'zh', context = {},
     await wait(2400);
     if (ended) return;
     emit({ type: 'status', state: 'connected' });
-    await playLines(script.lines);
+    await playLines(mockCallLines(target, context));
     if (ended) return;
     await wait(500);
     if (ended) return;
-    const result =
-      target === 'insurance'
-        ? buildInsuranceResult(
-            lang,
-            typeof context.estimate === 'number' ? context.estimate : DEFAULT_ESTIMATE,
-            typeof context.homeVisitFee === 'number' ? context.homeVisitFee : 0
-          )
-        : buildVetResult(lang, context.clinic, answers.slot);
+    const facts = storyFacts(mockStory());
+    let result;
+    if (target === 'confirm') result = buildConfirmResult({ facts, lang, choice: context.choice, clinic: context.clinic });
+    else if (target === 'taxi') result = buildTaxiResult({ facts, lang });
+    else if (target === 'insurance') {
+      result = buildInsuranceResult(
+        lang,
+        typeof context.estimate === 'number' ? context.estimate : DEFAULT_ESTIMATE,
+        typeof context.homeVisitFee === 'number' ? context.homeVisitFee : 0
+      );
+    } else result = buildVetResult(lang, context.clinic, answers.slot);
     emit({ type: 'result', ...result, simulated: true });
     emit({ type: 'status', state: 'ended' });
   }

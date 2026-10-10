@@ -14,6 +14,8 @@ import { gradiumSupports, gradiumVoiceName, resolveVoiceChoice } from '../agents
 import VoicePicker from '../components/VoicePicker.jsx';
 import { saveAssessment } from '../agents/account.js';
 import { observePhoto, observationMessage } from '../agents/petVision.js';
+import FacialCues from '../components/FacialCues.jsx';
+import InjuryHandoff from '../components/InjuryHandoff.jsx';
 
 const injured = (r) => r?.injury?.wound === 'suspected' || r?.injury?.blood_like_material === 'suspected';
 import { primeAudio } from '../agents/nativeAudio.js';
@@ -36,7 +38,7 @@ function fmt(sec) {
 }
 
 // Voice first. The camera and photos are optional extras the user can add any time.
-export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, rail, onCall, onEnd }) {
+export default function VoiceCall({ t, lang, triage, vet, insurance, rehearsal = false, onTriage, rail, onCall, onEnd }) {
   const [consent, setConsent] = useState(false);
   const [voiceChoice, setVoiceChoiceState] = useState(loadVoiceChoice);
   const setVoiceChoice = (v) => {
@@ -82,6 +84,10 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const [photoResult, setPhotoResult] = useState(null);
   const agentRef = useRef(null);
   const photoUrls = useRef([]);
+  const sendContext = (text) => {
+    contextMessages.current.add(text);
+    agentRef.current?.sendText(text);
+  };
   const onTriageRef = useRef(onTriage);
   onTriageRef.current = onTriage;
 
@@ -449,6 +455,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
                 </div>
               </div>
             )}
+            {photoResult && <FacialCues result={photoResult} />}
+            {photoResult && injured(photoResult) && <InjuryHandoff key={lastPhoto?.url} observation={photoResult} lang={lang} shareWithGemini={consent} onContext={sendContext} />}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error" role="alert" data-testid="call-error">{error}</p>}
             {wantsAudio && mic.error && <p className="cap-error" role="alert" data-testid="mic-error">{t.micUnavailable}</p>}
@@ -534,7 +542,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
         <div className="sheet" role="dialog" aria-label={t.adviceTitle}>
           <div className="sheet-grab" aria-hidden="true" />
           {rail}
-          <PlanPanel t={t} triage={triage} vet={vet} insurance={insurance} onCall={onCall} />
+          <PlanPanel rehearsal={rehearsal} t={t} triage={triage} vet={vet} insurance={insurance} onCall={onCall} />
           <div className="sheet-foot">
             <button type="button" className="btn ghost" onClick={() => setSheetOpen(false)}>
               {t.keepTalking}

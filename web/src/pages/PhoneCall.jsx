@@ -6,12 +6,56 @@ import { createPhoneCall, IS_LIVE_PHONE, DEBUG } from '../agents/index.js';
 import { resolveVoiceName, onVoicesChanged } from '../agents/speech.js';
 import { phoneProviders } from '../agents/providers.js';
 import { validateResult } from '../contracts.js';
+import CalendarSheet from '../components/CalendarSheet.jsx';
 
 function fmt(sec) {
   return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
 }
 
 function ResultCard({ t, target, result }) {
+  if (target === 'confirm') {
+    return (
+      <div className="result-card" data-beat="confirm-result">
+        <h3>{t.confirmAnswer}</h3>
+        <span className="sim-badge">{t.simulated}</span>
+        <div className="result-big">{result.time}</div>
+        <p>{result.place}</p>
+        <p>
+          {t.youPayAbout}: <strong>≈ {result.currency || 'CHF'} {result.youPay}</strong>
+        </p>
+        {result.note && <p className="muted small">{result.note}</p>}
+      </div>
+    );
+  }
+  if (target === 'taxi') {
+    const cur = result.currency || 'CHF';
+    return (
+      <div className="result-card" data-beat="taxi-result">
+        <h3>{t.taxiAnswer}</h3>
+        <span className="sim-badge">{t.simulated}</span>
+        <div className="result-big">{result.pickup}</div>
+        <ul className="cov">
+          <li className="ok">
+            <span className="cov-icon" aria-hidden="true">✓</span>
+            <span>{t.carrierOk}</span>
+          </li>
+          <li className="ok">
+            <span className="cov-icon" aria-hidden="true">✓</span>
+            <span>
+              {t.pickup} {result.pickup} → {t.todayVet(result.appointment)}
+            </span>
+          </li>
+          <li className="no">
+            <span className="cov-icon" aria-hidden="true">✕</span>
+            <span>
+              {t.fare} ≈ {cur} {result.fare} · {t.notInsured}
+            </span>
+          </li>
+        </ul>
+        {result.note && <p className="muted small">{result.note}</p>}
+      </div>
+    );
+  }
   if (target === 'vet') {
     return (
       <div className="result-card">
@@ -59,7 +103,7 @@ function ResultCard({ t, target, result }) {
 // The owner only ever deals in English (their language): Pawse talks German with the clinic or
 // insurer in the background. The screen shows progress steps, questions that need the owner's
 // decision, and the result. The German transcript and audio are there on request, never in the way.
-export default function PhoneCall({ t, lang, target, clinic, context, gradium, rail, onDone }) {
+export default function PhoneCall({ t, lang, target, clinic, context, gradium, rail, facts, nextLabel, onDone }) {
   const base = t.callees[target];
   const callee = clinic
     ? { ...base, name: clinic.name, role: Number.isFinite(clinic.distanceKm) ? `${clinic.distanceKm.toFixed(1)} km` : t.distanceUnknown }
@@ -107,7 +151,7 @@ export default function PhoneCall({ t, lang, target, clinic, context, gradium, r
           setLines((p) => [...p, e]);
           break;
         case 'progress':
-          setSteps((p) => [...p, { text: e.text }]);
+          setSteps((p) => [...p, { text: e.text, simulated: !!e.simulated }]);
           break;
         case 'question':
           setQuestion(e);
@@ -177,6 +221,10 @@ export default function PhoneCall({ t, lang, target, clinic, context, gradium, r
   };
 
   const live = status !== 'ended' && !result;
+  // The demo calendar slides in once the vet has offered a time (it never shows event titles).
+  const showCalendar = target === 'vet' && !!facts && (!!question || lines.some((l) => l.who === 'callee'));
+  // The story's next step after this call ({ label: 'Next: call the insurer', toPlan }), from App.
+  const next = result && nextLabel ? nextLabel(result) : null;
   const statusText = status === 'dialing' ? t.dialing : status === 'connected' ? `${t.inCall} · ${fmt(secs)}` : t.callEnded;
 
   // Which side of the bridge is active: the owner (English) or the phone call (German).
@@ -244,10 +292,13 @@ export default function PhoneCall({ t, lang, target, clinic, context, gradium, r
             ) : (
               <li key={i} className={`step ${live && i === steps.length - 1 && !question ? 'now' : 'done'}`}>
                 {s.text}
+                {s.simulated && <span className="sim-badge">{t.simulated}</span>}
               </li>
             )
           )}
         </ol>
+
+        {showCalendar && <CalendarSheet t={t} facts={facts} />}
 
         {question && (
           <div className="ask-card" role="group" aria-label={t.questionTitle}>
@@ -295,9 +346,23 @@ export default function PhoneCall({ t, lang, target, clinic, context, gradium, r
 
       <footer className="pc-foot">
         {!live ? (
-          <button type="button" className="btn primary wide" onClick={() => onDone(resultRef.current)}>
-            {t.backToPawse}
-          </button>
+          <div className="pc-done">
+            {next && (
+              <button type="button" className="btn primary wide" data-beat="next" onClick={() => onDone(resultRef.current, { next: true })}>
+                {next.label}
+              </button>
+            )}
+            {!(next && next.toPlan) && (
+              <button
+                type="button"
+                className={`btn ${next ? 'ghost' : 'primary'} wide`}
+                data-beat="back"
+                onClick={() => onDone(resultRef.current)}
+              >
+                {next ? t.backToPlan : t.backToPawse}
+              </button>
+            )}
+          </div>
         ) : (
           <div className="pc-controls">
             <button

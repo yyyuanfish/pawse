@@ -26,3 +26,12 @@ export const MOCK_SPEED = (() => {
   const v = Number(param('speed'));
   return v > 0 ? v : 1;
 })();
+
+/**
+ * How brisk Pawse sounds on the German calls. One place for the pace:
+ * audio = HTMLAudio playbackRate for Gradium call lines (preservesPitch stays on, so no chipmunk voice);
+ * speech = browser speechSynthesis rate (the fallback voice and the scripted demo).
+ * Gemini Live English audio is NOT sped up here (WebAudio playbackRate would shift its pitch);
+ * the Live system instruction asks it to speak briskly instead (pawse/live.py).
+ */
+export const VOICE_PACE = { audio: 1.15, speech: 1.1 };

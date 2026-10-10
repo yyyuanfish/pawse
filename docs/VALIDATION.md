@@ -1,5 +1,19 @@
 # Validation record
 
+## Current integration — 10 October 2026
+
+PRs #76 and #78 were reconciled with the deployed map and telephony changes. Current location watching,
+numbered map markers, native camera/upload controls, account/history screens and Twilio handoff are retained.
+The extended Mimi options, confirmation, taxi and calendar are an explicitly simulated rehearsal.
+Live navigation keeps insurance optional and does not offer synthetic booking options or the demo policy deadline.
+Pet vision retains `gemini-3-flash-preview`; facial estimates remain experimental, not clinically validated.
+An owner's saved German voice is used only when that session has a usable voice and approves the script.
+
+The integration checks cover both navigation modes, server-rendered advice/handoff visibility, actual-policy
+checklists, vision consent/abstention and generated contract consistency. Existing historical probes below
+are not claims of a new clinical benchmark or a new production telephone test.
+
+
 Date: 2026-10-10. Scope: the unified `pawse/` app and its new voice, agent and evidence interfaces. This is not a certification of the imported backend.
 
 ## Passed
@@ -45,6 +59,24 @@ The existing localhost rehearsal was also walked through all six clinic-path sce
 - Imported device/report services, live video ingestion and public multi-user deployment have not been validated in this iteration.
 
 `gemini-2.5-flash` appeared in the model listing but returned HTTP 404 for generation in this project. Credentials and recordings are not included in test fixtures or publication artifacts.
+
+## React app: the whole Mimi story (10 October 2026)
+
+The React app now plays the second half of the 2-minute script in mock mode (`/app/`) and in the live
+rehearsal (`/app/?live=1`, vet hand-off → More → "Open simulated Mimi phone rehearsal"): a demo calendar
+("free from 16:00", no event titles) during the vet call, option cards A clinic today 16:30 ≈ CHF 385 incl. ~25 taxi /
+B home visit tonight ≈ CHF 510 (live numbers from `/api/v1/demo/mimi` costs, mock from the same formulas in
+`web/src/agents/story.js`), a confirmation call to the vet (`steps[4]`, `home_lines` for B), a taxi call (`steps[5]`,
+clinic only, not insured), and a plan with "16:05 taxi → 16:30 vet" and the claim checklist (video, itemised invoice,
+`claim_days` = 30). Every reply and result is labelled simulated; nothing is dialled or booked. German call audio plays at
+1.15× with pitch preserved (browser speech 1.1×); Gemini Live is asked to speak briskly instead of being sped up.
+
+Verified: `bash scripts/check.sh` (172 backend tests incl. a check that the React mock speaks the backend's `steps[4]`/`[5]`
+German lines word for word, plus `web/scripts/check-story.mjs`); a headless Chromium walk of both mock paths
+(clinic and home visit) with no console errors; `tests/e2e/test_browser_story.py` walks the live rehearsal against the real
+server with FakeLive and mocked provider routes. The full e2e suite has the same 5 failures as `origin/main`
+(denied-mic / own-voice / one Live tool-call test), none in the new flow. Not verified: real Gradium audio pace on a device,
+real telephony (none exists).
 
 ## React backend handoff (10 October 2026)
 
@@ -102,3 +134,89 @@ Verified by tests, no live Gemini traffic:
 - `tests/test_live.py`: the token response never contains the `GEMINI_API_KEY` value.
 
 NOT yet verified: a real human speaking into the microphone in real Chrome against the deployed build with live keys (Gradium STT and voice, tool chip for "my cat is limping"). Needs a person at a browser; do not treat the Live default as field-verified until that is done.
+
+### Structured cat-photo observations — 2026-10-10
+
+Added `/api/v1/vision/observations` and the home-screen **Check a cat photo** view.
+Mocked regression checks cover consent, malformed images, abstention, preserved reported emergency
+signs and redacted provider failures. A live Gemini 3.8 Flash request through this endpoint returned
+HTTP 200 for a synthetic blank image, correctly reporting no cat and unassessable features.
+Real cat-photo accuracy and mobile camera capture have not been validated. Desktop UI exposes
+upload, camera-capable file selection, explicit photo sharing, and structured results.
+
+### Wound observation extension — 2026-10-10
+
+An owner-supplied example image was tested through the real Gemini 3.8 Flash endpoint.
+The final HTTP 200 response reported suspected wound and blood-like material near the eye/ear,
+with exposed pink skin and dark crusting, and routed to `contact_vet`. Active bleeding remains
+server-fixed as indeterminable from a still. Earlier attempts exposed a missing injury field and
+noncanonical limitation text; injury is now required and the limitation is enforced server-side.
+This is one example, not a sensitivity/specificity evaluation. The image and raw response stay
+outside Git. Mobile native-camera launch is requested via capture=environment but has not been
+verified on physical iOS/Android hardware.
+
+### Inline injury care handoff — 2026-10-10
+
+The conversation now connects suspected injury results to device-location clinic search, clinic
+selection, reviewed German scripts and playback/download using the saved German own voice.
+Mocked integration checks cover the request chain, consent gates, unknown hours, location required,
+saved-voice selection and missing-provider errors. The frontend production build passes.
+
+The local Google Places key is now configured. A real search at an explicitly labelled Zurich-centre
+test coordinate returned 20 provider-listed results. Primary veterinary-care filtering is enforced;
+provider categorisation does not verify that a practice treats cats or has an appointment. The browser
+returned location unavailable, so the owner-location end-to-end path is not verified. Physical phone
+location and camera permissions still require device testing. Calls and bookings remain unconnected.
+
+A bounded live rehearsal subsequently searched Google Places at that Zurich test coordinate,
+selected a returned small-animal practice, generated four German script lines with Gemini and
+received 1,989,164 bytes of WAV audio from Gradium using `voice=my_voice`. The audio stays in ignored
+`tmp/`. This validates the provider chain independently of the unavailable device location; it did
+not telephone a clinic. Browser inspection with the owner-supplied injury photo confirmed that the
+care card and location retry remain in the same conversation.
+
+### Experimental facial cues — 2026-10-10
+
+The upload/camera observation response now includes five facial cue estimates and a deterministic,
+explicitly experimental total when all assessment conditions are met. Automated tests cover
+missing features, non-cats, low-quality photos, unsuitable activity, printed answer overlays,
+out-of-range model values, threshold handling, and emergency priority. These are software contract
+tests, not sensitivity/specificity measurements. No guaranteed pain recognition, clinical severity
+classification, automatic diagnosis, or medication advice is provided.
+
+The supplied three screenshots contain printed FGS answers. They are exploratory API fixtures,
+not a blinded accuracy test; the server suppresses scores when such overlays are detected.
+Images are not committed or used as a training dataset. A blinded, independently vet-labelled
+set and physical-phone camera tests are still required before any reliability claim.
+
+Live Gemini checks on all three supplied screenshots returned HTTP 200 with cat detection and
+individual visual descriptions (including narrowed eyes and outward/flattened ears). Each overlay
+was detected and its numerical total suppressed. These observations do not demonstrate accuracy
+on unlabelled photos. The original images and raw responses remain outside Git.
+
+Verification for this change: 115 backend tests passed, frontend contract checks and production
+build passed (existing bundle-size warning). Browser smoke check confirmed the built app,
+simulated conversation and Upload photo / Take photo menu load without console errors.
+The new result card has not yet been exercised end-to-end on a physical phone.
+
+### Local main + vision integration — 2026-10-10
+
+Integrated main at `98a284f` with vision branch at `41a389d` in an isolated worktree.
+Preserved the main branch's Places Text Search guard, standalone clinic-search endpoint,
+account/history UI, iOS audio-unlock path and default Live mode, alongside photo observations
+and experimental facial cues. Injury-handoff checks now exercise `/clinics/search` without
+sending symptoms. The main Live flow retains an explicitly labelled central-Zurich fallback;
+inline injury search still requires device location.
+
+Validation: 203 tests passed, 8 skipped; frontend checks, generated OpenAPI and production
+build passed. Browser smoke check covered guest entry, home at 390 px and Live consent screen.
+This is not physical iPhone/Android camera or microphone verification. LAN HTTP can test the
+file-input capture/upload path; real-time camera, mic and location require a secure origin.
+### Separate camera and upload actions — 2026-10-10
+
+Reproduction: the former Take photo button triggered a capture-hinted file input, which could open
+an ordinary picker on desktop. It now requests a local getUserMedia preview. Browser rehearsal
+confirmed camera readiness, Capture photo, and the unsent-photo review with Send/Retake/Cancel;
+the captured image was cancelled without provider submission. Upload photo separately produced
+a filechooser event. Capture closes the preview and media tracks; camera layout does not collapse
+when conversation content grows. Physical mobile hardware remains untested.
