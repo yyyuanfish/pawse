@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01H1YFnDnBq2mxkfN1DS24LH",
+  "agent_id": "ab1bc6563c90bdf8b",
+  "subagent_type": "general-purpose",
+  "task_description": "Review React web app",
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 133437,
+    "cache_read_tokens": 1852390,
+    "output_tokens": 356,
+    "api_call_count": 21
+  },
+  "started_at": "2026-10-10T14:48:23.122951077Z",
+  "completed_at": "2026-10-10T14:51:21.212729313Z"
+}

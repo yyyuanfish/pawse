@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01G11M4JQcEHhanLxSvfiZHC",
+  "agent_id": "a1b1ff08880898a60",
+  "subagent_type": "general-purpose",
+  "task_description": "Review backend core",
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 90917,
+    "cache_read_tokens": 1098024,
+    "output_tokens": 655,
+    "api_call_count": 16
+  },
+  "started_at": "2026-10-10T14:48:22.861442377Z",
+  "completed_at": "2026-10-10T14:51:03.979711674Z"
+}

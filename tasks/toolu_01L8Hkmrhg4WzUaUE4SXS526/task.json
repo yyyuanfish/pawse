@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01L8Hkmrhg4WzUaUE4SXS526",
+  "agent_id": "a825939e4ed42d5b4",
+  "subagent_type": "general-purpose",
+  "task_description": "Review static frontend",
+  "token_usage": {
+    "input_tokens": 38,
+    "cache_creation_tokens": 113772,
+    "cache_read_tokens": 1528460,
+    "output_tokens": 1288,
+    "api_call_count": 19
+  },
+  "started_at": "2026-10-10T14:48:22.979855317Z",
+  "completed_at": "2026-10-10T14:50:43.272983816Z"
+}

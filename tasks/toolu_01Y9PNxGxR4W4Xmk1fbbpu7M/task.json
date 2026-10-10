@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01Y9PNxGxR4W4Xmk1fbbpu7M",
+  "agent_id": "a15b7475ee780c799",
+  "subagent_type": "general-purpose",
+  "task_description": "Review tests, docs, infra",
+  "token_usage": {
+    "input_tokens": 68,
+    "cache_creation_tokens": 91503,
+    "cache_read_tokens": 2268470,
+    "output_tokens": 600,
+    "api_call_count": 34
+  },
+  "started_at": "2026-10-10T14:48:23.022149433Z",
+  "completed_at": "2026-10-10T14:52:03.600566684Z"
+}
