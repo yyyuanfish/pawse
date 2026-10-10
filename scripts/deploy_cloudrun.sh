@@ -14,7 +14,7 @@ ENV_FILE="${PAWSE_ENV_FILE:-.env}"
 [ -f "$ENV_FILE" ] || ENV_FILE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.env"
 env_value() {  # last NAME=value line, surrounding quotes removed
   [ -f "$ENV_FILE" ] || return 0
-  sed -n "s/^[[:space:]]*\(export[[:space:]]\+\)\?$1[[:space:]]*=[[:space:]]*//p" "$ENV_FILE" | tail -n 1 | sed -e 's/[[:space:]]*$//' -e "s/^[\"']\(.*\)[\"']$/\1/"
+  sed -E -n "s/^[[:space:]]*(export[[:space:]]+)?$1[[:space:]]*=[[:space:]]*//p" "$ENV_FILE" | tail -n 1 | sed -e 's/[[:space:]]*$//' -e "s/^[\"']\(.*\)[\"']$/\1/"
 }
 RUNTIME_SA="$(gcloud projects describe "$PROJECT" --format 'value(projectNumber)')-compute@developer.gserviceaccount.com"
 SECRETS=""
