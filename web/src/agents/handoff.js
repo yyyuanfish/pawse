@@ -23,3 +23,11 @@ export function generateSpeech(text, voice, consent, signal) {
   if (!consent) return Promise.reject(new Error('Confirm sharing the reviewed script with Gradium.'));
   return requestTool('voice/speech', { text, language: 'de', voice, share_with_gradium: true }, { binary: true, signal });
 }
+/** Default speech voice: the owner's own German voice only when one is ready, else the standard voice. */
+export function initialVoice(context) {
+  return context && context.voice === 'my_voice' ? 'my_voice' : 'standard';
+}
+/** What a prepared conversation hands back to the plan: a script (and maybe audio), never a call result. */
+export function preparedResult(target, script, audio) {
+  return { prepared: true, target, lines: script ? script.lines.length : 0, audio: !!audio };
+}

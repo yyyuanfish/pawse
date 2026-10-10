@@ -26,7 +26,7 @@ function retrievedTime(iso) {
   return iso && !Number.isNaN(d.getTime()) ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 }
 
-export default function ClinicList({ t, lang, triage, onPick, onBack }) {
+export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
   const [state, setState] = useState({ status: 'loading', clinics: [], located: true });
 
   const load = useCallback(async () => {
@@ -51,6 +51,7 @@ export default function ClinicList({ t, lang, triage, onPick, onBack }) {
 
   return (
     <main className="clinics">
+      {rail}
       <header className="clinics-head">
         <button type="button" className="round-btn light" onClick={onBack} aria-label={t.back}>
           <Icon name="arrowLeft" size={20} />

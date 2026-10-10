@@ -59,7 +59,7 @@ function ResultCard({ t, target, result }) {
 // The owner only ever deals in English (their language): Pawse talks German with the clinic or
 // insurer in the background. The screen shows progress steps, questions that need the owner's
 // decision, and the result. The German transcript and audio are there on request, never in the way.
-export default function PhoneCall({ t, lang, target, clinic, context, gradium, onDone }) {
+export default function PhoneCall({ t, lang, target, clinic, context, gradium, rail, onDone }) {
   const base = t.callees[target];
   const callee = clinic
     ? { ...base, name: clinic.name, role: `${clinic.distanceKm.toFixed(1)} km` }
@@ -197,6 +197,7 @@ export default function PhoneCall({ t, lang, target, clinic, context, gradium, o
 
   return (
     <main className="pc" ref={listRef}>
+      {rail}
       <header className="pc-head">
         <div className={`pc-callee ${speaking === 'callee' ? 'talking' : ''} ${status === 'dialing' ? 'ringing' : ''}`}>
           <span aria-hidden="true">{callee.icon}</span>
