@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01NM29bfodXqUvX7GtTcz45S",
+  "agent_id": "a769234e08cb51778",
+  "subagent_type": "Explore",
+  "task_description": "Audit Gemini Live completeness",
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 53912,
+    "cache_read_tokens": 174036,
+    "output_tokens": 68,
+    "api_call_count": 6
+  },
+  "started_at": "2026-10-10T14:59:19.077887039Z",
+  "completed_at": "2026-10-10T15:00:08.710340186Z"
+}
