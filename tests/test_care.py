@@ -131,10 +131,18 @@ async def test_gemini_cannot_downgrade_red_flags(monkeypatch):
 async def test_google_places_normalization(monkeypatch):
     monkeypatch.setenv('GOOGLE_PLACES_API_KEY','test-only')
     def handler(r):
-        assert json.loads(r.content)['includedTypes']==['veterinary_care']
-        return httpx.Response(200,json={'places':[{'id':'123','displayName':{'text':'Animal Clinic'},'location':{'latitude':47.37,'longitude':8.54},'internationalPhoneNumber':'+41441234567'}]})
+        # Nearby Search by type alone returned homeopaths, a psychologist and a bird charity in Zurich;
+        # a vet text query with strict type filtering returns practices.
+        assert r.url.path=='/v1/places:searchText'
+        body=json.loads(r.content)
+        assert body['includedType']=='veterinary_care' and body['strictTypeFiltering'] is True
+        assert 'Tierarzt' in body['textQuery'] and body['rankPreference']=='DISTANCE'
+        assert body['locationBias']['circle']['radius']==10000
+        return httpx.Response(200,json={'places':[{'id':'123','displayName':{'text':'Animal Clinic'},'location':{'latitude':47.37,'longitude':8.54},'internationalPhoneNumber':'+41441234567'},
+                                                  {'id':'far','displayName':{'text':'Far Clinic'},'location':{'latitude':47.6,'longitude':8.54}}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         result=await google_clinics(CareRequest(**payload(location={'lat':47.37,'lng':8.54})),client)
+        assert [c.id for c in result]==['123']  # text search only biases to the circle: drop places outside the radius
         assert result[0].call_url=='tel:+41441234567'
         assert result[0].open_now is None
         assert result[0].distance_km==0

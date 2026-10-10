@@ -84,14 +84,19 @@ async def google_clinics(req, client):
     if not key:
         raise ProviderError("google_places_not_configured")
     fields = "places.id,places.displayName,places.formattedAddress,places.location,places.internationalPhoneNumber,places.googleMapsUri,places.websiteUri,places.rating,places.currentOpeningHours"
-    r = await client.post("https://places.googleapis.com/v1/places:searchNearby", headers={"X-Goog-Api-Key": key, "X-Goog-FieldMask": fields}, json={
-        "includedTypes": ["veterinary_care"], "maxResultCount": 20, "rankPreference": "DISTANCE",
-        "locationRestriction": {"circle": {"center": {"latitude": req.location.lat, "longitude": req.location.lng}, "radius": req.radius_km * 1000}},
+    # Nearby Search by type alone also returns places Google merely tags as veterinary (homeopaths, associations,
+    # a psychologist in Zurich); a vet text query with strict type filtering returns practices.
+    r = await client.post("https://places.googleapis.com/v1/places:searchText", headers={"X-Goog-Api-Key": key, "X-Goog-FieldMask": fields}, json={
+        "textQuery": "Tierarztpraxis Kleintierpraxis Tierklinik", "includedType": "veterinary_care", "strictTypeFiltering": True,
+        "pageSize": 20, "rankPreference": "DISTANCE",
+        "locationBias": {"circle": {"center": {"latitude": req.location.lat, "longitude": req.location.lng}, "radius": req.radius_km * 1000}},
     }, timeout=15)
     r.raise_for_status()
     result = []
     for p in r.json().get("places", []):
         location = Location(lat=p["location"]["latitude"], lng=p["location"]["longitude"])
+        if distance(req.location, location) > req.radius_km:  # text search only biases towards the circle
+            continue
         phone = p.get("internationalPhoneNumber")
         opening = p.get("currentOpeningHours", {}).get("openNow")
         result.append(Clinic(id=p["id"], name=p["displayName"]["text"], address=p.get("formattedAddress", ""),
