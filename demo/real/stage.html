@@ -20,10 +20,16 @@
   .badge.sim { color: var(--sim); border-color: var(--sim); }
   .phone { width: 470px; height: 940px; border-radius: 56px; background: #111; padding: 20px; box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 0 2px #333; }
   iframe { width: 430px; height: 900px; border: 0; border-radius: 38px; background: #fff; }
+  .badge.gen { color: #8fb8ff; border-color: #8fb8ff; }
   .fade { opacity: 0; }
+  #intro { position: fixed; inset: 0; background: #000; z-index: 10; transition: opacity .6s; }
+  #intro video { width: 100%; height: 100%; object-fit: cover; }
+  #intro .cap { position: absolute; left: 0; right: 0; bottom: 120px; text-align: center; font-size: 60px; font-weight: 800; text-shadow: 0 3px 18px rgba(0,0,0,.8); }
+  #intro .tag { position: absolute; top: 40px; right: 48px; font-size: 24px; font-weight: 700; padding: 8px 16px; border-radius: 999px; background: rgba(0,0,0,.5); color: #cfe0ff; }
 </style>
 </head>
 <body>
+<div id="intro" hidden><video id="introVideo" muted playsinline></video><div class="cap" id="introCap"></div><div class="tag">AI-generated footage (Gemini)</div></div>
 <div class="wrap">
   <section>
     <div class="brand"><b>Pawse</b> · calls the vet in German for you</div>
@@ -47,12 +53,21 @@
       for (const [kind, text] of badges) {
         const el = document.createElement('span');
         el.className = `badge ${kind}`;
-        el.textContent = (kind === 'live' ? '● LIVE · ' : '◆ SIMULATED · ') + text;
+        el.textContent = ({ live: '● LIVE · ', sim: '◆ SIMULATED · ', gen: '▲ AI-GENERATED · ' })[kind] + text;
         b.appendChild(el);
       }
       c.classList.remove('fade'); s.classList.remove('fade');
     }, 350);
   };
+  // Opening shot: plays the (AI-generated) clip full screen with a caption, resolves when it ends.
+  // volume: the clip's own sound (lower it under a narrator); keep seconds under the clip's length.
+  window.intro = ({ src, caption = '', seconds = 7, volume = 0.6 }) => new Promise((done) => {
+    const box = document.getElementById('intro'), v = document.getElementById('introVideo');
+    document.getElementById('introCap').textContent = caption;
+    v.src = src; v.muted = false; v.volume = volume; v.loop = false; box.hidden = false;
+    v.play().catch(() => { v.muted = true; v.play(); });
+    setTimeout(() => { box.style.opacity = '0'; setTimeout(() => { box.hidden = true; v.pause(); done(); }, 600); }, seconds * 1000);
+  });
 </script>
 </body>
 </html>

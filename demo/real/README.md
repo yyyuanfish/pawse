@@ -32,6 +32,11 @@ caption appeared). A failed beat stops the take and saves `-fail.png`.
 To change the owner's spoken line: `python demo/real/make-owner-line.py "<text>" demo/real/owner-line.wav`
 (Gemini TTS, reads `GEMINI_API_KEY` from `.env`).
 
+The opening has a narrator (`narrator-intro.wav`, Gemini TTS voice Charon, about 12 s) played into `rec` only, so
+Gemini Live never hears it; the clip's own sound drops under it and the app starts only after it ends. Skip it with
+`NARRATION_WAV= bash demo/real/record-real.sh`. To change it: `python demo/real/make-owner-line.py "<text>"
+demo/real/narrator-intro.wav Charon` (write Pawse as "Pause" so TTS says it right).
+
 ## How the sound gets in
 
 PulseAudio gets two null sinks. Chromium plays into `rec`, and ffmpeg records `rec.monitor` together with the X

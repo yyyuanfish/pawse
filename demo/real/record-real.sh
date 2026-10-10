@@ -6,6 +6,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE/.."
 APP_URL="${APP_URL:-http://127.0.0.1:8765/app/?live=1}"
 OWNER_WAV="${OWNER_WAV:-$HERE/owner-line.wav}"
+NARRATION_WAV="${NARRATION_WAV-$HERE/narrator-intro.wav}"  # narrator over the opening; NARRATION_WAV= (empty) to skip
+[ -f "$NARRATION_WAV" ] || NARRATION_WAV=""
+MIMI_DIR="${MIMI_DIR:-/mnt/pawse-demo-out/mimi}"  # make-mimi-clip.py output; skipped when missing
 OUT_DIR="${OUT_DIR:-/mnt/pawse-demo-out}"  # heavy media stays off the repo disk
 mkdir -p "$OUT_DIR"
 
@@ -18,14 +21,22 @@ pactl list short sources | grep -q owner_mic || pactl load-module module-remap-s
 pactl set-default-sink rec
 pactl set-default-source owner_mic
 
-python3 -m http.server 4180 --bind 127.0.0.1 --directory "$HERE" >/dev/null 2>&1 &
+# The stage page and the opening clip, served together.
+STAGE_DIR="$(mktemp -d)"
+ln -s "$HERE/stage.html" "$STAGE_DIR/stage.html"
+MIMI_ENV=()
+if [ -f "$MIMI_DIR/mimi-16x9.mp4" ]; then
+  ln -s "$MIMI_DIR/mimi-16x9.mp4" "$STAGE_DIR/mimi.mp4"
+  MIMI_ENV=(MIMI_INTRO=1 MIMI_CAMERA="$MIMI_DIR/mimi-9x16.mp4" MIMI_STILL="$MIMI_DIR/mimi-still.jpg")
+fi
+python3 -m http.server 4180 --bind 127.0.0.1 --directory "$STAGE_DIR" >/dev/null 2>&1 &
 STAGE_PID=$!
-trap 'kill $STAGE_PID 2>/dev/null || true' EXIT
+trap 'kill $STAGE_PID 2>/dev/null || true; rm -rf "$STAGE_DIR"' EXIT
 sleep 1
 
 RAW="$OUT_DIR/pawse-demo-real.mkv"
 STAGE_URL="http://127.0.0.1:4180/stage.html?app=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$APP_URL")" \
-OWNER_WAV="$OWNER_WAV" OUT="$RAW" \
+env "${MIMI_ENV[@]}" OWNER_WAV="$OWNER_WAV" NARRATION_WAV="$NARRATION_WAV" OUT="$RAW" \
   xvfb-run -a -s "-screen 0 1920x1080x24" node "$HERE/record-real.mjs"
 
 # Deliverable: silent waits shortened to fit 2:00, h264 + loudness-normalised AAC mp4. Capped at 4 GB RAM so a
