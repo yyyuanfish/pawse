@@ -1,0 +1,13 @@
+Another agent wants this:
+-_
+- ⚠️ Real Safari on a Mac or iPhone. Still needed for Own Voice recording. There's also an iPhone risk: the mic's audio setup starts a few steps after the tap (web/src/agents/nativeAudio.js:34), and iOS may then keep it paused and send no audio. I didn't change that without a device to test on.
+--
+I heus get it from me from my voice?
+
+---
+
+I dont have aope device, avid nedin gthis
+
+---
+
+yeah go ahead
