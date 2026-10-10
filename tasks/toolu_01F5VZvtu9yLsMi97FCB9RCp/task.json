@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01F5VZvtu9yLsMi97FCB9RCp",
+  "agent_id": "ab7effdd718010e59",
+  "subagent_type": "general-purpose",
+  "task_description": "Build missing Mimi story beats",
+  "token_usage": {
+    "input_tokens": 170,
+    "cache_creation_tokens": 383250,
+    "cache_read_tokens": 12771891,
+    "output_tokens": 1815,
+    "api_call_count": 85
+  },
+  "started_at": "2026-10-10T15:14:29.879560827Z",
+  "completed_at": "2026-10-10T15:51:23.917522147Z"
+}

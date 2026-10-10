@@ -1,0 +1,7 @@
+{
+  "tool_use_id": "toolu_01ATcdMyt9nC3ESYEYx3nRmG",
+  "agent_id": "a3cc5b1c5dead873f",
+  "subagent_type": "general-purpose",
+  "task_description": "Diagnose broken voice audio in take",
+  "started_at": "2026-10-10T15:12:03.4049899Z"
+}

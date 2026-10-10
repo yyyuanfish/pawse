@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K8EHETWHG9GWVW973CYNBB",
   "strategy": "manual-commit",
   "branch": "docs/stale-claims",
-  "checkpoints_count": 8,
+  "checkpoints_count": 11,
   "files_touched": [
     "AGENTS.md",
     "docs/VALIDATION.md",
@@ -17,13 +17,20 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 60,
-    "cache_creation_tokens": 35403,
-    "cache_read_tokens": 2878793,
-    "output_tokens": 15795,
-    "api_call_count": 25
+    "input_tokens": 92,
+    "cache_creation_tokens": 60935,
+    "cache_read_tokens": 5396698,
+    "output_tokens": 30465,
+    "api_call_count": 39
   }
 }
