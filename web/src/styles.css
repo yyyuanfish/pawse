@@ -642,60 +642,27 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .welcome { max-width: 440px; margin: 0 auto; padding: 32px var(--gutter); display: grid; gap: 14px; justify-items: center; text-align: center; }
 .welcome .card { width: 100%; display: grid; gap: 10px; text-align: left; }
 .welcome h1 { font-size: 28px; }
-.photo-options { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
-.photo-options button { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 14px; border: 0; border-radius: 12px; background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
-.photo-options button:hover, .photo-options button:focus-visible { background: var(--soft); }
-.photo-options small { display: block; color: var(--muted); }
-.camera-review img { display: block; width: 100%; max-height: 360px; object-fit: contain; border-radius: 12px; }
-.vcall.camera-mode { height: auto; min-height: 100dvh; overflow: visible; }
-.camera-stage { flex: none; }
-.camera-stage .cam-card { flex-shrink: 0; height: clamp(180px, 32vh, 270px); }
 
-
-/* Second half of the story: demo calendar, option cards (A clinic / B home visit), "Today" line. */
-.pc-done { display: flex; flex-direction: column; gap: 8px; }
-
-.cal-sheet {
-  background: var(--surface); border: 1.5px solid var(--line); border-radius: 18px; padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 8px; animation: rise 0.3s ease;
-}
-.cal-head { display: flex; align-items: center; gap: 8px; }
-.cal-head .sim-badge { margin-left: auto; }
-.cal-icon { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--soft); color: var(--brand-strong); font-weight: 900; }
-.cal-slots { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-variant-numeric: tabular-nums; }
-.cal-slots li { padding: 6px 10px; border-radius: 10px; font-size: 15px; border-left: 4px solid var(--line); }
-.cal-busy { background: repeating-linear-gradient(135deg, var(--bg) 0 6px, var(--soft) 6px 12px); color: var(--muted); }
-.cal-free { background: #f2fbf6; border-left-color: var(--green) !important; color: var(--green); font-weight: 700; }
-.cal-pick { background: var(--soft); border-left-color: var(--brand) !important; color: var(--brand-strong); font-weight: 800; }
-
-.options-head { display: flex; flex-direction: column; gap: 6px; }
-.options-head h1 { font-size: 24px; font-weight: 900; line-height: 1.2; }
-.options-head .sim-badge { margin-left: 0; }
-.option-list { display: flex; flex-direction: column; gap: 12px; }
-.option-card {
-  appearance: none; text-align: left; display: flex; gap: 14px; align-items: flex-start; width: 100%;
-  background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); padding: 14px 16px;
-  transition: border-color 0.15s, box-shadow 0.15s; animation: rise 0.3s ease;
-}
-.option-card:hover { border-color: var(--petal); }
-.option-card.picked { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(200, 72, 122, 0.18); }
-.option-letter {
-  flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
-  font-size: 20px; font-weight: 900; background: var(--soft); color: var(--brand-strong);
-}
-.option-card.picked .option-letter { background: var(--brand); color: var(--brand-ink); }
-.option-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.option-title { font-size: 18px; line-height: 1.25; }
-.option-pay { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.option-amount { font-size: 28px; font-weight: 900; color: var(--brand-strong); font-variant-numeric: tabular-nums; line-height: 1.1; }
-.option-detail { color: var(--muted); }
-.options-hint { text-align: center; }
-
-.today-line { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-variant-numeric: tabular-nums; }
-.today-line li { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.today-line strong { font-size: 20px; font-weight: 900; }
-.today-line li.ok strong { color: var(--ink); }
-.today-line li.open strong { color: var(--muted); }
-.today-arrow { color: var(--brand); font-weight: 900; font-size: 20px; }
-
-@media (prefers-reduced-motion: reduce) { .cal-sheet, .option-card { animation: none; } }
+/* Photo menu (above the type bar) and the photo-check card in the captions. */
+.photo-menu { display: grid; gap: 8px; padding: 10px; margin: 0 0 8px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(200, 72, 122, 0.14); animation: menu-in 0.15s ease-out; }
+.photo-menu button { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: 14px; background: var(--soft); text-align: left; min-height: 56px; }
+.photo-menu button:hover { background: var(--petal); }
+.photo-menu button strong { display: block; font-size: 15px; }
+.photo-menu button small { display: block; font-size: 12px; color: var(--muted); }
+.photo-menu-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--surface); color: var(--brand); font-size: 20px; flex: none; }
+.photo-menu .muted { font-size: 12px; text-align: center; margin: 2px 0 0; }
+.type-icon.on { background: var(--brand); color: var(--brand-ink); }
+@keyframes menu-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .photo-menu { animation: none; } }
+.photo-check { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); text-align: left; }
+.photo-check img { width: 64px; height: 64px; object-fit: cover; border-radius: 12px; flex: none; }
+.photo-check p { margin: 0; font-size: 14px; }
+.photo-check .muted { font-size: 12.5px; margin-top: 4px; }
+.photo-check-title { font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.photo-check.alert { background: #fff1f1; border-color: #f2b8bd; }
+.photo-check.alert .photo-check-title { color: var(--red); }
+.photo-check-cta { margin-top: 8px; min-height: 40px; padding: 8px 16px; font-size: 14px; }
+.cam-card { position: relative; }
+.cam-snap { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px 10px 10px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: var(--brand-strong); font-weight: 800; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); }
+.cam-snap span { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); box-shadow: inset 0 0 0 4px #fff, 0 0 0 2px var(--brand); }
+.cam-snap:disabled { opacity: 0.6; }

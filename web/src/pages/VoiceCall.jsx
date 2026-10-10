@@ -1,7 +1,3 @@
-import FacialCues from '../components/FacialCues.jsx';
-import InjuryHandoff from '../components/InjuryHandoff.jsx';
-import { hasVisibleInjury } from '../agents/injuryHandoff.js';
-import { observePhoto, observationMessage } from '../agents/petVision.js';
 import { useEffect, useRef, useState } from 'react';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
@@ -17,6 +13,9 @@ import { validateTriage } from '../contracts.js';
 import { gradiumSupports, gradiumVoiceName, resolveVoiceChoice } from '../agents/gradiumVoice.js';
 import VoicePicker from '../components/VoicePicker.jsx';
 import { saveAssessment } from '../agents/account.js';
+import { observePhoto, observationMessage } from '../agents/petVision.js';
+
+const injured = (r) => r?.injury?.wound === 'suspected' || r?.injury?.blood_like_material === 'suspected';
 import { primeAudio } from '../agents/nativeAudio.js';
 
 // Pawse's voice in a live call: a Gradium voice id (default) or 'gemini' (Gemini Live native audio). Remembered per browser.
@@ -66,11 +65,6 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const [listening, setListening] = useState(false);
   const [chips, setChips] = useState([]);
   const [draft, setDraft] = useState('');
-  const [photoBusy,setPhotoBusy]=useState(false),[photoResult,setPhotoResult]=useState(null),[photoMenu,setPhotoMenu]=useState(false);
-  const photoRequest=useRef(null);
-  const [cameraReady,setCameraReady]=useState(false);
-  const [cameraPhoto,setCameraPhoto]=useState(null);
-  const cameraPhotoUrl=useRef(null);
   const [photos, setPhotos] = useState([]); // { url, received }
   const [error, setError] = useState('');
   const [sheetOpen, setSheetOpen] = useState(true);
@@ -80,12 +74,13 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   const videoRef = useRef(null);
   const fileRef = useRef(null);
+  const captureRef = useRef(null);
+  const photoRequest = useRef(null);
+  const contextMessages = useRef(new Set()); // photo findings sent to Pawse as text, not shown as the owner's words
+  const [photoMenu, setPhotoMenu] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoResult, setPhotoResult] = useState(null);
   const agentRef = useRef(null);
-  const contextMessages = useRef(new Set());
-  function sendContext(text) {
-    contextMessages.current.add(text);
-    agentRef.current?.sendText(text);
-  }
   const photoUrls = useRef([]);
   const onTriageRef = useRef(onTriage);
   onTriageRef.current = onTriage;
@@ -171,7 +166,6 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   // ---- media → <video> and → agent
   useEffect(() => {
-    setCameraReady(false);
     if (videoRef.current) videoRef.current.srcObject = cam.stream || null;
   }, [cam.stream, camOn]);
 
@@ -187,7 +181,6 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   useEffect(
     () => () => {
       photoRequest.current?.abort();
-      if(cameraPhotoUrl.current)URL.revokeObjectURL(cameraPhotoUrl.current);
       photoUrls.current.forEach((u) => URL.revokeObjectURL(u));
     },
     []
@@ -219,43 +212,72 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
     setDraft('');
   };
 
+  // A photo: live mode checks it for visible injuries (POST /api/v1/vision/observations) and gives
+  // Pawse the findings as context; the scripted demo just shows it.
   async function submitPhoto(file) {
-    if(!file || photoRequest.current)return;
-    setPhotoMenu(false);setError('');setPhotoResult(null);
-    if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>3000000){setError('Use JPEG, PNG or WebP up to 3 MB.');return;}
-    const url=URL.createObjectURL(file);photoUrls.current.push(url);
-    setPhotos(p=>[...p,{url,received:false}]);
-    if(!IS_LIVE_VOICE){agentRef.current?.sendImage(file);return;}
-    const controller=new AbortController();photoRequest.current=controller;setPhotoBusy(true);
-    const timer=setTimeout(()=>controller.abort(),45000);
+    if (!file || photoRequest.current) return;
+    setPhotoMenu(false);
+    setError('');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 3000000) {
+      setError('Use a JPEG, PNG or WebP photo up to 3 MB.');
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    photoUrls.current.push(url);
+    setPhotos((p) => [...p, { url, received: false }]);
+    if (!IS_LIVE_VOICE) {
+      agentRef.current && agentRef.current.sendImage(file);
+      return;
+    }
+    const controller = new AbortController();
+    photoRequest.current = controller;
+    setPhotoBusy(true);
+    setPhotoResult(null);
+    const timer = setTimeout(() => controller.abort(), 45000);
     try {
-      const result=await observePhoto(file,consent,controller.signal);
-      if(controller.signal.aborted)return;
-      setPhotoResult(result);setPhotos(p=>p.map(x=>x.url===url?{...x,received:true}:x));
-      sendContext(observationMessage(result));
-      setUserLine("Photo shared for visual observations.");
-    } catch(e) { if(!controller.signal.aborted)setError(e.message);else setError('Photo analysis stopped or timed out. Please retry.'); }
-    finally {clearTimeout(timer);photoRequest.current=null;setPhotoBusy(false);}
+      const result = await observePhoto(file, consent, controller.signal);
+      setPhotoResult(result);
+      setPhotos((p) => p.map((x) => (x.url === url ? { ...x, received: true } : x)));
+      const message = observationMessage(result);
+      contextMessages.current.add(message);
+      agentRef.current?.sendText(message);
+    } catch (e) {
+      setError(controller.signal.aborted ? 'The photo check took too long. Please try again.' : e.message);
+    } finally {
+      clearTimeout(timer);
+      photoRequest.current = null;
+      setPhotoBusy(false);
+    }
   }
-  const onPhoto=e=>{const file=e.target.files?.[0];e.target.value='';submitPhoto(file);};
-  const clearCameraPhoto=()=>{
-    if(cameraPhotoUrl.current)URL.revokeObjectURL(cameraPhotoUrl.current);
-    cameraPhotoUrl.current=null;setCameraPhoto(null);
+  const onPhoto = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    submitPhoto(file);
   };
-  const openPhotoCamera=()=>{
-    clearCameraPhoto();setPhotoMenu(false);setError('');setFacing('environment');setCamOn(true);
+  // Phones open the camera app from the file input; laptops ignore `capture`, so show the live camera
+  // in the call and snap a frame from it instead.
+  const takePhoto = () => {
+    setPhotoMenu(false);
+    if (globalThis.matchMedia?.('(pointer: coarse)').matches) captureRef.current?.click();
+    else setCamOn(true);
   };
-  const takeFrame=()=>{
-    const video=videoRef.current;
-    if(!video?.videoWidth){setError('Camera is not ready. Allow camera access or upload a photo.');return;}
-    const canvas=document.createElement('canvas');const scale=Math.min(1,1280/video.videoWidth);
-    canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
-    canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
-    canvas.toBlob(blob=>{
-      if(!blob){setError('Could not capture a photo. Please try again.');return;}
-      clearCameraPhoto();const file=new File([blob],'cat-camera.jpg',{type:'image/jpeg'});
-      cameraPhotoUrl.current=URL.createObjectURL(blob);setCameraPhoto({file,url:cameraPhotoUrl.current});setCamOn(false);
-    },'image/jpeg',0.85);
+  const snapFrame = () => {
+    const video = videoRef.current;
+    if (!video?.videoWidth) {
+      setError('The camera is not ready yet. Allow camera access, or upload a photo.');
+      return;
+    }
+    const canvas = document.createElement('canvas');
+    const scale = Math.min(1, 1280 / video.videoWidth);
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        setCamOn(false);
+        submitPhoto(new File([blob], 'cat-camera.jpg', { type: 'image/jpeg' }));
+      }
+    }, 'image/jpeg', 0.85);
   };
 
   const toggleMic = () => {
@@ -275,11 +297,11 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const status = listening ? null : speaking === 'ai' ? t.aiSpeaking : aiLine ? '' : t.connecting;
   const needsMic = wantsAudio && consent && !micOn && !mic.error;
   const bars = [0.55, 0.85, 1, 0.85, 0.55];
-  const sheetVisible = triage && sheetOpen && !hasVisibleInjury(photoResult) && !photoResult?.facial_estimate;
+  const sheetVisible = triage && sheetOpen;
   const lastPhoto = photos[photos.length - 1];
 
   return (
-    <main className={`vcall ${camOn||cameraPhoto ? 'camera-mode' : ''}`}>
+    <main className="vcall">
       {IS_LIVE_VOICE && !consent && <section className="card">
         <VoicePicker lang={lang} value={gradiumVoice} onChange={setVoiceChoice} />
         {!gradiumSupports(lang) && <p className="muted">Gradium voices speak English and German; this language uses the Gemini voice.</p>}
@@ -306,11 +328,11 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
         </button>
       </div>
 
-      <section className={`stage ${camOn ? 'camera-stage' : ''}`}>
+      <section className="stage">
         {camOn ? (
           <div className="cam-card">
             {cam.stream ? (
-              <video ref={videoRef} className={facing === 'user' ? 'mirror' : ''} autoPlay playsInline muted onLoadedData={()=>setCameraReady(true)} />
+              <video ref={videoRef} className={facing === 'user' ? 'mirror' : ''} autoPlay playsInline muted />
             ) : (
               <div className="cam-msg">
                 <Icon name="videoOff" size={28} />
@@ -328,6 +350,12 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
                 <Icon name="x" size={18} />
               </button>
             </div>
+            {cam.stream && (
+              <button type="button" className="cam-snap" onClick={snapFrame} disabled={photoBusy || (IS_LIVE_VOICE && !consent)} aria-label="Take photo and check it">
+                <span aria-hidden="true" />
+                Snap &amp; check
+              </button>
+            )}
           </div>
         ) : (
           <div className={`avatar-stage ${speaking === 'ai' ? 'talking' : ''} ${listening ? 'listening' : ''} ${hearing ? 'hearing' : ''}`}>
@@ -396,15 +424,31 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               )
             )}
             {lastPhoto && (
-              <div className="cap-photo">
+              <div className={`photo-check ${injured(photoResult) ? 'alert' : ''}`}>
                 <img src={lastPhoto.url} alt={t.photoSent} />
-                <span>{lastPhoto.received ? `✓ ${t.photoSent}` : '…'}</span>
+                <div>
+                  {photoBusy ? (
+                    <p className="photo-check-title"><span className="dots" aria-hidden="true"><i /><i /><i /></span> Checking the photo…</p>
+                  ) : photoResult ? (
+                    injured(photoResult) ? (
+                      <>
+                        <p className="photo-check-title">⚠️ Possible wound{photoResult.injury.location && photoResult.injury.location !== 'unknown' ? ` · ${photoResult.injury.location}` : ''}</p>
+                        <p>{photoResult.injury.description}</p>
+                        <p className="muted">Contact a vet today. Heavy bleeding, collapse or trouble breathing: emergency vet now.</p>
+                        <button type="button" className="btn primary photo-check-cta" onClick={() => onCall('vet')}>Find a vet now</button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="photo-check-title">{photoResult.cat_detected ? '✓ No visible wound seen' : 'No cat clearly visible'}</p>
+                        <p className="muted">{photoResult.cat_detected ? "A photo can't rule out an injury. Pawse will ask what you've noticed." : 'Try a closer, well-lit photo of your cat.'}</p>
+                      </>
+                    )
+                  ) : (
+                    <p className="photo-check-title">{lastPhoto.received ? `✓ ${t.photoSent}` : '…'}</p>
+                  )}
+                </div>
               </div>
             )}
-            {photoBusy&&<p role="status">Analyzing your photo…</p>}
-            {photoResult?.injury&&(photoResult.injury.wound==='suspected'||photoResult.injury.blood_like_material==='suspected')&&<div role="alert" className="cap-error"><strong>Possible injury / blood-like material</strong><p>{photoResult.injury.description}</p><p>{photoResult.next_step}</p><p>Is it bleeding now? Is the bleeding heavy or not stopping?</p></div>}
-            {hasVisibleInjury(photoResult)&&<InjuryHandoff observation={photoResult} lang={lang} shareWithGemini={consent} onContext={sendContext}/>}
-            <FacialCues result={photoResult}/>{photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.injury&&<p>Injury observation: {photoResult.injury.description} Active bleeding cannot be determined from a photo.</p>}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error" role="alert" data-testid="call-error">{error}</p>}
             {wantsAudio && mic.error && <p className="cap-error" role="alert" data-testid="mic-error">{t.micUnavailable}</p>}
@@ -427,8 +471,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               send(draft);
             }}
           >
-            <button type="button" className="type-icon" disabled={photoBusy || (IS_LIVE_VOICE && !consent)} onClick={() => setPhotoMenu(v=>!v)} aria-label="Add photo" title="Add photo" aria-expanded={photoMenu} aria-controls="photo-options">
-              <Icon name="plus" size={20} />
+            <button type="button" className={`type-icon ${photoMenu ? 'on' : ''}`} disabled={photoBusy || (IS_LIVE_VOICE && !consent)} onClick={() => setPhotoMenu((v) => !v)} aria-label={t.photo} aria-expanded={photoMenu} title={t.photo}>
+              <Icon name="camera" size={20} />
             </button>
             <input
               disabled={IS_LIVE_VOICE && !consent}
@@ -443,21 +487,21 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               <Icon name="send" size={18} />
             </button>
           </form>
-          {photoMenu&&<div id="photo-options" className="photo-options" role="group" aria-label="Photo options" onKeyDown={e=>{if(e.key==='Escape')setPhotoMenu(false);}}>
-            <button type="button" onClick={()=>{setPhotoMenu(false);fileRef.current?.click();}}><Icon name="upload" size={20}/><span>Upload photo<small>Choose an existing image</small></span></button>
-            <button type="button" onClick={openPhotoCamera}><Icon name="camera" size={20}/><span>Take photo<small>Open camera and capture</small></span></button>
-          </div>}
-          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onPhoto}/>
-
-          {camOn&&<button type="button" className="btn soft" disabled={!cameraReady||photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={takeFrame}><Icon name="camera" size={20}/> Capture photo</button>}
-          {cameraPhoto&&<section className="card camera-review" aria-label="Review captured photo">
-            <img src={cameraPhoto.url} alt="Captured photo preview"/>
-            <p>This photo has not been sent yet.</p>
-            <button type="button" className="btn primary" disabled={photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={()=>{const file=cameraPhoto.file;clearCameraPhoto();submitPhoto(file);}}>Send photo for analysis</button>
-            <button type="button" className="btn soft" onClick={openPhotoCamera}>Retake photo</button>
-            <button type="button" className="btn ghost" onClick={clearCameraPhoto}>Cancel photo</button>
-          </section>}
-          {cam.error&&<p role="alert">Camera unavailable. Allow camera access in your browser. On a phone, use HTTPS; plain network HTTP cannot access the camera. You can separately choose Upload photo.</p>}
+          {photoMenu && (
+            <div className="photo-menu" role="menu" aria-label="Add a photo">
+              <button type="button" role="menuitem" onClick={takePhoto}>
+                <span className="photo-menu-icon"><Icon name="camera" size={22} /></span>
+                <span><strong>Take a photo</strong><small>Use your camera</small></span>
+              </button>
+              <button type="button" role="menuitem" onClick={() => fileRef.current?.click()}>
+                <span className="photo-menu-icon">🖼️</span>
+                <span><strong>Upload a photo</strong><small>JPEG, PNG or WebP · up to 3 MB</small></span>
+              </button>
+              <p className="muted">Pawse checks it for visible wounds. It is not a diagnosis.</p>
+            </div>
+          )}
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onPhoto} />
+          <input ref={captureRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} />
 
           <nav className="call-controls" aria-label="Call controls">
             <button

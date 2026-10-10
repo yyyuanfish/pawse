@@ -45,7 +45,7 @@ export function mapClinic(c, location) {
   return out;
 }
 
-export async function liveSearchClinics({ lang = 'en', location = null, triage = null, signal } = {}) {
+export async function liveSearchClinics({ lang = 'en', location = null, triage = null } = {}) {
   if (!location) throw new Error('Location is needed to find nearby clinics (permission denied or unavailable).');
   const body = {
     language: /^[a-z]{2}$/.test(lang) ? lang : 'en',
@@ -53,7 +53,7 @@ export async function liveSearchClinics({ lang = 'en', location = null, triage =
     share_location: true,
   };
   const res = await fetch((CLINIC_SEARCH_URL || '') + ENDPOINT, {
-    method: 'POST', signal,
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });

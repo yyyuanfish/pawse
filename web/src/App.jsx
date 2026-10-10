@@ -9,15 +9,13 @@ import Plan from './pages/Plan.jsx';
 import History from './pages/History.jsx';
 import Welcome from './pages/Welcome.jsx';
 import { me } from './agents/account.js';
-import Options from './pages/Options.jsx';
 import { strings, detectLang, saveLang } from './i18n.js';
 import { primeSpeech } from './agents/speech.js';
 import { buildSummary } from './utils/summary.js';
-import { stepState, nextAction } from './utils/steps.js';
+import { stepState } from './utils/steps.js';
 import StepRail from './components/StepRail.jsx';
 import { IS_LIVE_PHONE, IS_MOCK } from './agents/index.js';
 import { PHONE_AGENT_URL } from './config.js';
-import { loadStory, mockStory, storyFacts, taxiOffered } from './agents/story.js';
 
 const GRADIUM_KEY = 'pawse.gradium';
 const GUEST_KEY = 'pawse.guest';
@@ -32,12 +30,9 @@ function loadGradiumChoice() {
 // home → voice call with Pawse → advice
 //   → "call the vet": clinic list → Pawse calls the chosen clinic
 //   → "call the insurer": Pawse calls the insurer
-//   → options: A clinic today / B home visit tonight
-//   → "confirm": Pawse calls the clinic back → "taxi" (clinic only)
-//   → plan (summary + claim checklist)
-// Every call is simulated (no telephony); the pages say so.
+//   → plan (summary)
 export default function App() {
-  const [view, setView] = useState('home'); // welcome | home | voice | clinics | phone | options | plan | history
+  const [view, setView] = useState('home'); // welcome | home | voice | clinics | phone | plan | history
   // Live app: the first open asks to sign in; "Continue as guest" is remembered in this browser.
   useEffect(() => {
     let guest = false;
@@ -55,10 +50,6 @@ export default function App() {
   const [triage, setTriage] = useState(null);
   const [vet, setVet] = useState(null);
   const [insurance, setInsurance] = useState(null);
-  const [choice, setChoice] = useState(null); // 'clinic' | 'home', from the option cards
-  const [confirm, setConfirm] = useState(null);
-  const [taxi, setTaxi] = useState(null);
-  const [story, setStory] = useState(mockStory);
   const [clinic, setClinic] = useState(null);
   const [target, setTarget] = useState(null);
   const [rehearsal, setRehearsal] = useState(false);
@@ -86,26 +77,12 @@ export default function App() {
       alive = false;
     };
   }, []);
-  // The story numbers behind the calendar, option cards and checklist (live: /api/v1/demo/mimi).
-  useEffect(() => {
-    if (!IS_LIVE_PHONE) return undefined;
-    let alive = true;
-    loadStory({ live: true, base: PHONE_AGENT_URL || '' }).then((s) => alive && setStory(s));
-    return () => {
-      alive = false;
-    };
-  }, []);
-  const facts = storyFacts(story);
-
   // Unknown status: still offer Gradium; the call falls back to the browser voice on 503.
   const gradiumAvailable = IS_LIVE_PHONE && (!voiceStatus || voiceStatus.gradium_configured === true);
   const ownVoice = !!(voiceStatus && voiceStatus.my_voice_ready);
 
   const t = strings[lang] || strings.en;
-  // Live mode prepares the vet and insurer conversations for the owner (LiveHandoff) unless they chose
-  // the rehearsal; the confirmation and taxi calls are always the scripted, simulated story calls.
-  const scripted = target === 'confirm' || target === 'taxi';
-  const Handoff = IS_LIVE_PHONE && !rehearsal && !scripted ? LiveHandoff : PhoneCall;
+  const Handoff = IS_LIVE_PHONE && !rehearsal ? LiveHandoff : PhoneCall;
 
   const setLang = (l) => {
     setLangState(l);
@@ -121,84 +98,37 @@ export default function App() {
     setTriage(null);
     setVet(null);
     setInsurance(null);
-    setChoice(null);
-    setConfirm(null);
-    setTaxi(null);
     setClinic(null);
-    setRehearsal(false);
     setView('voice');
   };
 
-  // Rehearsal, once chosen, stays on for the rest of this story (vet → insurer → …) until "Call Pawse" again.
   const call = (to) => {
+    setRehearsal(false);
     primeSpeech();
     if (to === 'vet') {
       setView('clinics');
       return;
-    }
-    if (to === 'options') {
-      setView('options');
-      return;
-    }
-    if (to === 'summary') {
-      setView('plan');
-      return;
-    }
-    if (to === 'taxi' && !taxiOffered(choice)) return; // the taxi only goes with the clinic option
-    // The confirmation and taxi calls are scripted story calls: in live mode they start the rehearsal
-    // like the "Open simulated Mimi phone rehearsal" button does, Gradium off until the owner turns it on.
-    if (IS_LIVE_PHONE && !rehearsal && (to === 'confirm' || to === 'taxi')) {
-      setGradiumOn(false);
-      setRehearsal(true);
     }
     setTarget(to);
     setView('phone');
   };
 
   const pickClinic = (c) => {
+    setRehearsal(false);
     primeSpeech();
     setClinic(c);
     setTarget('vet');
     setView('phone');
   };
 
-  // The story state as it will be once this call's result is stored.
-  const withResult = (result) => ({
-    vet: result && target === 'vet' ? result : vet,
-    insurance: result && target === 'insurance' ? result : insurance,
-    choice,
-    confirm: result && target === 'confirm' ? result : confirm,
-    taxi: result && target === 'taxi' ? result : taxi,
-  });
-
-  // A finished call offers the story's next step as its primary button; "back" returns to the plan.
-  const callDone = (result, { next = false } = {}) => {
+  const callDone = (result) => {
     if (result && target === 'vet') setVet(result);
     if (result && target === 'insurance') setInsurance(result);
-    if (result && target === 'confirm') setConfirm(result);
-    if (result && target === 'taxi') setTaxi(result);
-    if (next && result && triage) {
-      call(nextAction(withResult(result)));
-      return;
-    }
     setView(triage ? 'plan' : 'home');
-  };
-  const nextLabel = (result) => {
-    if (!triage) return null;
-    const n = nextAction(withResult(result));
-    return t.next[n] ? { label: t.next[n], toPlan: n === 'summary' } : null;
-  };
-
-  const choose = (c) => {
-    if (c !== choice) {
-      setConfirm(null); // a new choice needs a new confirmation (and taxi)
-      setTaxi(null);
-    }
-    setChoice(c);
   };
 
   // One progress rail through the story; shown once there is something to show progress on.
-  const rail = <StepRail t={t} steps={stepState({ view, target, triage, vet, insurance, choice, confirm, taxi })} />;
+  const rail = <StepRail t={t} steps={stepState({ view, target, triage, vet, insurance })} />;
 
   // Rule 3: while any agent is scripted (?demo=1, a VITE_*=mock build, or the phone rehearsal), every screen says so.
   const simulated = IS_MOCK || (view === 'phone' && rehearsal);
@@ -238,63 +168,43 @@ export default function App() {
       // Going back from the list never restarts the voice call: show the plan instead.
       return <ClinicList t={t} lang={lang} triage={triage} rail={rail} onPick={pickClinic} onBack={() => setView(triage ? 'plan' : 'home')} />;
     }
-  if (view === 'phone') {
-    return (
-      <Handoff
-        key={`${target}-${clinic ? clinic.id : ''}`}
-        t={t}
-        lang={lang}
-        rail={rail}
-        target={target}
-        clinic={target === 'vet' || target === 'confirm' ? clinic : null}
-        facts={facts}
-        nextLabel={nextLabel}
-        gradium={gradiumAvailable ? { on: gradiumOn, ownVoice, set: setGradiumOn } : null}
-        context={{
-          gradiumConsent: gradiumAvailable && gradiumOn,
-          voice: ownVoice ? 'my_voice' : 'standard',
-          summary: buildSummary({ lang, triage, vet, insurance, choice, confirm, taxi, facts }),
-          clinic: target === 'vet' || target === 'confirm' ? (clinic || undefined) : undefined,
-          choice: choice || undefined,
-          estimate: vet ? vet.estimate : undefined,
-          homeVisitFee: vet ? vet.homeVisitFee : undefined,
-        }}
-        onDone={callDone}
-        onRehearse={() => { setGradiumOn(false); setRehearsal(true); }}
-      />
-    );
-  }
-  if (view === 'options' && triage) {
-    return (
-      <Options
-        t={t}
-        rail={rail}
-        facts={facts}
-        choice={choice}
-        onChoose={choose}
-        onConfirm={() => call('confirm')}
-        onBack={() => setView('plan')}
-      />
-    );
-  }
-  if (view === 'plan' && triage) {
-    return (
-      <Plan
-        t={t}
-        lang={lang}
-        triage={triage}
-        vet={vet}
-        insurance={insurance}
-        choice={choice}
-        confirm={confirm}
-        taxi={taxi}
-        facts={facts}
-        rail={rail}
-        onCall={call}
-        onRestart={() => setView('home')}
-      />
-    );
-  }
+    if (view === 'phone') {
+      return (
+        <Handoff
+          key={`${target}-${clinic ? clinic.id : ''}`}
+          t={t}
+          lang={lang}
+          rail={rail}
+          target={target}
+          clinic={target === 'vet' ? clinic : null}
+          gradium={gradiumAvailable ? { on: gradiumOn, ownVoice, set: setGradiumOn } : null}
+          context={{
+            gradiumConsent: gradiumAvailable && gradiumOn,
+            voice: ownVoice ? 'my_voice' : 'standard',
+            summary: buildSummary({ lang, triage, vet, insurance }),
+            clinic: target === 'vet' ? clinic : undefined,
+            estimate: vet ? vet.estimate : undefined,
+            homeVisitFee: vet ? vet.homeVisitFee : undefined,
+          }}
+          onDone={callDone}
+          onRehearse={() => { setGradiumOn(false); setRehearsal(true); }}
+        />
+      );
+    }
+    if (view === 'plan' && triage) {
+      return (
+        <Plan
+          t={t}
+          lang={lang}
+          triage={triage}
+          vet={vet}
+          insurance={insurance}
+          rail={rail}
+          onCall={call}
+          onRestart={() => setView('home')}
+        />
+      );
+    }
     return <Home t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} onHistory={() => setView('history')} />;
   })();
   return (

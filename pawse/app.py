@@ -17,8 +17,8 @@ from .legacy import capabilities, legacy_events
 from .voice import router as voice_router
 from .telephony import router as telephony_router
 from .accounts import router as accounts_router
-from .live import router as live_router
 from .vision import router as vision_router
+from .live import router as live_router
 from .demo import router as demo_router
 from .knowledge import router as knowledge_router
 from .orchestration import router as orchestration_router
@@ -172,8 +172,8 @@ async def index():
 app.include_router(voice_router)
 app.include_router(telephony_router)
 app.include_router(accounts_router)
-app.include_router(live_router)
 app.include_router(vision_router)
+app.include_router(live_router)
 app.include_router(demo_router)
 app.include_router(knowledge_router)
 app.include_router(orchestration_router)

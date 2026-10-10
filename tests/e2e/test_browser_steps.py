@@ -74,7 +74,7 @@ def test_step_rail_marks_talk_current_then_done(page: Page):
     reach_plan(page)
     rail = page.locator(".sheet .step-rail")
     items = rail.locator("li")
-    expect(items).to_have_count(5)  # Talk · Vet · Insurance · Decide · Summary
+    expect(items).to_have_count(4)
     expect(rail.locator("li[aria-current=step]")).to_have_count(1)
     expect(items.nth(0)).to_have_attribute("aria-current", "step")  # still on the call: Talk is current
     expect(items.nth(0)).to_contain_text("Talk")

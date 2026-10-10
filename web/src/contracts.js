@@ -41,10 +41,10 @@
  *            rating?:number, mapsUrl? }
  *
  * ============================================================ 3. PHONE AGENT
- * Pawse calls the chosen clinic, the insurer, the clinic again to confirm, or a taxi, for the user.
+ * Pawse calls the chosen clinic or the insurer for the user.
  * Teammate replaces src/agents/livePhoneAgent.js.
  *
- * createPhoneCall({ target:'vet'|'insurance'|'confirm'|'taxi', lang, context }) returns:
+ * createPhoneCall({ target:'vet'|'insurance', lang, context }) returns:
  *   on(cb) -> unsubscribe
  *   start()
  *   hangup()
@@ -52,9 +52,7 @@
  *   answer?(questionId, optionId)    optional: the owner's answer to a {type:'question'} event
  *   setListening?(on:boolean)        optional: play the German call audio (default: background, silent)
  *   context = { summary: string, clinic?: Clinic, estimate?: number, homeVisitFee?: number,
- *               gradiumConsent?: boolean, voice?: 'standard'|'my_voice',
- *               choice?: 'clinic'|'home' }   choice = the owner's option card; picks the confirm script
- *   'taxi' is only offered after the owner chose 'clinic' (story.js taxiOffered).
+ *               gradiumConsent?: boolean, voice?: 'standard'|'my_voice' }
  *   gradiumConsent === true lets the live agent speak every AI line with Gradium (one voice per call).
  *
  * Events:
@@ -62,8 +60,7 @@
  *   {type:'speaking', who:'ai'|'callee'|'none'}
  *   {type:'line', who:'ai'|'callee', original:string, text:string, simulated?:true}
  *       original language + translation; a callee line that was not really heard is simulated:true
- *   {type:'progress', text, simulated?:true}         plain-language step in the owner's language;
- *                                                   simulated:true = it reports a scripted reply
+ *   {type:'progress', text}                         plain-language step in the owner's language
  *   {type:'question', id, text, options:[{id, label}]}   the call waits until answer() is called
  *   {type:'answered', id, optionId}
  *   {type:'result', ...}
@@ -78,9 +75,6 @@
  *                          homeVisitFee?:number (part of estimate, not reimbursed)}
  * result for 'insurance': {kind:'coverage', covered, currency, deductible, rate, estimate,
  *                          reimbursed, outOfPocket, points:[{ok, text, ref?}]}
- * result for 'confirm':   {kind:'confirmation', choice:'clinic'|'home', time, place, currency, youPay:number, note?}
- * result for 'taxi':      {kind:'ride', pickup, appointment, fare:number, currency, carrierOk:boolean,
- *                          insured:false (transport is never an insured cost), note?}
  */
 
 export const LEVELS = ['red', 'yellow', 'green'];
@@ -125,16 +119,6 @@ export function validateResult(target, r) {
       if (typeof r[k] !== 'number') p.push(`${k} must be a number`);
     }
     if (!Array.isArray(r.points)) p.push('points must be an array');
-  } else if (target === 'confirm') {
-    if (r.kind !== 'confirmation') p.push("confirm result kind must be 'confirmation'");
-    if (!['clinic', 'home'].includes(r.choice)) p.push("choice must be 'clinic' or 'home'");
-    if (!r.time) p.push('time missing');
-    if (typeof r.youPay !== 'number') p.push('youPay must be a number');
-  } else if (target === 'taxi') {
-    if (r.kind !== 'ride') p.push("taxi result kind must be 'ride'");
-    if (!r.pickup) p.push('pickup missing');
-    if (typeof r.fare !== 'number') p.push('fare must be a number');
-    if (r.insured !== false) p.push('insured must be false: transport is not an insured cost');
   } else p.push(`unknown target ${target}`);
   return p;
 }

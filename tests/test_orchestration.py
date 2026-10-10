@@ -134,33 +134,3 @@ def test_router_contract_and_per_session_concurrency_gate():
         finally:
             orchestration.active_runs.discard("test-owner")
         assert client.post("/api/v1/agents/runs", json={"care": {"query": "limping"}, "place_call": True}).status_code == 422
-
-
-def test_mimi_story_second_half_feeds_the_react_beats():
-    """Options, confirmation call, taxi call and claim checklist: the numbers and lines the React app plays."""
-    from pathlib import Path
-    from pawse.app import app
-    from pawse.demo import costs
-    c = costs()
-    # Option cards: clinic 600 + 25 taxi - 240 back = 385; home 600 + 150 - 240 back = 510; taxi and home fee never reimbursed.
-    assert (c["treatment"], c["reimbursed"], c["taxi"], c["home_visit_extra"]) == (600, 240, 25, 150)
-    assert c["clinic"] == c["treatment"] - c["reimbursed"] + c["taxi"] == 385
-    assert c["home"] == c["treatment"] - c["reimbursed"] + c["home_visit_extra"] == 510
-    assert c["claim_days"] == 30
-    with TestClient(app) as client:
-        d = client.get("/api/v1/demo/mimi").json()
-    assert d["calendar"] == {"source": "synthetic", "free_from": "16:00", "appointment": "16:30", "taxi": "16:05"}
-    confirm, taxi = d["steps"][4], d["steps"][5]
-    for lines in (confirm["lines"], confirm["home_lines"], taxi["lines"]):
-        assert lines[0]["speaker"] == "Pawse"
-        replies = [x for x in lines if x["speaker"] != "Pawse"]
-        assert replies and all(x["speaker"].endswith("· simulated") for x in replies)
-    assert "16:30" in confirm["lines"][0]["german"] and "detaillierte Rechnung" in confirm["lines"][0]["german"]
-    assert "Hausbesuch" in confirm["home_lines"][0]["german"]
-    assert "16:05" in taxi["lines"][0]["german"] and "Transportbox" in taxi["lines"][0]["german"]
-    assert "25 Franken" in taxi["lines"][1]["german"]
-    assert any("30 days" in item for item in d["checklist"])
-    # The keyless React rehearsal speaks the same German lines as the backend story (one source of truth).
-    mock = (Path(__file__).resolve().parents[1] / "web/src/agents/mockScripts.js").read_text()
-    for x in confirm["lines"] + confirm["home_lines"] + taxi["lines"]:
-        assert x["german"] in mock, x["german"]

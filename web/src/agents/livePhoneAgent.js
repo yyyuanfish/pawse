@@ -8,8 +8,7 @@
 // the disclosure. If Gradium fails (no key, 503, network), the rest of the call uses browser speech
 // so the voice never flips back and forth.
 
-import { PHONE_AGENT_URL, VOICE_PACE } from '../config.js';
-import { storyFacts, buildConfirmResult, buildTaxiResult } from './story.js';
+import { PHONE_AGENT_URL } from '../config.js';
 import { speak, stopSpeech, isSpeechMuted, resolveVoiceName } from './speech.js';
 import { phoneVoiceEvent } from './providers.js';
 
@@ -22,8 +21,7 @@ const FIRST_LINE = {
     zh: '您好，我是 Pawse，受猫主人委托的 AI 助手。我是 AI 助手，不是真人。',
   },
 };
-// steps[4] = confirmation call to the vet (home_lines for the home-visit option), steps[5] = taxi call.
-const STEP_INDEX = { vet: 2, insurance: 3, confirm: 4, taxi: 5 };
+const STEP_INDEX = { vet: 2, insurance: 3 };
 const T = (en, zh) => ({ en, zh });
 
 const num = (v, d) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
@@ -93,13 +91,6 @@ function playBlob(blob, state) {
       return;
     }
     const a = new Audio(url);
-    // A little brisker, same voice: preservesPitch keeps the pitch while playbackRate speeds it up.
-    try {
-      a.preservesPitch = true;
-      a.mozPreservesPitch = true;
-      a.webkitPreservesPitch = true;
-      a.playbackRate = VOICE_PACE.audio;
-    } catch { /* older browsers: normal speed */ }
     state.audio = a;
     const done = (ok) => {
       if (state.audio === a) state.audio = null;
@@ -173,21 +164,6 @@ function buildInsuranceResult(story, lang) {
   };
 }
 
-/** The backend story's lines for one call: steps[4].home_lines when the owner chose the home visit. */
-export function storyLines(story, target, context = {}) {
-  const step = (story.steps || [])[STEP_INDEX[target] ?? 2] || { lines: [] };
-  if (target === 'confirm' && context.choice === 'home' && Array.isArray(step.home_lines)) return step.home_lines;
-  return step.lines || [];
-}
-
-function buildResult(story, target, lang, context) {
-  const facts = storyFacts(story);
-  if (target === 'confirm') return buildConfirmResult({ facts, lang, choice: context.choice, clinic: context.clinic });
-  if (target === 'taxi') return buildTaxiResult({ facts, lang });
-  if (target === 'insurance') return buildInsuranceResult(story, lang);
-  return buildVetResult(story, lang, context);
-}
-
 export function createLivePhoneCall({ target = 'vet', lang = 'zh', context = {}, speed = 1 } = {}) {
   const base = PHONE_AGENT_URL || '';
   const listeners = new Set();
@@ -257,9 +233,10 @@ export function createLivePhoneCall({ target = 'vet', lang = 'zh', context = {},
     emit({ type: 'status', state: 'connected' });
     announceVoice(useGradium());
 
+    const step = (story.steps || [])[STEP_INDEX[target] ?? 2] || { lines: [] };
     const lines = [
       { who: 'ai', original: FIRST_LINE.original, text: FIRST_LINE.text[lang] ?? FIRST_LINE.text.en },
-      ...storyLines(story, target, context).map((l) => ({
+      ...(step.lines || []).map((l) => ({
         who: /^pawse/i.test(l.speaker) ? 'ai' : 'callee',
         original: l.german,
         // The backend subtitles are English; the zh UI shows them as is rather than inventing a translation.
@@ -272,8 +249,6 @@ export function createLivePhoneCall({ target = 'vet', lang = 'zh', context = {},
       emit({ type: 'speaking', who: line.who });
       const ev = { type: 'line', who: line.who, original: line.original, text: line.text };
       if (line.who === 'callee') ev.simulated = true;
-      // English subtitle as the progress step, so the owner follows the call without German.
-      emit({ type: 'progress', text: line.text, ...(line.who === 'callee' ? { simulated: true } : {}) });
       emit(ev);
       await say(lines, i);
       if (state.ended) return;
@@ -281,7 +256,7 @@ export function createLivePhoneCall({ target = 'vet', lang = 'zh', context = {},
     }
     await wait(500);
     if (state.ended) return;
-    emit({ type: 'result', ...buildResult(story, target, lang, context) });
+    emit({ type: 'result', ...(target === 'insurance' ? buildInsuranceResult(story, lang) : buildVetResult(story, lang, context)) });
     finish();
   }
 
