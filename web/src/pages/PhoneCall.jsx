@@ -62,7 +62,7 @@ function ResultCard({ t, target, result }) {
 export default function PhoneCall({ t, lang, target, clinic, context, gradium, rail, onDone }) {
   const base = t.callees[target];
   const callee = clinic
-    ? { ...base, name: clinic.name, role: `${clinic.distanceKm.toFixed(1)} km` }
+    ? { ...base, name: clinic.name, role: Number.isFinite(clinic.distanceKm) ? `${clinic.distanceKm.toFixed(1)} km` : t.distanceUnknown }
     : base;
   const [status, setStatus] = useState('dialing');
   const [lines, setLines] = useState([]);

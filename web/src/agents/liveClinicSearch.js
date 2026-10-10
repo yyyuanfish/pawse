@@ -20,7 +20,7 @@ export function haversineKm(a, b) {
 
 /** Map one backend Clinic to the frontend Clinic. Never invents hours or distance. */
 export function mapClinic(c, location) {
-  let distanceKm = Number.NaN; // unknown; the page shows a dash
+  let distanceKm = Number.NaN; // unknown; the pages say "distance unknown"
   if (typeof c.distance_km === 'number') distanceKm = c.distance_km;
   else if (location && c.location && typeof c.location.lat === 'number') distanceKm = haversineKm(location, c.location);
   const openUnknown = typeof c.open_now !== 'boolean';

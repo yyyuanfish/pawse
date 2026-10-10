@@ -117,9 +117,44 @@ def test_merge_keeps_provider_records_unmodified_and_drops_duplicate_snapshot_ro
     other = Clinic(id='osm:2', name='Other Vet', location=Location(lat=47.38, lng=8.55), distance_km=0.1, source='openstreetmap', retrieved_at='t')
     merged = merge_clinics([maps], [near, other], radius_km=10)
     assert [c.id for c in merged] == ['gmaps:1', 'osm:2']
-    assert merged[0].location is None and merged[0].distance_km is None
-    # Google Maps results stay one block ahead of the snapshot, even when a snapshot row is closer.
-    assert [c.id for c in rank_clinics(merged)] == ['gmaps:1', 'osm:2']
+    # Google's fields stay as listed; only the straight-line distance comes from the OSM row of the same practice.
+    assert (merged[0].name, merged[0].phone, merged[0].source) == ('Kleintierpraxis Test GmbH', '+41 44 111 22 33', 'gemini_maps')
+    assert merged[0].location == near.location and merged[0].distance_km == 0.4
+    assert [c.id for c in rank_clinics(merged)] == ['osm:2', 'gmaps:1']
+    assert 'OpenStreetMap' in ' '.join(rank_clinics(merged)[1].reasons)
+
+
+@pytest.mark.asyncio
+async def test_unknown_distance_maps_listing_ranks_below_a_known_nearby_clinic(no_providers, monkeypatch):
+    # Grounding chunks carry no coordinates (live probe 2026-10-10: uri, title, text, placeId only).
+    monkeypatch.setenv('GEMINI_API_KEY', 'test-only')
+    no_providers.write_text(json.dumps({'clinics': [osm_row(1, 'Near Vet', '+41449990000', 47.371, 8.541)]}))
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: maps_reply(VET))) as client:
+        ranked = rank_clinics(await discover(request(), client))
+    assert [c.id for c in ranked] == ['osm:node:1', 'gmaps:vet1']
+    assert ranked[1].distance_km is None and 'Distance unknown' in ' '.join(ranked[1].reasons)
+
+
+@pytest.mark.asyncio
+async def test_maps_listing_located_by_its_osm_row_is_radius_filtered(no_providers, monkeypatch):
+    monkeypatch.setenv('GEMINI_API_KEY', 'test-only')
+    far = place('far', 'Tierklinik Far Away', '* **Address:** Weit 1, 8400 Winterthur\n* **Phone:** +41 52 000 00 01')
+    no_providers.write_text(json.dumps({'clinics': [osm_row(1, 'Near Vet', '+41449990000', 47.371, 8.541),
+                                                    osm_row(2, 'Other name', '+41520000001', 47.5, 8.73),
+                                                    osm_row(3, 'Kleintierpraxis Test', '+41441112233', 47.38, 8.55)]}))
+    async with httpx.AsyncClient(transport=httpx.MockTransport(lambda r: maps_reply(VET, far))) as client:
+        ranked = rank_clinics(await discover(request(radius_km=10), client))
+    # The Winterthur listing (about 19 km, matched by phone) is dropped; the matched vet ranks by its distance.
+    assert [c.id for c in ranked] == ['osm:node:1', 'gmaps:vet1']
+    assert 1 < ranked[1].distance_km < 2
+
+
+def test_name_shared_by_several_branches_does_not_lend_coordinates():
+    maps = Clinic(id='gmaps:1', name='VetTrust', source='gemini_maps', retrieved_at='t')
+    branches = [Clinic(id=f'osm:{i}', name='VetTrust', location=Location(lat=47.37 + i / 10, lng=8.54), distance_km=i * 11.0,
+                       source='openstreetmap', retrieved_at='t') for i in (0, 1)]
+    merged = merge_clinics([maps], [branches[0]], radius_km=10, located_by=branches)
+    assert merged[0].id == 'gmaps:1' and merged[0].distance_km is None
 
 
 def tool(c, name, args, **context):

@@ -235,8 +235,8 @@ def snapshot_path():
     return Path(os.getenv("PAWSE_CLINIC_SNAPSHOT") or Path(__file__).resolve().parent.parent / "tmp/crawling/zurich-vets-initial.json")
 
 
-def snapshot_clinics(req):
-    """Offline OpenStreetMap candidates (ODbL, community listing). Empty when no snapshot exists."""
+def snapshot_rows(req):
+    """Every offline OpenStreetMap row (ODbL, community listing) with its distance, at any range. Empty without a snapshot."""
     try:
         rows = json.loads(snapshot_path().read_text(encoding="utf-8")).get("clinics", [])
     except (OSError, ValueError, AttributeError):
@@ -249,7 +249,7 @@ def snapshot_clinics(req):
         except (ValueError, TypeError):
             continue
         clinic.distance_km = distance(req.location, clinic.location)
-        if clinic.distance_km is not None and clinic.distance_km <= req.radius_km:
+        if clinic.distance_km is not None:
             result.append(clinic)
     return result
 
@@ -260,9 +260,28 @@ def clinic_keys(clinic):
     return {k for k in ("n:" + name if name else "", "p:" + digits if len(digits) == 9 else "") if k}
 
 
-def merge_clinics(primary, extra, radius_km):
-    """Provider records stay unmodified (Google Maps grounding terms); extras that duplicate one are dropped."""
-    kept = [c for c in primary if c.distance_km is None or c.distance_km <= radius_km]
+def snapshot_match(clinic, rows):
+    """The one snapshot row for the same practice: same phone, else a name only one row has (chains have many branches)."""
+    keys = clinic_keys(clinic)
+    for prefix in ("p:", "n:"):
+        hits = [r for r in rows if r.location and any(k.startswith(prefix) for k in keys & clinic_keys(r))]
+        if len(hits) == 1:
+            return hits[0]
+    return None
+
+
+def locate(clinic, rows):
+    """Google Maps grounding gives no coordinates. Take the straight-line distance from the OSM row of the same practice
+    (our own ODbL data, no extra call, nothing sent anywhere); the provider's own fields stay as listed."""
+    row = snapshot_match(clinic, rows) if clinic.source == "gemini_maps" and clinic.distance_km is None else None
+    return clinic.model_copy(update={"location": row.location, "distance_km": row.distance_km}) if row else clinic
+
+
+def merge_clinics(primary, extra, radius_km, located_by=None):
+    """Provider records keep their own fields (Google Maps grounding terms); extras that duplicate one are dropped.
+    `located_by` (default `extra`) are snapshot rows at any range, so a far listing can be found and dropped too."""
+    located = [locate(c, extra if located_by is None else located_by) for c in primary]
+    kept = [c for c in located if c.distance_km is None or c.distance_km <= radius_km]
     seen = {k for c in kept for k in clinic_keys(c)}
     return kept + [c for c in extra if not clinic_keys(c) & seen]
 
@@ -282,16 +301,18 @@ async def discover(req, client):
             errors.append("clinic_provider_unavailable")
         if primary:
             break
-    clinics = merge_clinics(primary, snapshot_clinics(req), req.radius_km)
+    rows = snapshot_rows(req)
+    clinics = merge_clinics(primary, [c for c in rows if c.distance_km <= req.radius_km], req.radius_km, located_by=rows)
     if not clinics:
         raise ProviderError(errors[0] if errors else "clinic_provider_not_configured")
     return clinics
 
 
 def rank_clinics(clinics):
-    # Live provider results first, as one block, then the offline community snapshot. Within each block prefer
-    # provider-reported open, then unknown, then reported closed; nearest within each group (stable sort).
-    ranked = sorted(clinics, key=lambda c: (c.source == "openstreetmap", 0 if c.open_now is True else 2 if c.open_now is False else 1,
+    # Clinics with a known distance (all within the radius after discover) come first, whatever their source: an
+    # unlocated listing may be far away. Within each group prefer provider-reported open, then unknown, then reported
+    # closed; nearest first. Unknown distances keep the provider's own (nearness) order (stable sort).
+    ranked = sorted(clinics, key=lambda c: (c.distance_km is None, 0 if c.open_now is True else 2 if c.open_now is False else 1,
                                           c.distance_km if c.distance_km is not None else float("inf"),
                                           # Without a distance keep the provider's own (nearness) order; rating only breaks distance ties.
                                           -(c.rating or 0) if c.distance_km is not None else 0))
@@ -303,7 +324,11 @@ def rank_clinics(clinics):
             c.reasons.append("Provider reports closed; check before travelling")
         else:
             c.reasons.append("Opening hours unconfirmed")
-        if c.distance_km is not None:
+        if c.distance_km is None:
+            c.reasons.append("Distance unknown: the listing has no coordinates; check the map link before travelling")
+        elif c.source == "gemini_maps":
+            c.reasons.append(f"{c.distance_km:g} km straight-line distance (location from the OpenStreetMap entry for the same practice), not travel time")
+        else:
             c.reasons.append(f"{c.distance_km:g} km straight-line distance, not travel time")
         if c.call_url:
             c.reasons.append("Provider phone available")

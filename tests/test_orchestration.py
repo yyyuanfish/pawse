@@ -60,7 +60,8 @@ def test_run_reuses_concurrent_care_and_retrieval_and_preserves_action_gates(mon
     assert states(result)["policy_evidence"] == "evidence_required"
     assert states(result)["communication"] == "review_required"
     assert result.care.clinics[0].open_now is None
-    assert result.care.clinics[0].reasons == ["Opening hours unconfirmed"]
+    assert result.care.clinics[0].reasons == ["Opening hours unconfirmed",
+                                              "Distance unknown: the listing has no coordinates; check the map link before travelling"]
     assert not result.external_actions_performed
     assert all(gate.state != "complete" for gate in result.actions)
     assert next(gate for gate in result.actions if gate.id == "outbound_call").state == "not_connected"

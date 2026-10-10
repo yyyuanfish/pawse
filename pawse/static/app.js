@@ -60,8 +60,7 @@ function clinicCards(clinics) {
   }
   clinics.forEach((c) => {
     const box = node("article", null, "panel clinic-card");
-    if (c.distance_km !== null)
-      box.append(node("span", c.distance_km + " km", "distance"));
+    box.append(node("span", Number.isFinite(c.distance_km) ? c.distance_km + " km" : "distance unknown", "distance"));
     box.append(node("h3", c.name), node("p", c.address));
     const list = node("ul");
     c.reasons.forEach((r) => list.append(node("li", r)));

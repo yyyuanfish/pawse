@@ -36,7 +36,7 @@ nwr["amenity"="veterinary"](around:10000,47.3769,8.5417);
 out center tags;
 ```
 
-This query is now available in the standalone `scripts/crawl_zurich_vets.py` collector, with normalized output and provenance described in the [Crawling contract](controller-crawling-contract.md). The live app reads a local snapshot (`PAWSE_CLINIC_SNAPSHOT`) as a fallback and lists it after live provider results, dropping rows that duplicate a provider listing. Source IDs retain node/way/relation identity. Do not infer phone numbers, round-the-clock service, cat-specific expertise, appointments, road ETA, or current opening from a name alone. Straight-line distance is not travel time.
+This query is now available in the standalone `scripts/crawl_zurich_vets.py` collector, with normalized output and provenance described in the [Crawling contract](controller-crawling-contract.md). The live app reads a local snapshot (`PAWSE_CLINIC_SNAPSHOT`) as a fallback, dropping rows that duplicate a provider listing. Clinics with a known straight-line distance rank first, whatever their source; listings without one (Google Maps grounding has no coordinates) follow, labelled "distance unknown". A Google Maps listing whose phone, or a name only one snapshot row has, matches a snapshot row takes that row's OSM coordinates for its distance and radius filter; its Google fields are not changed and nothing extra is sent anywhere. Source IDs retain node/way/relation identity. Do not infer phone numbers, round-the-clock service, cat-specific expertise, appointments, road ETA, or current opening from a name alone. Straight-line distance is not travel time.
 
 ## Data Module Deliverables
 

@@ -102,7 +102,7 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
             <article key={c.id} className={c.openNow || c.openUnknown ? 'clinic' : 'clinic closed'}>
               <div className="clinic-top">
                 <h2>{c.name}</h2>
-                <span className="clinic-dist">{Number.isFinite(c.distanceKm) ? `${c.distanceKm.toFixed(1)} km` : '–'}</span>
+                <span className="clinic-dist">{Number.isFinite(c.distanceKm) ? `${c.distanceKm.toFixed(1)} km` : t.distanceUnknown}</span>
               </div>
               <div className="clinic-tags">
                 {c.openUnknown ? (
