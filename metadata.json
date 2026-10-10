@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K8YYFP2TFRYAA0SHR6GY1A",
   "strategy": "manual-commit",
   "branch": "fix/places-vet-guard",
-  "checkpoints_count": 12,
+  "checkpoints_count": 13,
   "files_touched": [
     "docs/MAPIFY_ADAPTER.md",
     "pawse/providers.py",
@@ -24,13 +24,20 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 50,
-    "cache_creation_tokens": 9105,
-    "cache_read_tokens": 3111588,
-    "output_tokens": 3235,
-    "api_call_count": 16
+    "input_tokens": 74,
+    "cache_creation_tokens": 22193,
+    "cache_read_tokens": 4915530,
+    "output_tokens": 11943,
+    "api_call_count": 28
   }
 }
