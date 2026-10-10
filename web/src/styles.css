@@ -642,3 +642,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .welcome { max-width: 440px; margin: 0 auto; padding: 32px var(--gutter); display: grid; gap: 14px; justify-items: center; text-align: center; }
 .welcome .card { width: 100%; display: grid; gap: 10px; text-align: left; }
 .welcome h1 { font-size: 28px; }
+.photo-options { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.photo-options button { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 14px; border: 0; border-radius: 12px; background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.photo-options button:hover, .photo-options button:focus-visible { background: var(--soft); }
+.photo-options small { display: block; color: var(--muted); }
+.camera-review img { display: block; width: 100%; max-height: 360px; object-fit: contain; border-radius: 12px; }
+.vcall.camera-mode { height: auto; min-height: 100dvh; overflow: visible; }
+.camera-stage { flex: none; }
+.camera-stage .cam-card { flex-shrink: 0; height: clamp(180px, 32vh, 270px); }
