@@ -86,8 +86,7 @@ None of this measures accuracy for human speakers; that still needs consented re
 - Not verified on the public URL: Gradium voice cloning, Gemini Live voice.
 - The React app (`/app/`) loads at desktop and 390px width with no console errors or horizontal overflow; its live flows were not walked on the public URL.
 - Google Places on the public URL (https://pawse-ewt2scevfq-oa.a.run.app, verified 2026-10-10): `/api/v1/capabilities` lists `clinic_providers` `["google_places","gemini_maps"]`. `POST /api/v1/clinics/search` for Zurich (47.3769, 8.5417, 3 km) returned 200 in 0.6 s with 9 clinics, all `source=google_places`, all with a phone number and `distance_km`; non-vet places are filtered (PR #70). Gemini Maps grounding remains the fallback and carries no distances.
-- Clinic order (backend `rank_clinics`): provider-reported open first, then unknown hours, then reported closed, by distance within each group, OSM snapshot last. The web list subtitle says so ("Open now first, then nearest"), since a closed clinic at 0.9 km can sit below an open one at 2.75 km.
-- Known: `/favicon.ico` returns 404 on the rehearsal page (also locally).
+- Clinic order (backend `rank_clinics`): clinics with a known distance first, whatever their source; within that, provider-reported open first, then unknown hours, then reported closed, nearest first. Clinics without a distance (unmatched Gemini Maps listings) come last, labelled "distance unknown". The web list subtitle says "Open now first, then nearest", since a closed clinic at 0.9 km can sit below an open one at 2.75 km.
 
 ## Gemini Live as the /app default (feat/live-default)
 

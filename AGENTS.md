@@ -42,7 +42,7 @@ fallback, not the goal.
 - The goal is the live path: each ⚠️ above is open work to turn into ✅ (or, if cut, an honest 🎭 label), not a footnote.
 - Every change must leave the golden path working end to end. Before pushing anything that touches it, run
   `bash scripts/check.sh` and walk the story in the browser ([demo-check](.claude/skills/demo-check/SKILL.md)).
-- Story outcomes live in pytest (`tests/test_orchestration.py`): costs, citations, statuses. If you change a number,
+- Story outcomes live in pytest (`tests/test_voice.py`, the `test_mimi_*` tests): costs, citations, statuses. If you change a number,
   a German line or a clause, change the script, `pawse/demo.py` and the tests together so the video and the app agree.
 - 🎭 steps stay labelled "simulated" on screen. Don't present a simulated reply as real (rule 3).
 - When a ⚠️ becomes ✅, update this table and [docs/VALIDATION.md](docs/VALIDATION.md) in the same change.

@@ -22,7 +22,7 @@ Pawse 用语音回答、给出分级和下一步建议，然后先列出附近�
 ```bash
 npm install
 npm run dev        # 浏览器打开 localhost:5173
-npm run check      # 纯 Node 检查演示数据、接口契约和金额（不需要装依赖）
+npm run check      # 纯 Node 检查演示数据、接口契约和金额（要先 npm install：检查会导入 @google/genai）
 ```
 
 - 想演快一点：`localhost:5173/?speed=3`（倍速时不出声，只走字幕）。
@@ -35,7 +35,7 @@ npm run check      # 纯 Node 检查演示数据、接口契约和金额（不�
 |---|---|---|
 | 首页 | `src/pages/Home.jsx` | 虚拟形象 Pawse、“呼叫 Pawse” |
 | 语音通话 | `src/pages/VoiceCall.jsx` | 大头像（说话时嘴会动、有光圈）；字幕；关键词；文字框 + 📷 发照片；麦克风 / 挂断 / 摄像头（可选，打开后变成小画面）；分诊后弹出建议卡 |
-| 诊所列表 | `src/pages/ClinicList.jsx` | 按距离排序；营业中 / 已关门 / 急诊 / 最近；地图链接；“让 Pawse 打” |
+| 诊所列表 | `src/pages/ClinicList.jsx` | 后端排好序：有距离的在前（营业中优先，再按距离），没有距离的排最后并标“距离未知”；营业中 / 已关门 / 急诊 / 最近；地图链接；“让 Pawse 打” |
 | 转接电话 | `src/pages/PhoneCall.jsx` | 呼叫中 → 通话中；原话（德语）+ 实时翻译；结果卡 |
 | 总结 | `src/pages/Plan.jsx` | 建议、已完成的电话、可复制的病情摘要、理赔材料 |
 
@@ -43,7 +43,7 @@ npm run check      # 纯 Node 检查演示数据、接口契约和金额（不�
 
 ## 插槽一：语音智能体（给语音队友）
 
-替换 `src/agents/liveVoiceAgent.js`，导出 `createLiveVoiceAgent({ lang })`：
+默认的真实语音是 `src/agents/geminiLiveAgent.js`（Gemini Live，用后端发的一次性令牌，工具调用走后端 REST）；Live 启动失败时自动换成脚本演练，并在页面上提示。`src/agents/liveVoiceAgent.js` 是 `?voice=rest` 时用的 REST 版本（转写 + care 接口）。两者接口相同，导出 `createLiveVoiceAgent({ lang })` / `createGeminiLiveAgent({ lang })`：
 
 ```js
 agent.on(cb)                          // 订阅事件，返回取消订阅函数
@@ -79,7 +79,7 @@ AI 的声音由智能体自己播放。
 liveSearchClinics({ lang, location, triage })  →  Promise<{ clinics: [...] }>
 ```
 
-- `location`：`{ lat, lng }`；用户不给定位时是 `null`（页面会提示“距离可能不准”）
+- `location`：`{ lat, lng }`；用户不给定位时是 `null`，这时 `liveSearchClinics` 直接报错（“需要定位才能找附近诊所”），页面显示错误
 - `triage`：Pawse 的判断，比如 `level === 'red'` 时可以优先急诊
 
 每家诊所：
@@ -124,14 +124,14 @@ call.on(cb); call.start(); call.hangup();
 
 ```
 VITE_VOICE_AGENT=live
-VITE_VOICE_AGENT_URL=wss://…
+VITE_VOICE_AGENT_URL=https://…   # Pawse 后端地址，空 = 同源
 VITE_CLINIC_SEARCH=live
 VITE_CLINIC_SEARCH_URL=https://…
 VITE_PHONE_AGENT=live
-VITE_PHONE_AGENT_URL=wss://…
+VITE_PHONE_AGENT_URL=https://…   # Pawse 后端地址，空 = 同源
 ```
 
-插槽里默认写了最简单的连接方式（语音和电话用 WebSocket，搜索用 POST）。服务端直接按上面的格式返回就能用，不一样的话改插槽文件就行。
+插槽里的连接方式：语音由浏览器用后端发的 Gemini Live 一次性令牌直连 Gemini，工具调用、诊所搜索和电话都走 Pawse 后端的 REST（`fetch`）。服务端直接按上面的格式返回就能用，不一样的话改插槽文件就行。
 完整定义在 `src/contracts.js`。数据格式不对时，浏览器控制台会出现 `[Pawse]` 警告，方便联调。
 
 ## 目录
@@ -153,7 +153,8 @@ src/
     mockPhoneAgent.js     演示：打电话
     mockScripts.js        演示台词（中英文 + 德语）、诊所、金额
     speech.js             演示用的浏览器语音
-    liveVoiceAgent.js     ← 插槽一：语音队友
+    geminiLiveAgent.js    ← 插槽一：语音（默认，Gemini Live）
+    liveVoiceAgent.js     ← 插槽一：语音（?voice=rest 的 REST 版本）
     liveClinicSearch.js   ← 插槽二：搜索队友
     livePhoneAgent.js     ← 插槽三：电话队友
   utils/                  病情摘要、复制
