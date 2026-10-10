@@ -137,3 +137,17 @@ def test_slot_start_only_accepts_plausible_upcoming_times():
     assert telephony.slot_start(soon + ':00+02:00') == soon
     for bad in [None, '', 'today at 4:30', '2020-01-01T10:00', '2099-01-01T10:00']:
         assert telephony.slot_start(bad) is None
+
+
+def test_event_stream_resumes_after_last_event_id(monkeypatch):
+    for k, v in ENV.items():
+        monkeypatch.setenv(k, v)
+    twilio(monkeypatch, [])
+    with TestClient(app) as c:
+        call_id = c.post('/api/v1/calls', json=BODY).json()['id']
+        call = telephony.calls[call_id]
+        telephony.emit(call, {'type': 'line', 'who': 'ai', 'text': 'one'})
+        telephony.finish(call)
+        full = [l for l in c.get(f'/api/v1/calls/{call_id}/events').text.splitlines() if l.startswith('id: ')]
+        resumed = [l for l in c.get(f'/api/v1/calls/{call_id}/events', headers={'Last-Event-ID': '1'}).text.splitlines() if l.startswith('id: ')]
+        assert full[:2] == ['id: 0', 'id: 1'] and resumed and resumed[0] == 'id: 2'

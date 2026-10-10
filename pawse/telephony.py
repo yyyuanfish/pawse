@@ -75,7 +75,7 @@ async def call_status():
 def emit(call, event):
     call["events"].append(event)
     for q in call["subs"]:
-        q.put_nowait(event)
+        q.put_nowait((len(call["events"]) - 1, event))
 
 
 def finish(call, outcome=None):
@@ -208,20 +208,25 @@ async def twilio_status(call_id: str, request: Request):
 @router.get("/{call_id}/events")
 async def events(call_id: str, request: Request):
     call = mine(call_id, request.state.owner)
+    # Proxies (e.g. Vercel) drop long streams and the browser reconnects with Last-Event-ID:
+    # replay only what it has not seen, so the transcript never doubles.
+    last = request.headers.get("last-event-id", "")
+    start = int(last) + 1 if last.isdigit() else 0
     q: asyncio.Queue = asyncio.Queue()
-    for e in call["events"]:
-        q.put_nowait(e)
+    for i, e in enumerate(call["events"]):
+        if i >= start:
+            q.put_nowait((i, e))
     call["subs"].add(q)
 
     async def stream():
         try:
             while True:
                 try:
-                    e = await asyncio.wait_for(q.get(), 15)
+                    i, e = await asyncio.wait_for(q.get(), 15)
                 except TimeoutError:
                     yield ": keep-alive\n\n"
                     continue
-                yield f"data: {json.dumps(e)}\n\n"
+                yield f"id: {i}\ndata: {json.dumps(e)}\n\n"
                 if e.get("type") == "status" and e.get("state") == "ended":
                     return
         finally:
@@ -287,7 +292,8 @@ async def synth(text, voice_id):
         try:
             async with gradium_slots, httpx.AsyncClient() as client:
                 r = await gradium(client, "POST", "/post/speech/tts", max_bytes=5_000_000, request_timeout=20, json={
-                    "text": text, "voice_id": voice_id, "model_name": "default", "output_format": "ulaw_8000", "only_audio": True})
+                    "text": text, "voice_id": voice_id, "model_name": "default", "output_format": "ulaw_8000", "only_audio": True,
+                    "json_config": json.dumps({"padding_bonus": -1.0})})  # a little brisker on the phone
             return ulaw_wav(r.content)
         except HTTPException:
             if attempt == 2:

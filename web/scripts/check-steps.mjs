@@ -14,7 +14,7 @@ assert.equal(marks(stepState({ view: 'voice' })), '●···');
 assert.equal(marks(stepState({ view: 'plan', triage })), '✓●··');
 assert.equal(marks(stepState({ view: 'clinics', triage })), '✓●··');
 assert.equal(marks(stepState({ view: 'phone', target: 'insurance', triage })), '✓·●·');
-assert.equal(marks(stepState({ view: 'plan', triage, vet })), '✓✓●·');
+assert.equal(marks(stepState({ view: 'plan', triage, vet })), '✓✓·●'); // insurer optional: the summary is next
 assert.equal(marks(stepState({ view: 'plan', triage, insurance: ins })), '✓●✓·');
 assert.equal(marks(stepState({ view: 'plan', triage, vet, insurance: ins })), '✓✓✓●');
 for (const s of [stepState({ view: 'plan', triage }), stepState({ view: 'plan', triage, vet, insurance: ins })]) {
@@ -23,7 +23,7 @@ for (const s of [stepState({ view: 'plan', triage }), stepState({ view: 'plan', 
 
 // The plan offers one obvious next action: the first unfinished conversation, then the summary.
 assert.equal(nextAction({ vet: null, insurance: null }), 'vet');
-assert.equal(nextAction({ vet, insurance: null }), 'insurance');
+assert.equal(nextAction({ vet, insurance: null }), 'summary'); // the insurer is optional
 assert.equal(nextAction({ vet: null, insurance: ins }), 'vet');
 assert.equal(nextAction({ vet, insurance: ins }), 'summary');
 // A prepared (live) conversation is summarised honestly: no invented time, cost or cover.

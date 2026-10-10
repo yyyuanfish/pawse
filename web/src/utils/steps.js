@@ -1,11 +1,9 @@
 // Where the owner is in the story: talk → vet → insurance → summary. Derived from App state, never stored.
 export const STEPS = ['talk', 'vet', 'insurance', 'summary'];
 
-/** The plan's one obvious next action: the first unfinished conversation, then the summary. */
-export function nextAction({ vet, insurance }) {
-  if (!vet) return 'vet';
-  if (!insurance) return 'insurance';
-  return 'summary';
+/** The plan's one obvious next action: the vet first, then the summary. The insurer is optional. */
+export function nextAction({ vet }) {
+  return vet ? 'summary' : 'vet';
 }
 
 /** [{ id, done, current }] for the progress rail; exactly one step is current. */

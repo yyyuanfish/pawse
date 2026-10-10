@@ -28,7 +28,13 @@ export async function startRealCall({ target, place, summary, voiceId }, onEvent
   }
   const { id } = await r.json();
   const source = new EventSourceImpl(`${base()}/api/v1/calls/${encodeURIComponent(id)}/events`);
+  let seen = -1; // events carry an index; a reconnect that replays old ones must not repeat them
   source.onmessage = (e) => {
+    const n = Number(e.lastEventId);
+    if (Number.isInteger(n) && e.lastEventId !== '') {
+      if (n <= seen) return;
+      seen = n;
+    }
     let event;
     try {
       event = JSON.parse(e.data);
