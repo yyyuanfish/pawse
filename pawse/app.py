@@ -165,9 +165,18 @@ async def agent_request(payload: LegacyRequest, request: Request):
     return StreamingResponse(body(), media_type="text/event-stream")
 
 
+LANDING = ROOT / "site"
+
 @app.get("/")
-async def index():
-    return FileResponse(Path(__file__).parent / "static/index.html")
+async def index(request: Request):
+    # Keep existing keyless rehearsal links working.
+    if request.query_params.get("demo") == "1":
+        return FileResponse(Path(__file__).parent / "static/index.html")
+    return FileResponse(LANDING / "index.html")
+
+@app.get("/landing", include_in_schema=False)
+async def landing():
+    return FileResponse(LANDING / "index.html")
 
 app.include_router(voice_router)
 app.include_router(telephony_router)
@@ -184,3 +193,7 @@ app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), na
 WEB_DIST = Path(__file__).resolve().parent.parent / "web/dist"
 if WEB_DIST.is_dir():
     app.mount("/app", StaticFiles(directory=WEB_DIST, html=True), name="web")
+
+# Register last so landing assets never shadow API or app routes.
+if LANDING.is_dir():
+    app.mount("/", StaticFiles(directory=LANDING), name="landing-assets")

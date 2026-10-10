@@ -1,7 +1,7 @@
 // Fixed Cloud Run origin; credentials and application state stay on the backend.
 import {Readable} from 'node:stream';
 import {pipeline} from 'node:stream/promises';
-export const BACKEND='https://pawse-114215092948.europe-west6.run.app';
+export const BACKEND='https://pawse-329984198357.europe-west6.run.app';
 function reply(res,status,data){res.statusCode=status;if(data!==undefined){res.setHeader('Content-Type','application/json');res.end(JSON.stringify(data));}else res.end();}
 export default async function handler(req,res){
   const parsed=new URL(req.url||'/','https://pawse.invalid');

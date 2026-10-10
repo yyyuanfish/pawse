@@ -26,7 +26,7 @@ for a preview, or deploy it through the authenticated CLI with `vercel --prod`.
 No Gemini, Gradium or Places API key belongs in Vite variables or static assets.
 
 `gateway/index.mjs` forwards same-origin HTTP API calls to the fixed Cloud Run origin:
-`https://pawse-114215092948.europe-west6.run.app`. It checks browser origins before forwarding,
+`https://pawse-329984198357.europe-west6.run.app`. It checks browser origins before forwarding,
 retains session cookies, streams responses and enforces bounded request bodies. Gemini and
 Gradium native audio streams connect directly to their providers with short-lived backend-issued
 tokens. The FastAPI backend, credentials and session state remain on Cloud Run. This is a frontend
@@ -70,3 +70,13 @@ The gateway is an explicit Node service because Vercel Services did not package 
 Latest-main local checks: 205 passed, 8 skipped; frontend build, secret scan, JS and OpenAPI checks passed. Production route checks cover landing, App, backend health, Mimi rehearsal, session cookies, validation forwarding and foreign-origin rejection. Mobile-width browser checks do not replace a physical phone camera/microphone test.
 
 Cloud Run's GitHub Actions run 38068432411 skipped deployment because `GCP_PROJECT_ID` and `GCP_SA_KEY` are absent. The hosted backend did not expose `/api/v1/vision/observations` when checked; publishing this website does not enable that endpoint.
+
+## Cloud Run landing page
+
+The Cloud Run Docker image now includes `site/`. FastAPI serves the same English landing page at `/`
+and `/landing`, with its CSS, JavaScript and images on the same host. Calls to action open `/app/?live=1`
+and use that deployment's own backend directly. Existing `/?demo=1` rehearsal links and `/static/`
+assets remain supported.
+
+For the owner's Cloud Run deployment, share https://pawse-329984198357.europe-west6.run.app/ .
+Code-only redeploys should preserve existing environment variables and Secret Manager mappings.
