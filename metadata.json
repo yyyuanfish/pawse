@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K40Z18CSTJ1QW3N1GF4ZEN",
   "strategy": "manual-commit",
   "branch": "fix/location-fallback-zurich",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
     "web/src/i18n.js"
   ],
@@ -14,13 +14,20 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": "/0/prompt.txt"
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": "/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 36,
-    "cache_creation_tokens": 31509,
-    "cache_read_tokens": 1204587,
-    "output_tokens": 9376,
-    "api_call_count": 18
+    "input_tokens": 50,
+    "cache_creation_tokens": 59692,
+    "cache_read_tokens": 1525731,
+    "output_tokens": 12845,
+    "api_call_count": 25
   }
 }
