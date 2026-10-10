@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K65N1HPP7JFMQEMENPDXSZ",
+  "strategy": "manual-commit",
+  "branch": "fix/web-simulated-label",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "tests/e2e/test_browser_layout.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 33865,
+    "cache_read_tokens": 2630404,
+    "output_tokens": 20277,
+    "api_call_count": 20
+  }
+}

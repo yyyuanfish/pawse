@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01Bxcdfi5h78qYmgKNCqs5GT",
+  "agent_id": "a0e0053a8d2481e8e",
+  "subagent_type": "Explore",
+  "task_description": "Map call flow, story data, voice speed",
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 67855,
+    "cache_read_tokens": 778099,
+    "output_tokens": 747,
+    "api_call_count": 17
+  },
+  "started_at": "2026-10-10T15:10:48.520013992Z",
+  "completed_at": "2026-10-10T15:12:10.550008559Z"
+}
