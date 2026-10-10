@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_011eC7YKhQU9HceDqMc6oAry",
+  "agent_id": "a9ee1b5f2b1007a25",
+  "subagent_type": "Explore",
+  "task_description": "Map web app UX flow",
+  "token_usage": {
+    "input_tokens": 28,
+    "cache_creation_tokens": 59301,
+    "cache_read_tokens": 513697,
+    "output_tokens": 150,
+    "api_call_count": 14
+  },
+  "started_at": "2026-10-10T14:27:01.225214702Z",
+  "completed_at": "2026-10-10T14:28:17.186479732Z"
+}
