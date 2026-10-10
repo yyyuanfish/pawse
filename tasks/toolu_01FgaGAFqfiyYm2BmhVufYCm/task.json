@@ -1,0 +1,7 @@
+{
+  "tool_use_id": "toolu_01FgaGAFqfiyYm2BmhVufYCm",
+  "agent_id": "a81e97a1f268b1391",
+  "subagent_type": "general-purpose",
+  "task_description": "Replace knowledge search with full policy",
+  "started_at": "2026-10-10T15:05:13.01462846Z"
+}
