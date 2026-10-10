@@ -21,7 +21,7 @@ def capabilities():
     return {"new_features": [
         {"id": "care_navigation", "status": "implemented"},
         {"id": "gemini_text_and_photo", "status": "configured" if os.getenv("GEMINI_API_KEY") else "needs_configuration"},
-        {"id": "nearby_clinics", "status": "configured" if os.getenv("GOOGLE_PLACES_API_KEY") or os.getenv("MAPIFY_BASE_URL") else "needs_configuration"},
+        {"id": "nearby_clinics", "status": "configured" if any(os.getenv(k) for k in ("GOOGLE_PLACES_API_KEY", "GEMINI_API_KEY", "MAPIFY_BASE_URL")) or snapshot_path().is_file() else "needs_configuration"},
         {"id": "insurance_contact", "status": "user_provided"},
         {"id": "click_to_call", "status": "implemented"},
         {"id": "multilingual_audio_and_scripts", "status": "configured" if os.getenv("GEMINI_API_KEY") else "needs_configuration"},

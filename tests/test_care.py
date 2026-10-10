@@ -234,4 +234,5 @@ def test_capabilities_expose_model_ids_and_clinic_providers_without_keys(monkeyp
         d=r.json()
     assert d['models']=={'care':'care-x','voice':'gemini-3-flash-preview','live':'gemini-3.8-live'}
     assert d['clinic_providers']==['google_places', 'gemini_maps']
+    assert {f['id']:f['status'] for f in d['new_features']}['nearby_clinics']=='configured'
     assert 'secret-key-value' not in r.text and 'places-secret' not in r.text
