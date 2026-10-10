@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K0HXJC7EQGFAATCE4AFVBD",
+  "strategy": "manual-commit",
+  "branch": "test/browser-voice-contract",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "docs/VALIDATION.md",
+    "docs/WEB_AGENT_INTEGRATION.md",
+    "tests/e2e/README.md",
+    "tests/e2e/audio_fixtures.py",
+    "tests/e2e/conftest.py",
+    "tests/e2e/e2e_helpers.py",
+    "tests/e2e/frontend_contract.py",
+    "tests/e2e/test_browser_layout.py",
+    "tests/e2e/test_browser_live.py",
+    "tests/e2e/test_browser_live_voice.py",
+    "tests/e2e/test_browser_mic.py",
+    "tests/e2e/test_browser_real_speech.py",
+    "tests/e2e/test_browser_recording.py",
+    "tests/e2e/test_browser_upload.py",
+    "tests/e2e/test_real_recordings_api.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 48006,
+    "cache_read_tokens": 560008,
+    "output_tokens": 6301,
+    "api_call_count": 10
+  }
+}
