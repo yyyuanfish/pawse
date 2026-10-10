@@ -19,14 +19,13 @@ Errors: 422 invalid photo/consent; 503 missing key; 502 upstream/invalid model o
 
 ## Try it
 
-1. Open `/app/?live=1`, choose **Check a cat photo**.
-2. Choose **Upload photo**, or **Take photo** on a supported phone. Desktop may offer a file picker.
-3. Review the local preview and opt in to sharing this photo with Gemini.
-4. Select **Analyze photo** and review observations, limitations and questions.
+1. Open `/app/?live=1`, start the Pawse conversation and confirm Gemini sharing.
+2. Click the camera icon in the conversation input bar, then **Upload photo** or **Take photo**. With camera preview on, **Capture and analyze** submits the current frame.
+3. The selected photo is analyzed under the conversation’s explicit Gemini-sharing consent.
+4. Review **Photo observations** in the conversation. The LLM receives these observations as untrusted evidence and explains them in the conversation language.
 5. Try a non-cat or blurred image: the app should abstain rather than invent features.
 
-This structured result view is separate from existing Live photo conversation. It does not yet
-pass observation results automatically into the care agent. No real-cat clinical validation is claimed.
+Structured observations are now handed to the existing conversation agent. They do not change the care tool schema or automatically trigger a clinic search. No real-cat clinical validation is claimed.
 
 ## Future case-bound design (not implemented)
 

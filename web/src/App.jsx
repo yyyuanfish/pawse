@@ -1,4 +1,3 @@
-import PetVision from './pages/PetVision.jsx';
 import { useEffect, useState } from 'react';
 import OwnVoice from './pages/OwnVoice.jsx';
 import Home from './pages/Home.jsx';
@@ -109,7 +108,6 @@ export default function App() {
     setView(triage ? 'plan' : 'home');
   };
 
-  if (view === 'petvision') return <PetVision onBack={() => setView('home')} />;
   if (view === 'ownvoice') return <OwnVoice onBack={() => setView('home')} />;
   if (view === 'voice') {
     return (
@@ -164,5 +162,5 @@ export default function App() {
       />
     );
   }
-  return <Home onPetVision={() => setView('petvision')} t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} />;
+  return <Home t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} />;
 }

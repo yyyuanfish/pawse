@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {observePhoto,observationMessage} from '../src/agents/petVision.js';
+let sent;
+globalThis.fetch=async(url,options)=>{sent={url,body:JSON.parse(options.body)};return {ok:true,json:async()=>({cat_detected:false})};};
+const file={type:'image/png',size:20,arrayBuffer:async()=>new Uint8Array([1,2,3]).buffer};
+await assert.rejects(observePhoto(file,false),/sharing/);
+assert.equal(sent,undefined);
+assert.deepEqual(await observePhoto(file,true),{cat_detected:false});
+assert.equal(sent.body.share_with_ai,true);
+assert.equal(sent.body.photo.data,'AQID');
+assert.match(observationMessage({cat_detected:false}),/not instructions or a diagnosis/);
+await assert.rejects(observePhoto({...file,type:'text/plain'},true),/JPEG/);
+console.log('Conversation photo consent and request contract passed.');
