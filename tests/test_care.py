@@ -138,14 +138,34 @@ async def test_google_places_normalization(monkeypatch):
         assert body['includedType']=='veterinary_care' and body['strictTypeFiltering'] is True
         assert 'Tierarzt' in body['textQuery'] and body['rankPreference']=='DISTANCE'
         assert body['locationBias']['circle']['radius']==10000
-        return httpx.Response(200,json={'places':[{'id':'123','displayName':{'text':'Animal Clinic'},'location':{'latitude':47.37,'longitude':8.54},'internationalPhoneNumber':'+41441234567'},
-                                                  {'id':'far','displayName':{'text':'Far Clinic'},'location':{'latitude':47.6,'longitude':8.54}}]})
+        return httpx.Response(200,json={'places':[{'id':'123','displayName':{'text':'Animal Clinic'},'location':{'latitude':47.37,'longitude':8.54},'internationalPhoneNumber':'+41441234567','userRatingCount':20},
+                                                  {'id':'far','displayName':{'text':'Far Clinic'},'location':{'latitude':47.6,'longitude':8.54},'userRatingCount':20}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         result=await google_clinics(CareRequest(**payload(location={'lat':47.37,'lng':8.54})),client)
         assert [c.id for c in result]==['123']  # text search only biases to the circle: drop places outside the radius
         assert result[0].call_url=='tel:+41441234567'
         assert result[0].open_now is None
         assert result[0].distance_km==0
+
+
+@pytest.mark.asyncio
+async def test_google_places_keeps_only_real_practices(monkeypatch):
+    monkeypatch.setenv('GOOGLE_PLACES_API_KEY','test-only')
+    def place(i,**kw):return {'id':i,'displayName':{'text':i},'location':{'latitude':47.37,'longitude':8.54},**kw}
+    hours={'weekdayDescriptions':['Monday: 08:00-18:00']}
+    def handler(r):
+        mask=r.headers['X-Goog-FieldMask']
+        assert all(f in mask for f in ('places.businessStatus','places.regularOpeningHours','places.userRatingCount'))
+        assert json.loads(r.content)['pageSize']==20
+        return httpx.Response(200,json={'places':[
+            place('assoc'),  # tagged veterinary_care but no hours and no reviews
+            place('closed',businessStatus='CLOSED_TEMPORARILY',regularOpeningHours=hours,userRatingCount=50),
+            place('few',userRatingCount=3),
+            place('many',userRatingCount=17),
+            place('clinic',businessStatus='OPERATIONAL',regularOpeningHours=hours,userRatingCount=227)]})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        result=await google_clinics(CareRequest(**payload(location={'lat':47.37,'lng':8.54})),client)
+        assert [c.id for c in result]==['many','clinic']
 
 
 @pytest.mark.asyncio
