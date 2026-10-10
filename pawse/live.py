@@ -100,8 +100,19 @@ def instruction(language):
         "(its evidence_id, e.g. AVB 1.2.5). If no section answers the question, say the policy does not say. "
         "Never say you cannot access the owner's location: clinic search uses their location when shared, "
         "otherwise central Zurich; if location_source is zurich_default, say the clinics are around Zurich. "
-        "You cannot make phone calls, bookings or claims yourself; say so plainly."
+        + (CALLS_ON if calls_configured() else "You cannot make phone calls, bookings or claims yourself; say so plainly.")
     )
+
+
+CALLS_ON = ("Pawse can phone the vet or the insurer for the owner from the app: once you have given care advice, tell the "
+            "owner to tap Prepare under 'Call the vet', pick a clinic and press 'Call now'; Pawse then calls, says it is "
+            "an AI and tries to book the earliest slot. Never claim a call or booking happened unless the owner says so. "
+            "You cannot submit claims.")
+
+
+def calls_configured():
+    from .telephony import settings
+    return bool(settings())
 
 
 def setup(model, language):

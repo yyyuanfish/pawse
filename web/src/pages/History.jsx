@@ -42,6 +42,9 @@ export default function History({ onBack }) {
         {error && <p role="alert">{error}</p>}
       </section>
 
+      {items !== null && user && (
+        <h2 className="history-scope">{user.signed_in ? `Saved to your account · ${items.length}` : `Saved in this browser (guest) · ${items.length}`}</h2>
+      )}
       {items === null ? <p role="status">Loading…</p> : items.length === 0 ? <p className="muted">Nothing yet. Talk to Pawse or let it call a vet, and it shows up here.</p> : (
         <ol className="history-list">
           {items.map((h) => (

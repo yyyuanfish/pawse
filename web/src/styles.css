@@ -666,3 +666,4 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .cam-snap { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px 10px 10px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: var(--brand-strong); font-weight: 800; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); }
 .cam-snap span { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); box-shadow: inset 0 0 0 4px #fff, 0 0 0 2px var(--brand); }
 .cam-snap:disabled { opacity: 0.6; }
+.history-scope { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 6px 4px 0; }
