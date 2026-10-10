@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import { searchClinics, IS_LIVE_CLINICS } from '../agents/index.js';
 import ProviderChips from '../components/ProviderChips.jsx';
@@ -9,6 +9,9 @@ import useLiveLocation from '../hooks/useLiveLocation.js';
 import LiveMap from '../components/LiveMap.jsx';
 import NearbyTaxis from '../components/NearbyTaxis.jsx';
 import InsurerContact from '../components/InsurerContact.jsx';
+import PinBadge from '../components/PinBadge.jsx';
+import { useInsurer, useTaxis } from '../hooks/useNearby.js';
+import { markersFor, pinNumbers } from '../utils/mapMarkers.js';
 
 // Attribution for each clinic source; OSM data is ODbL and Google Maps content must be credited.
 const SOURCE_LABELS = {
@@ -35,10 +38,20 @@ function retrievedTime(iso) {
 export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
   const [state, setState] = useState({ status: 'loading', clinics: [], located: true });
   const loc = useLiveLocation();
-  const [focus, setFocus] = useState(null);
+  const [mode, setMode] = useState('vets'); // map tab: me | vets | taxi | insurer
+  const [focus, setFocus] = useState(null); // id of the pin whose card is open
   const [showAll, setShowAll] = useState(false);
-  const showOnMap = (place) => {
-    setFocus(place);
+  const taxis = useTaxis(loc.location, IS_LIVE_CLINICS);
+  const insurer = useInsurer(loc.location, IS_LIVE_CLINICS);
+  const visible = showAll ? state.clinics : state.clinics.slice(0, SHORT_LIST);
+  const markers = useMemo(() => ({
+    vets: markersFor('vets', visible), taxi: markersFor('taxi', taxis.places), insurer: markersFor('insurer', insurer.places),
+  }), [visible, taxis.places, insurer.places]);
+  const numbers = useMemo(() => ({ vets: pinNumbers(markers.vets), taxi: pinNumbers(markers.taxi), insurer: pinNumbers(markers.insurer) }), [markers]);
+  const chooseMode = (m) => { setMode(m); setFocus(null); };
+  const showOnMap = (kind, id) => {
+    setMode(kind);
+    setFocus(id);
     globalThis.scrollTo?.({ top: 0, behavior: 'smooth' });
   };
 
@@ -80,7 +93,7 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
           <p className="muted small">{IS_LIVE_CLINICS ? liveSubtitle(t, state) : t.clinicsSub}</p>
         </div>
       </header>
-      <LiveMap t={t} lang={lang} loc={loc} focus={focus} />
+      <LiveMap t={t} lang={lang} loc={loc} mode={mode} onMode={chooseMode} markers={markers} focus={focus} />
 
       {state.status !== 'loading' && (
         <ProviderChips t={t} items={clinicProviders({ live: IS_LIVE_CLINICS, clinics: state.clinics, failed: state.status === 'error' })} />
@@ -119,10 +132,13 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
               </button>
             </div>
           )}
-          {(showAll ? state.clinics : state.clinics.slice(0, SHORT_LIST)).map((c) => (
+          {visible.map((c) => (
             <article key={c.id} className={c.openNow || c.openUnknown ? 'clinic' : 'clinic closed'}>
               <div className="clinic-top">
-                <h2>{c.name}</h2>
+                <h2>
+                  <PinBadge n={numbers.vets.get(c.id)} kind="vets" />
+                  {c.name}
+                </h2>
                 <span className="clinic-dist">{Number.isFinite(c.distanceKm) ? `${c.distanceKm.toFixed(1)} km` : t.distanceUnknown}</span>
               </div>
               <div className="clinic-tags">
@@ -146,9 +162,11 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
               <p className="muted small"><span translate="no">{SOURCE_LABELS[c.source] || c.source}</span>{retrievedTime(c.retrievedAt) && ` · ${t.retrievedAt} ${retrievedTime(c.retrievedAt)}`}</p>
               <p className="clinic-addr small">{c.address}</p>
               <div className="clinic-actions">
-                <button type="button" className="btn ghost small" onClick={() => showOnMap(c)}>
-                  <Icon name="pin" size={16} /> {t.nearby.showOnMap}
-                </button>
+                {numbers.vets.has(c.id) && (
+                  <button type="button" className="btn ghost small" onClick={() => showOnMap('vets', c.id)}>
+                    <Icon name="pin" size={16} /> {t.nearby.showOnMap}
+                  </button>
+                )}
                 {c.mapsUrl && (
                   <a className="btn ghost small" href={c.mapsUrl} target="_blank" rel="noreferrer">
                     {t.map} ↗
@@ -169,8 +187,8 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
         </div>
       )}
 
-      {IS_LIVE_CLINICS && <NearbyTaxis t={t} location={loc.location} onFocus={showOnMap} />}
-      {IS_LIVE_CLINICS && <InsurerContact t={t} location={loc.location} onFocus={showOnMap} />}
+      {IS_LIVE_CLINICS && <NearbyTaxis t={t} hasLocation={!!loc.location} state={taxis} numbers={numbers.taxi} onFocus={showOnMap} />}
+      {IS_LIVE_CLINICS && <InsurerContact t={t} state={insurer} numbers={numbers.insurer} onFocus={showOnMap} />}
     </main>
   );
 }

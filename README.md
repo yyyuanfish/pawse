@@ -131,6 +131,7 @@ React app: [localhost:5173/app/](http://localhost:5173/app/) (live; the scripted
 | `GRADIUM_API_KEY` | Voice cloning, localization and German audio |
 | `GRADIUM_VOICE_ID_DE` | Optional approved German voice to reuse across restarts |
 | `GOOGLE_PLACES_API_KEY` | Optional Google Places for clinics, nearby taxis and the owner's insurer office (Places API (New): Nearby and Text Search). Without it, `GEMINI_API_KEY` uses Gemini's Google Maps grounding, with an optional offline OpenStreetMap snapshot for clinics; see `.env.example`. The map view is a keyless Google Maps embed, so no key reaches the browser |
+| `GOOGLE_MAPS_BROWSER_KEY`, `GOOGLE_MAPS_MAP_ID` | Optional interactive Google map with the owner's live position and numbered vet, taxi and insurer pins. A separate, referrer-restricted Maps JavaScript key served to the browser at runtime; without it the map is a keyless embed |
 | `LEGACY_AGENT_BASE_URL`, `LEGACY_AGENT_USER_ID`, `LEGACY_AGENT_CAT_IDS` | Optional connection to the existing CatAgent backend |
 
 The story rehearsal and local demo-policy evidence work without provider keys. See the [voice guide](docs/VOICE_CONCIERGE.md), [clinic data contract](docs/controller-knowledge-contract.md) and [API contract](docs/API_CONTRACT.md) for integration details.

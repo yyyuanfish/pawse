@@ -694,3 +694,35 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .map-frame { position: relative; }
 .map-loading { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; pointer-events: none; z-index: 0; }
 .map-frame iframe { position: relative; z-index: 1; background: transparent; }
+
+/* Interactive map: the owner's live dot, numbered pins, cards, badges in the lists */
+.map-frame.interactive { display: block; }
+.map-canvas { width: 100%; height: 340px; position: relative; z-index: 1; }
+.map-recenter { position: absolute; z-index: 2; right: 10px; bottom: 110px; width: 40px; height: 40px; border-radius: 50%;
+  border: 0; background: #fff; color: #1a73e8; font-size: 22px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); cursor: pointer; }
+.map-me { position: relative; width: 22px; height: 22px; transform: translateY(11px); }
+.map-me-dot { position: absolute; inset: 3px; border-radius: 50%; background: #1a73e8; border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); }
+.map-me-pulse { position: absolute; inset: -8px; border-radius: 50%; background: rgba(26, 115, 232, 0.25); animation: me-pulse 1.8s ease-out infinite; }
+.map-me-label { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 12px; font-weight: 800;
+  color: #fff; background: #1a73e8; padding: 2px 8px; border-radius: 999px; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3); }
+@keyframes me-pulse { from { transform: scale(0.6); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .map-me-pulse { animation: none; } }
+.map-pin { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px 3px 4px; border-radius: 999px; color: #fff; font-weight: 900;
+  font-size: 13px; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35); position: relative; }
+.map-pin::after { content: ''; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: inherit; border-bottom: 0; }
+.map-pin.vets { background: #d93025; border-top-color: #d93025; }
+.map-pin.taxi { background: #f9ab00; border-top-color: #f9ab00; color: #3b2600; }
+.map-pin.insurer { background: #188038; border-top-color: #188038; }
+.map-pin-n { display: grid; place-items: center; min-width: 20px; height: 20px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); color: #222; font-size: 12px; }
+.map-pin-icon { font-size: 14px; }
+.map-card { display: flex; flex-direction: column; gap: 3px; max-width: 220px; font-size: 13px; color: #222; }
+.map-card-line { color: #555; }
+.map-card-call { font-weight: 800; color: #1a73e8; text-decoration: none; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0; }
+.legend-me { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #1a73e8; border: 2px solid #fff; box-shadow: 0 0 0 1px #1a73e8; vertical-align: -1px; }
+.pin-badge { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; margin-right: 8px; border-radius: 999px;
+  color: #fff; font-size: 12.5px; font-weight: 900; vertical-align: 2px; }
+.pin-badge.vets { background: #d93025; }
+.pin-badge.taxi { background: #f9ab00; color: #3b2600; }
+.pin-badge.insurer { background: #188038; }

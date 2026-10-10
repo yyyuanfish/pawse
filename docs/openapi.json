@@ -1148,6 +1148,28 @@
         }
       }
     },
+    "/api/v1/places/map-config": {
+      "get": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Map Config",
+        "description": "The browser key for the interactive Google map, or null. Never a server key.",
+        "operationId": "map_config_api_v1_places_map_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MapConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/places/nearby": {
       "post": {
         "tags": [
@@ -2852,6 +2874,36 @@
         ],
         "title": "Location"
       },
+      "MapConfig": {
+        "properties": {
+          "browser_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Browser Key"
+          },
+          "map_id": {
+            "type": "string",
+            "title": "Map Id"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "map_id",
+          "note"
+        ],
+        "title": "MapConfig"
+      },
       "Me": {
         "properties": {
           "signed_in": {
@@ -3003,6 +3055,16 @@
               }
             ],
             "title": "Rating"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "opening_hours": {
             "items": {

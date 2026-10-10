@@ -16,7 +16,7 @@ from .providers import ProviderError, maps_grounding, now, safe_url
 
 router = APIRouter(prefix="/api/v1/places", tags=["Places"])
 PLACES_TEXT_URL = "https://places.googleapis.com/v1/places:searchText"
-PLACES_FIELDS = ("places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,"
+PLACES_FIELDS = ("places.id,places.displayName,places.formattedAddress,places.location,places.internationalPhoneNumber,"
                  "places.googleMapsUri,places.websiteUri,places.rating")
 TAXI_WORDS = ("taxi", "cab ")
 DEMO_INSURER_WORDS = ("pawse demo", "fictional")
@@ -31,6 +31,7 @@ class Place(Model):
     website: str | None = None
     maps_url: str | None = None
     rating: float | None = None
+    location: Location | None = None  # Places only; Maps grounding sources carry no coordinates
     opening_hours: list[str] = Field(default_factory=list, max_length=14)
     source: Literal["google_places", "gemini_maps"]
     retrieved_at: str
@@ -73,7 +74,11 @@ async def places_text(client, query, location, radius_km, keep):
         if not name or not keep(name.lower() + " "):
             continue
         phone = p.get("internationalPhoneNumber")
-        result.append(Place(id="places:" + str(p["id"]), name=name, address=p.get("formattedAddress", ""),
+        try:
+            where = Location(lat=p["location"]["latitude"], lng=p["location"]["longitude"])
+        except (KeyError, TypeError, ValueError):
+            where = None
+        result.append(Place(id="places:" + str(p["id"]), name=name, address=p.get("formattedAddress", ""), location=where,
                             phone=phone if phone_uri(phone) else None, call_url=phone_uri(phone),
                             website=safe_url(p.get("websiteUri")), maps_url=safe_url(p.get("googleMapsUri")),
                             rating=p.get("rating"), source="google_places", retrieved_at=now()))
@@ -99,6 +104,24 @@ async def lookup(query, prompt, location, radius_km, keep):
         except (httpx.HTTPError, ValueError, KeyError, IndexError, TypeError):
             warnings.append("gemini_maps_unavailable")
     return [], warnings
+
+
+class MapConfig(Model):
+    browser_key: str | None = Field(default=None, repr=False)
+    map_id: str
+    note: str
+
+
+@router.get("/map-config", response_model=MapConfig)
+async def map_config():
+    """The browser key for the interactive Google map, or null. Never a server key."""
+    key = os.getenv("GOOGLE_MAPS_BROWSER_KEY", "").strip() or None
+    note = ("Browser key for the Maps JavaScript API. Restrict it in Google Cloud to your site's HTTP referrers "
+            "and to the Maps JavaScript API only.")
+    if key and key in {os.getenv(k, "").strip() for k in ("GEMINI_API_KEY", "GOOGLE_PLACES_API_KEY", "GRADIUM_API_KEY")}:
+        # A server key must never reach the browser, even by misconfiguration.
+        key, note = None, "GOOGLE_MAPS_BROWSER_KEY reuses a server key; create a separate, referrer-restricted browser key."
+    return MapConfig(browser_key=key, map_id=os.getenv("GOOGLE_MAPS_MAP_ID", "").strip() or "DEMO_MAP_ID", note=note)
 
 
 def is_taxi(text):

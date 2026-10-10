@@ -91,3 +91,29 @@ async def test_places_api_is_preferred_when_configured(upstream, monkeypatch):
     result, warnings = await places.lookup('taxi', 'prompt', places.Location(**ZURICH), 5, places.is_taxi)
     assert [p.source for p in result] == ['google_places'] and warnings == []
     assert seen[0].url.host == 'places.googleapis.com' and seen[0].headers['X-Goog-FieldMask'].startswith('places.id')
+
+
+def test_map_config_serves_only_a_dedicated_browser_key(monkeypatch):
+    for key in ('GOOGLE_MAPS_BROWSER_KEY', 'GOOGLE_MAPS_MAP_ID'):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv('GOOGLE_PLACES_API_KEY', 'server-places')
+    with TestClient(app) as c:
+        assert c.get('/api/v1/places/map-config').json()['browser_key'] is None
+        monkeypatch.setenv('GOOGLE_MAPS_BROWSER_KEY', 'browser-only')
+        d = c.get('/api/v1/places/map-config').json()
+        assert d['browser_key'] == 'browser-only' and d['map_id'] == 'DEMO_MAP_ID'
+        monkeypatch.setenv('GOOGLE_MAPS_BROWSER_KEY', 'server-places')
+        r = c.get('/api/v1/places/map-config')
+        assert r.json()['browser_key'] is None and 'server-places' not in r.text
+
+
+@pytest.mark.asyncio
+async def test_places_listings_carry_coordinates_for_map_pins(upstream, monkeypatch):
+    _, reply = upstream
+    monkeypatch.setenv('GOOGLE_PLACES_API_KEY', 'test-places')
+    reply['fn'] = lambda r: httpx.Response(200, json={'places': [
+        {'id': 'p1', 'displayName': {'text': 'Taxi 444'}, 'location': {'latitude': 47.37, 'longitude': 8.54}},
+        {'id': 'p2', 'displayName': {'text': 'Taxi Nowhere'}, 'location': {'latitude': 999, 'longitude': 8.54}}]})
+    result, _ = await places.lookup('taxi', 'prompt', places.Location(**ZURICH), 5, places.is_taxi)
+    assert result[0].location == places.Location(lat=47.37, lng=8.54) and result[1].location is None
+    assert 'places.location' in places.PLACES_FIELDS

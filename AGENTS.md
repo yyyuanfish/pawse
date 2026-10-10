@@ -88,6 +88,8 @@ agents may merge their own PRs (`gh pr merge <n> --squash`) without waiting for 
 1. **Read the matching skill first.** If a row below fits the task, read that SKILL.md end to end before acting.
 2. **Never commit secrets.** Keys live only in `.env` (git-ignored). Never put a key in frontend code,
    logs or docs. One leaked event Gemini key revokes every key in the project.
+   Only exception: `GOOGLE_MAPS_BROWSER_KEY`, a separate Maps JavaScript key restricted to the site's HTTP
+   referrers, is served at runtime by `GET /api/v1/places/map-config` (never committed; server keys are refused).
 3. **Honesty over polish.** Never show or claim a booking, call, insurance approval or voice clone that did
    not happen. Simulated steps stay visibly labelled "simulated". Docs and README match the code.
 4. **Consent is enforced server-side.** AI, location, own-voice and provider-sharing consent are separate.

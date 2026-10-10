@@ -103,9 +103,16 @@ export interface Place {
   website: string | null;
   maps_url: string | null;
   rating: number | null;
+  location: Location | null;
   opening_hours: string[];
   source: "google_places" | "gemini_maps";
   retrieved_at: string;
+}
+// GET /api/v1/places/map-config: a referrer-restricted browser key for the interactive map, or null.
+export interface MapConfig {
+  browser_key: string | null;
+  map_id: string;
+  note: string;
 }
 export interface NearbyRequest {
   kind?: "taxi";
