@@ -1,0 +1,105 @@
+I geuss thsi can be closed, if yes ten yes:
+_-
+
+
+<pasted_content id="5da2">
+Skip to content
+yyyuanfish
+pawse
+Repository navigation
+Code
+Issues
+17
+ (17)
+Pull requests
+2
+ (2)
+Agents
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+Integrate the pawse repo with the Entire platform (CLI + checkpoints)
+ #10
+Open
+Open
+Integrate the pawse repo with the Entire platform (CLI + checkpoints)
+#10
+Description
+@AriJordan
+AriJordan
+opened 2h ago
+Collaborator
+Goal
+Connect yyyuanfish/pawse to the Entire platform (https://entire.io) so our AI agent sessions (Claude Code, Gemini CLI, Cursor, ...) are captured as checkpoints next to the commits. It is useful context for the jury (#9) and possibly a partner tech.
+
+Current state (Ari's Entire dashboard)
+11 repositories onboarded, 0 capturing, checkpoint streak 0, no sessions yet: the CLI is not set up on any machine.
+pawse is owned by yyyuanfish, so the Entire GitHub App must be installed on that account (or Ari needs admin on the repo) for it to show up.
+Tasks
+
+Entire GitHub App: get yyyuanfish to install/authorize it for pawse (read-only access to code, metadata, PRs; it never writes to the repo). Docs: https://docs.entire.io/guides/repositories/github-app-access
+
+Install the CLI on the dev VM: curl -fsSL https://entire.io/install.sh | sh
+
+Enable it in the repo: entire enable (checkpoints go to the hidden branch entire/checkpoints/v1; optionally use --checkpoint-remote github:<org>/<repo> to keep them out of the public repo).
+
+Decide privacy: the repo will be public for the submission. Check whether session transcripts could leak keys or private prompts before pushing checkpoints.
+
+Verify: run one Claude Code session, commit, push, and confirm the session/checkpoint appears on entire.io for pawse ("Capturing" > 0).
+
+Ask teammates (Shivamm08, sleepynami11, yyyuanfish) to install the CLI too, so all sessions are captured.
+
+Check whether Entire is a listed hackathon partner (Partners tab). If yes, count it towards the 2-partner rule in Submission: ensure full hackathon submission is complete (deadline 19:00) #9 and mention it in the README.
+Done when
+pawse shows as capturing on Entire with at least one checkpoint linked to a commit, and the README notes how the team uses it.
+Docs: https://docs.entire.io/platforms/cli-and-entire-io · https://docs.entire.io/cli/checkpoints
+
+Activity
+
+AriJordan
+self-assigned this
+2h ago
+Add a comment
+new Comment
+Markdown input: edit mode selected.
+Write
+Preview
+Use Markdown to format your comment
+
+Please follow this repository's contributing guidelines and security policy.
+Metadata
+Assignees
+Labels
+No labels
+Projects
+No projects
+Milestone
+No milestone
+Relationships
+None yet
+Development
+ for this issue or link a pull request.
+NotificationsCustomize
+You're receiving notifications because you're subscribed to this thread.
+
+Participants
+@AriJordan
+Issue actions
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+</pasted_content id="5da2">
+
+--
