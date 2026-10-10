@@ -134,3 +134,11 @@ def test_status_reports_live_model(monkeypatch):
     with TestClient(app) as c:
         status = c.get('/api/v1/voice/status').json()
     assert status['live_configured'] is True and status['live_model'] == 'gemini-3.8-live-extended-thinking'
+
+
+def test_injury_advice_precedes_questions_in_live_setup():
+    prompt = live.instruction('en')
+    assert 'give immediate care advice before asking a follow-up' in prompt
+    assert 'heavy or uncontrolled bleeding' in prompt
+    assert 'Do not delay urgent advice for a photo, location, clinic search or voice generation' in prompt
+    assert 'A still photo cannot establish active bleeding' in prompt

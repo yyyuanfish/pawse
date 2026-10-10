@@ -165,3 +165,18 @@ With an existing fresh device location it searches immediately; otherwise the ow
 Requests time out after 60 seconds and are cancelled when this handoff is removed. Photo/care
 content is not persisted by this component. A missing provider or failed location shows an error;
 no simulated clinic results are substituted. Existing API schemas are unchanged.
+
+### Advice before follow-up for suspected injury
+
+Both the Gemini Live system instruction and the photo-to-conversation message require immediate
+care advice before the next question. A suspected wound triggers advice to contact a veterinarian
+today and prevent licking/scratching where safely possible, with explicit uncertainty about active
+bleeding, depth and infection. Reported heavy/uncontrolled bleeding, collapse or breathing difficulty
+requires emergency escalation before questions, location lookup or voice preparation. The existing
+server-provided next-step card remains visible even if the conversational model fails to respond.
+
+The assistant then asks one relevant question and offers nearby care and a reviewed German message.
+No diagnosis, medication dosing or appointment confirmation is inferred from a photo. Wound-care
+reference: [PDSA wounds and skin injuries](https://www.pdsa.org.uk/pet-help-and-advice/pet-health-hub/symptoms/wounds-and-skin-injuries)
+(reviewed 2026-10-10). Prompt regression tests check these requirements; they do not establish clinical
+accuracy or guarantee every generated response.
