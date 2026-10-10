@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K7J568TCR37MK29KACBSHT",
   "strategy": "manual-commit",
   "branch": "feat/demo-story-beats",
-  "checkpoints_count": 3,
+  "checkpoints_count": 5,
   "files_touched": [
     "AGENTS.md",
     "docs/VALIDATION.md"
@@ -29,13 +29,20 @@
       "compact_transcript": "/2/transcript.jsonl",
       "content_hash": "/2/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/3/metadata.json",
+      "transcript": "/3/full.jsonl",
+      "compact_transcript": "/3/transcript.jsonl",
+      "content_hash": "/3/content_hash.txt",
+      "prompt": "/3/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 6,
-    "cache_creation_tokens": 1396,
-    "cache_read_tokens": 284460,
-    "output_tokens": 1591,
-    "api_call_count": 3
+    "input_tokens": 10,
+    "cache_creation_tokens": 3168,
+    "cache_read_tokens": 384829,
+    "output_tokens": 2075,
+    "api_call_count": 4
   }
 }

@@ -1,0 +1,14 @@
+{
+  "tool_use_id": "toolu_01WbqeBFNEqTqZwEdExtiuA6",
+  "agent_id": "a04fbc2e731d2fee2",
+  "task_description": "Fix clinic sort label and docs",
+  "token_usage": {
+    "input_tokens": 54,
+    "cache_creation_tokens": 59471,
+    "cache_read_tokens": 1386803,
+    "output_tokens": 388,
+    "api_call_count": 27
+  },
+  "started_at": "2026-10-10T15:35:44.799773688Z",
+  "completed_at": "2026-10-10T15:40:30.866551728Z"
+}
