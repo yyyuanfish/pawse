@@ -35,7 +35,7 @@ instead of 510) → Pawse confirms the vet, books a cat-friendly taxi, and hands
 | 1:42–1:54 | Taxi for 16:05 that accepts a cat in a carrier | `voice.py` script | ✅ script · 🎭 reply and booking simulated |
 | 1:54–2:00 | Case summary + claim checklist (keep video, itemised invoice, 30 days) | `demo.py`, frontend | ✅ |
 
-The in-app rehearsal (`GET /api/v1/demo/mimi`, first screen of the app) plays the whole story with no keys. It is the
+The in-app rehearsal (`GET /api/v1/demo/mimi`, shown at `/?demo=1`; plain `/` is the production page) plays the whole story with no keys. It is the
 fallback, not the goal.
 
 **Keep it really running.**
