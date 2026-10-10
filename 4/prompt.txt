@@ -1,0 +1,2 @@
+finsiH:
+3. ⚠️ Issue #10 (Entire) is still open. Commit 307b3b9 adds a README note with Closes #10, but it is not on any branch and was never pushed because the push was blocked. Two docs also still say Entire isn't installed: docs/MODEL_ALLOCATION.md:61 and docs/TEAM_INTEGRATION.md:50. https://github.com/yyyuanfish/pawse/issues/10
