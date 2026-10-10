@@ -1,0 +1,30 @@
+Add as part of the relevant iseu to send these kyes to teammates:
+--
+
+
+<pasted_content id="0ec0">
+
+all lines go to Gradium
+the browser-voice fallback still works
+
+uns the full check, then squash-merges its PR. Both agents may change the phone-call code, so whichever merges
+nd will rebase onto the other first. I'll report when each one finishes.
+
+ing for 2 background agents to finish
+▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔ copied 269 chars to tmux buffer · paste with prefix + ]
+
+tw who probably has tehse keys? ⚠️ Clinic search returns nothing unless GOOGLE_PLACES_API_KEY or MAPIFY_BASE_U…
+
+I can't tell for sure from what's in this conversation. Nothing here says who holds those keys, and keys only ever live in each person's local .env.
+
+The best guess is Yuan (yyyuanfish):
+- Yuan owns the repo.
+- Yuan is assigned https://github.com/yyyuanfish/pawse/issues/5 ("Tool: find a nearby doctor/hospital and book an appointment"), which is the clinic-search work.
+- In docs/AGENT_DEVELOPMENT.md, the Google Places and Mapify clinic adapters belong to the RAG/open-data module (feat/rag-open-data). Whoever built that branch probably tested with one of those keys.
+
+A few other leads:
+- MAPIFY_BASE_URL looks like a hackathon partner service. The event organisers or the Mapify sponsor booth may hand it out, like the event Gemini key.
+- GOOGLE_PLACES_API_KEY could probably come from the same Google Cloud project as the event Gemini key. AGENTS.md warns that one leaked event key revokes every key in that project, so be careful.
+</pasted_content id="0ec0">
+
+--
