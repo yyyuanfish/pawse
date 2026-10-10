@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K9PFAV85CN1J0JDF1Y0JD2",
+  "session_id": "662ecbea-dc48-4bc6-8283-035c11f05a44",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T16:17:58.3381851Z",
+  "branch": "test/e2e-welcome",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "docs/VALIDATION.md",
+    "tests/e2e/README.md",
+    "tests/e2e/conftest.py",
+    "tests/e2e/e2e_helpers.py",
+    "tests/e2e/test_browser_real_speech.py",
+    "tests/e2e/test_browser_steps.py",
+    "tests/e2e/test_browser_webkit_audio.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "a5bffd02380d",
+  "checkpoint_transcript_start": 1141,
+  "transcript_lines_at_start": 1141,
+  "compact_transcript_start": 176,
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 1399,
+    "cache_read_tokens": 1163440,
+    "output_tokens": 97,
+    "api_call_count": 5
+  },
+  "session_metrics": {
+    "turn_count": 39
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T16:17:57.831881443Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 248,
+    "human_modified": 14,
+    "human_removed": 0,
+    "total_committed": 248,
+    "total_lines_changed": 262,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
