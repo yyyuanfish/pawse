@@ -16,3 +16,7 @@ Plan hwo to avoid this and finsih the video:
 <status>completed</status>
 <summary>Background command "Check repo state, find raw take, recorder ffmpeg args" completed (exit code 0)</summary>
 </task-notification>
+
+---
+
+yeah commit and rerecord
