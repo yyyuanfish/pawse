@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Pawse — a little help, right when it matters</title>
+    <title>Pawse · Care help for your cat</title>
     <link rel="icon" href="/static/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/static/style.css" />
   </head>
@@ -12,47 +12,36 @@
       <a class="brand" href="/">🐾 <span>pawse</span></a>
       <p class="small">A little help.<br />Right when it matters.</p>
       <nav>
-        <a href="#demo" class="selected">✦ &nbsp; Mimi’s story</a
-        ><a href="#voice">♫ &nbsp; My voice</a
-        ><a href="#care">♡ &nbsp; Care now</a
+        <a href="#care" class="selected">♡ &nbsp; Care now</a
         ><a href="#results">⌖ &nbsp; Nearby vets</a
-        ><a href="#insurance">♡ &nbsp; Insurance</a
-        ><a href="#agent">◉ &nbsp; My cat's agent</a
+        ><a href="#voice">♫ &nbsp; My voice</a
+        ><a href="#demo" class="demo-only">✦ &nbsp; Mimi’s story</a
+        ><a href="#insurance" class="demo-only">▤ &nbsp; Sample policy</a
+        ><a href="#agent" class="demo-only">◉ &nbsp; Agents</a
         ><a href="/app/">☏ &nbsp; Phone assistant</a>
       </nav>
-      <div class="sidebar-footer">
-        Built for Tech Europe<br /><span>Hackathon prototype · MIT</span>
-      </div>
     </aside>
     <main>
       <header>
-        <span class="pill">● &nbsp; YOUR CAT'S CARE COMPANION</span
-        ><span class="location-tag"
-          >Zurich, Switzerland · editable location</span
-        >
+        <span id="live-status" class="live-status" role="status"
+          ><span class="live-dot" aria-hidden="true"></span
+          ><span id="live-status-text">Checking services…</span></span
+        ><span class="location-tag">Zurich, Switzerland</span>
       </header>
       <section class="intro">
         <div>
-          <p class="eyebrow">LET'S TAKE THE NEXT STEP, TOGETHER</p>
           <h1>Their care.<br /><em>Your voice. In your language.</em></h1>
           <p>
-            Tell Pawse what’s happening in your language. Prepare a German vet
-            call in your own voice, find nearby care, and make the next decision
-            together.
+            Tell Pawse what’s happening in your language. Get clear next steps,
+            find a vet nearby, and prepare a German call in your own voice.
           </p>
           <div class="hero-actions">
-            <a class="button hero-primary" href="#demo"
-              >Meet Mimi’s care team ↗</a
+            <a class="button hero-primary" href="#care">Start a care request</a
             ><a class="button secondary" href="#voice">Set up my voice</a>
           </div>
         </div>
-        <div class="cat" aria-hidden="true">
-          <div class="ears">▲ &nbsp; ▲</div>
-          <div class="face">• ᴥ •</div>
-          <div class="cat-note">I'm here to help.</div>
-        </div>
       </section>
-      <section id="demo" class="story-section panel">
+      <section id="demo" class="story-section panel demo-only">
         <div class="section-heading">
           <div>
             <p class="eyebrow">ONE APP. A FEW LESS THINGS TO WORRY ABOUT.</p>
@@ -78,26 +67,229 @@
           </button>
         </div>
       </section>
+      <div id="care" class="section-heading care-heading">
+        <div>
+          <h2>Care starts with what you’ve noticed.</h2>
+        </div>
+      </div>
+      <div class="notice">
+        <strong>Need urgent help?</strong> If your cat is struggling to breathe,
+        collapses, cannot urinate, or may have been poisoned, contact an
+        emergency vet now. Don't wait for these results.
+      </div>
+      <div class="workspace">
+        <form id="care-form" class="panel">
+          <div class="section-heading">
+            <h2>What’s happening?</h2>
+          </div>
+          <label
+            >Your cat's name<input
+              id="cat-name"
+              maxlength="80"
+              placeholder="e.g. Mimi"
+              value="My cat"
+              required
+          /></label>
+          <label
+            >Care language<select id="care-language">
+              <option value="en">English</option>
+              <option value="zh">中文 · Mandarin</option>
+              <option value="de">Deutsch · German</option>
+              <option value="hi">हिन्दी · Hindi</option>
+            </select></label
+          >
+          <label
+            >Describe your concern<textarea
+              id="query"
+              maxlength="4000"
+              rows="4"
+              placeholder="What changed? When did it start? Is your cat eating, drinking, and using the litter tray?"
+            ></textarea>
+          </label>
+          <div class="input-actions">
+            <label class="button secondary upload"
+              >＋ Add a photo<input
+                type="file"
+                id="photo"
+                accept="image/jpeg,image/png,image/webp"
+                capture="environment"
+                hidden /></label
+            ><button type="button" id="dictate" class="secondary">
+              ◉ Dictate
+            </button>
+          </div>
+          <p class="small" id="photo-status">
+            Optional · JPEG, PNG or WebP · up to 3 MB
+          </p>
+          <img id="photo-preview" hidden alt="Selected cat photo" /><button
+            id="remove-photo"
+            type="button"
+            class="text-button"
+            hidden
+          >
+            Remove photo
+          </button>
+          <details>
+            <summary>Any of these warning signs?</summary>
+            <div class="checks" id="red-flags">
+              <label
+                ><input
+                  type="checkbox"
+                  value="breathing_difficulty"
+                />Difficulty breathing</label
+              ><label><input type="checkbox" value="collapse" />Collapse</label
+              ><label><input type="checkbox" value="seizure" />Seizure</label
+              ><label
+                ><input type="checkbox" value="unable_to_urinate" />Unable to
+                urinate</label
+              ><label
+                ><input type="checkbox" value="suspected_poisoning" />Possible
+                poisoning</label
+              ><label
+                ><input type="checkbox" value="major_trauma" />Major
+                injury</label
+              >
+            </div>
+          </details>
+          <div class="section-heading">
+            <h2>Find care nearby</h2>
+            <button id="locate" class="text-button" type="button">
+              Use my location ↗
+            </button>
+          </div>
+          <p id="location-status" class="small">
+            Searching near Zurich city centre.
+          </p>
+          <details class="search-area">
+            <summary>Adjust search area</summary>
+            <div class="row">
+              <label
+                >Latitude<input
+                  id="lat"
+                  type="number"
+                  min="-90"
+                  max="90"
+                  step="any"
+                  value="47.3769"
+                  required /></label
+              ><label
+                >Longitude<input
+                  id="lng"
+                  type="number"
+                  min="-180"
+                  max="180"
+                  step="any"
+                  value="8.5417"
+                  required /></label
+              ><label
+                >Radius (km)<input
+                  id="radius"
+                  type="number"
+                  min="0.5"
+                  max="50"
+                  step="0.5"
+                  value="10"
+              /></label>
+            </div>
+          </details>
+          <details id="insurance-contact">
+            <summary>
+              Your connected insurance
+            </summary>
+            <label
+              >Insurance company<input
+                id="insurer"
+                maxlength="100" /></label
+            ><label
+              >Plan<input
+                id="insurance-plan"
+                maxlength="120"
+                placeholder="e.g. Accident &amp; illness" /></label
+            ><label
+              >Policy contact number<input
+                id="insurance-phone"
+                type="tel"
+                maxlength="40"
+                placeholder="+41 …"
+            /></label>
+            <p class="small">
+              Use your policy’s contact number. Coverage must be confirmed with
+              your insurer. No policy number is needed.
+            </p>
+          </details>
+          <div class="consents">
+            <label
+              ><input id="ai-consent" type="checkbox" />Share my concern and
+              optional photo with Google Gemini for AI assistance.</label
+            ><label
+              ><input id="location-consent" type="checkbox" />Share my location
+              with the clinic search service to find vets nearby.</label
+            >
+          </div>
+          <input type="checkbox" id="agent-workflow" checked hidden />
+          <button type="submit" id="submit" class="primary">
+            Find my next step <span>↗</span>
+          </button>
+          <p class="small">
+            Pawse never books care or calls anyone for you.
+          </p>
+        </form>
+        <section id="results" class="results">
+          <div class="section-heading">
+            <h2>Your care plan</h2>
+          </div>
+          <div id="progress" role="status" aria-live="polite"></div>
+          <div id="assessment" class="panel empty">
+            <span class="large-icon">✦</span>
+            <h3>A little clarity starts here.</h3>
+            <p>
+              Your next steps, nearby clinics, and call notes will appear
+              together.
+            </p>
+          </div>
+          <div id="agent-run-trace" hidden class="panel demo-only">
+            <h3>Your care team’s work</h3>
+            <div id="agent-trace-list" class="trace-list"></div>
+            <p id="agent-run-note" class="small"></p>
+          </div>
+          <div id="clinics"></div>
+          <div id="insurance-result"></div>
+          <div id="handoff" hidden class="panel">
+            <h3>Ready for your vet call</h3>
+            <pre id="handoff-text"></pre>
+            <div class="input-actions">
+              <button id="copy" type="button" class="secondary">
+                Copy notes</button
+              ><button id="handoff-to-voice" type="button" class="secondary">
+                Prepare German call</button
+              ><button id="read-aloud" type="button" class="secondary">
+                Read aloud</button
+              ><button id="delete" type="button" class="text-button">
+                Clear this result
+              </button>
+            </div>
+          </div>
+          <p id="limitations" class="small"></p>
+        </section>
+      </div>
       <section id="voice" class="voice-section">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">SOUND LIKE YOU. GET THE WORDS RIGHT.</p>
             <h2>Your voice, ready for a German conversation.</h2>
           </div>
-          <span class="pill">GEMINI + GRADIUM</span>
         </div>
         <p class="section-description">
-          Speak Mandarin Chinese, English, German or Hindi. Review a German
-          script with subtitles, then generate audio to play or download. Pawse
-          introduces itself as your AI assistant.
+          Speak English, Mandarin, German or Hindi. Review the German script
+          with subtitles, then play or download the audio. Pawse introduces
+          itself as your AI assistant.
         </p>
-        <div id="voice-service-status" class="service-status" role="status">
+        <div id="voice-service-status" class="service-status" role="status" hidden>
           Checking voice services…
         </div>
         <div class="voice-grid">
           <section class="panel voice-studio">
             <div class="section-heading">
-              <h3>01 / Make it your voice</h3>
+              <h3>Make it your voice</h3>
               <span class="badge">PRIVATE BY DEFAULT</span>
             </div>
             <p class="small">
@@ -187,7 +379,7 @@
               <button id="save-voice" class="secondary" type="button" hidden>
                 Use my German voice
               </button>
-              <details id="saved-voice-details" hidden>
+              <details id="saved-voice-details" class="demo-only" hidden>
                 <summary>Keep this voice after a server restart</summary>
                 <p class="small">
                   Save this voice ID in the server’s private .env. This is a
@@ -209,15 +401,14 @@
               </button>
             </div>
             <p class="small">
-              Voice setup belongs to this local browser session. Delete created
-              voices here before closing the session. No recording is saved by
-              Pawse.
+              Pawse doesn’t store your recording. Delete your created voice
+              here when you no longer need it.
             </p>
           </section>
           <section class="panel script-studio">
             <div class="section-heading">
-              <h3>02 / Say it in your language</h3>
-              <span class="badge">GERMAN OUTPUT</span>
+              <h3>Say it in your language</h3>
+              <span class="badge">GERMAN</span>
             </div>
             <form id="voice-script-form">
               <div class="row">
@@ -348,220 +539,11 @@
           </section>
         </div>
         <p class="small voice-footnote">
-          Gemini handles multilingual input and translation; Gradium creates the
-          German voice. Telephone calling is not connected. Playback does not
-          inject audio into a phone call. Review the words before sharing.
+          Pawse prepares the script and the audio. It doesn’t place phone calls
+          for you. Review the words before you use them.
         </p>
       </section>
-      <div id="care" class="section-heading care-heading">
-        <div>
-          <p class="eyebrow">LET’S FIND YOUR NEXT STEP</p>
-          <h2>Care starts with what you’ve noticed.</h2>
-        </div>
-      </div>
-      <div class="notice">
-        <strong>Need urgent help?</strong> If your cat is struggling to breathe,
-        collapses, cannot urinate, or may have been poisoned, contact an
-        emergency vet now. Don't wait for these results.
-      </div>
-      <div class="workspace">
-        <form id="care-form" class="panel">
-          <div class="section-heading">
-            <h2>What’s happening?</h2>
-            <span>01 / Tell us</span>
-          </div>
-          <label
-            >Your cat's name<input
-              id="cat-name"
-              maxlength="80"
-              value="My cat"
-              required
-          /></label>
-          <label
-            >Care language<select id="care-language">
-              <option value="en">English</option>
-              <option value="zh">中文 · Mandarin</option>
-              <option value="de">Deutsch · German</option>
-              <option value="hi">हिन्दी · Hindi</option>
-            </select></label
-          >
-          <label
-            >Describe your concern<textarea
-              id="query"
-              maxlength="4000"
-              rows="4"
-              placeholder="What changed? When did it start? Is your cat eating, drinking, and using the litter tray?"
-            ></textarea>
-          </label>
-          <div class="input-actions">
-            <label class="button secondary upload"
-              >＋ Add a photo<input
-                type="file"
-                id="photo"
-                accept="image/jpeg,image/png,image/webp"
-                capture="environment"
-                hidden /></label
-            ><button type="button" id="dictate" class="secondary">
-              ◉ Dictate
-            </button>
-          </div>
-          <p class="small" id="photo-status">
-            Optional · JPEG, PNG or WebP · up to 3 MB
-          </p>
-          <img id="photo-preview" hidden alt="Selected cat photo" /><button
-            id="remove-photo"
-            type="button"
-            class="text-button"
-            hidden
-          >
-            Remove photo
-          </button>
-          <details>
-            <summary>Any of these warning signs?</summary>
-            <div class="checks" id="red-flags">
-              <label
-                ><input
-                  type="checkbox"
-                  value="breathing_difficulty"
-                />Difficulty breathing</label
-              ><label><input type="checkbox" value="collapse" />Collapse</label
-              ><label><input type="checkbox" value="seizure" />Seizure</label
-              ><label
-                ><input type="checkbox" value="unable_to_urinate" />Unable to
-                urinate</label
-              ><label
-                ><input type="checkbox" value="suspected_poisoning" />Possible
-                poisoning</label
-              ><label
-                ><input type="checkbox" value="major_trauma" />Major
-                injury</label
-              >
-            </div>
-          </details>
-          <div class="section-heading">
-            <h2>Find care nearby</h2>
-            <button id="locate" class="text-button" type="button">
-              Use my location ↗
-            </button>
-          </div>
-          <p id="location-status" class="small">
-            Default: Zurich city centre. Adjust or use your location.
-          </p>
-          <div class="row">
-            <label
-              >Latitude<input
-                id="lat"
-                type="number"
-                min="-90"
-                max="90"
-                step="any"
-                value="47.3769"
-                required /></label
-            ><label
-              >Longitude<input
-                id="lng"
-                type="number"
-                min="-180"
-                max="180"
-                step="any"
-                value="8.5417"
-                required /></label
-            ><label
-              >Radius (km)<input
-                id="radius"
-                type="number"
-                min="0.5"
-                max="50"
-                step="0.5"
-                value="10"
-            /></label>
-          </div>
-          <details id="insurance-contact">
-            <summary>
-              Your connected insurance
-            </summary>
-            <label
-              >Insurance company<input
-                id="insurer"
-                maxlength="100" /></label
-            ><label
-              >Plan<input
-                id="insurance-plan"
-                maxlength="120"
-                placeholder="e.g. Accident &amp; illness" /></label
-            ><label
-              >Policy contact number<input
-                id="insurance-phone"
-                type="tel"
-                maxlength="40"
-                placeholder="+41 …"
-            /></label>
-            <p class="small">
-              Use your policy’s contact number. Coverage must be confirmed with
-              your insurer. No policy number is needed.
-            </p>
-          </details>
-          <div class="consents">
-            <label
-              ><input id="ai-consent" type="checkbox" />Share my concern and
-              optional photo with Google Gemini for AI assistance.</label
-            ><label
-              ><input id="location-consent" type="checkbox" />Share these
-              coordinates with the configured clinic search provider.</label
-            >
-          </div>
-          <label class="check-label workflow-choice"
-            ><input type="checkbox" id="agent-workflow" checked />Coordinate my
-            care with the agent workflow and show each agent’s result.</label
-          >
-          <button type="submit" id="submit" class="primary">
-            Find my next step <span>↗</span>
-          </button>
-          <p class="small">
-            Target: under a minute. Partial results appear if a service is
-            unavailable. This does not book care or place a call.
-          </p>
-        </form>
-        <section id="results" class="results">
-          <div class="section-heading">
-            <h2>Your care plan</h2>
-            <span>02 / Take action</span>
-          </div>
-          <div id="progress" role="status" aria-live="polite"></div>
-          <div id="assessment" class="panel empty">
-            <span class="large-icon">✦</span>
-            <h3>A little clarity starts here.</h3>
-            <p>
-              Your next steps, nearby clinics, and call notes will appear
-              together.
-            </p>
-          </div>
-          <div id="agent-run-trace" hidden class="panel">
-            <h3>Your care team’s work</h3>
-            <div id="agent-trace-list" class="trace-list"></div>
-            <p id="agent-run-note" class="small"></p>
-          </div>
-          <div id="clinics"></div>
-          <div id="insurance-result"></div>
-          <div id="handoff" hidden class="panel">
-            <h3>Ready for your vet call</h3>
-            <pre id="handoff-text"></pre>
-            <div class="input-actions">
-              <button id="copy" type="button" class="secondary">
-                Copy notes</button
-              ><button id="handoff-to-voice" type="button" class="secondary">
-                Prepare German call</button
-              ><button id="read-aloud" type="button" class="secondary">
-                Read aloud</button
-              ><button id="delete" type="button" class="text-button">
-                Clear this result
-              </button>
-            </div>
-          </div>
-          <p id="limitations" class="small"></p>
-        </section>
-      </div>
-      <section id="insurance" class="panel policy-panel">
+      <section id="insurance" class="panel policy-panel demo-only">
         <div class="section-heading">
           <div>
             <p class="eyebrow">WHAT YOUR POLICY SAYS</p>
@@ -572,7 +554,7 @@
         <p id="policy-note" class="small" role="status">Loading the policy…</p>
         <div id="policy"></div>
       </section>
-      <section id="agent" class="panel agent-panel">
+      <section id="agent" class="panel agent-panel demo-only">
         <div class="section-heading">
           <div>
             <p class="eyebrow">SEVEN RESPONSIBILITIES. ONE CARE PLAN.</p>
@@ -638,16 +620,10 @@
         <pre id="legacy-result"></pre>
       </section>
       <footer>
-        Care navigation, not a diagnosis. Phone numbers and availability come
-        from providers or you; confirm before travelling.<br /><a
-          href="/docs"
-          target="_blank"
-          rel="noopener"
-          >API documentation</a
-        >
-        · <a href="https://github.com/yyyuanfish/pawse">Source code</a> · Photos
-        are processed per request and are not stored by Pawse. Result summaries
-        expire after 15 minutes.
+        Care navigation, not a diagnosis. Phone numbers and opening hours come
+        from providers or from you; confirm before travelling. Photos are
+        processed per request and not stored. Results expire after 15
+        minutes.<br /><a href="/?demo=1">Demo walkthrough</a>
       </footer>
     </main>
     <script src="/static/app.js" defer></script>

@@ -1,4 +1,7 @@
 const $ = (id) => document.getElementById(id);
+// The Mimi rehearsal, synthetic policy and agent internals only show at /?demo=1.
+const demoMode = new URLSearchParams(location.search).has("demo");
+document.body.classList.toggle("demo-mode", demoMode);
 let photo = null,
   requestId = null,
   busy = false;
@@ -232,7 +235,7 @@ $("remove-photo").onclick = () => {
 $("locate").onclick = () => {
   if (!navigator.geolocation) {
     $("location-status").textContent =
-      "Location is unavailable; enter coordinates manually.";
+      "Location isn’t available in this browser. Searching near Zurich city centre.";
     return;
   }
   $("location-status").textContent = "Waiting for location permission…";
@@ -241,11 +244,11 @@ $("locate").onclick = () => {
       $("lat").value = p.coords.latitude;
       $("lng").value = p.coords.longitude;
       $("location-status").textContent =
-        "Current coordinates ready. Enable location sharing to search.";
+        "Using your current location.";
     },
     () => {
       $("location-status").textContent =
-        "Could not get location. You can use or edit the Zurich coordinates.";
+        "Couldn’t get your location. Searching near Zurich city centre.";
     },
     { timeout: 10000 },
   );
@@ -287,7 +290,7 @@ $("care-form").onsubmit = async (e) => {
     };
     if ($("agent-workflow").checked) {
       $("progress").textContent =
-        "Coordinating care guidance and clinic retrieval. The agent results will appear when the workflow finishes…";
+        "Preparing care guidance and finding vets nearby…";
       const response = await fetch("/api/v1/agents/runs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -406,7 +409,7 @@ $("agent-form").onsubmit = async (e) => {
     $("legacy-submit").disabled = false;
   }
 };
-fetch("/api/v1/capabilities")
+if (demoMode) fetch("/api/v1/capabilities")
   .then((r) => r.json())
   .then((c) => {
     c.new_features.forEach((f) =>
@@ -486,7 +489,7 @@ function renderAgentTrace(result) {
   $("agent-run-note").textContent = result.note;
   $("agent-run-trace").hidden = false;
 }
-fetch("/api/v1/agents/graph")
+if (demoMode) fetch("/api/v1/agents/graph")
   .then((response) => {
     if (!response.ok) throw Error();
     return response.json();
@@ -535,7 +538,7 @@ function coverageDetail(details) {
   if (details.includes) parts.push(details.includes.map(label).join(", "));
   return parts.join(" · ");
 }
-fetch("/api/v1/knowledge/policy")
+if (demoMode) fetch("/api/v1/knowledge/policy")
   .then((response) => {
     if (!response.ok) throw new Error("policy unavailable");
     return response.json();
@@ -614,3 +617,39 @@ fetch("/api/v1/knowledge/policy")
     $("policy-note").textContent =
       "The demo policy is unavailable. Reload after the server is ready.";
   });
+
+// Live status: only what the server reports, re-checked every minute.
+async function checkLiveStatus() {
+  let state = "offline",
+    text = "Offline",
+    detail = "Pawse can’t reach its server right now.";
+  try {
+    const [health, voice] = await Promise.all(
+      ["/api/v1/health", "/api/v1/voice/status"].map((url) =>
+        fetch(url, { signal: AbortSignal.timeout(8000) }).then((r) => {
+          if (!r.ok) throw Error();
+          return r.json();
+        }),
+      ),
+    );
+    const missing = [];
+    if (!voice.gemini_configured) missing.push("care guidance and translation");
+    if (!voice.gradium_configured) missing.push("German audio");
+    if (health.status === "ok" && !missing.length) {
+      state = "live";
+      text = "Live";
+      detail = "Care guidance, clinic search and voice are available.";
+    } else {
+      state = "limited";
+      text = "Limited";
+      detail = missing.length
+        ? "Unavailable right now: " + missing.join(", ") + "."
+        : "Some services are unavailable right now.";
+    }
+  } catch {}
+  $("live-status").dataset.state = state;
+  $("live-status").title = detail;
+  $("live-status-text").textContent = text;
+}
+checkLiveStatus();
+setInterval(checkLiveStatus, 60000);

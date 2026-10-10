@@ -80,9 +80,17 @@
       "ready",
       Boolean(configured && profile.gemini_configured),
     );
-    service.textContent = configured
-      ? `Gradium configured · ${profile.my_voice_ready ? "Your German voice is ready" : "Set up your own voice below"}. ${profile.gemini_configured ? "Gemini is ready for multilingual messages." : "Gemini needs configuration for translation."}`
-      : `Record and listen locally now. Add GRADIUM_API_KEY to the server’s .env and restart to enable cloning and German audio. ${profile.gemini_configured ? "Gemini is ready for multilingual transcription and scripts." : "Gemini also needs configuration."}`;
+    // Only speak up when something is unavailable; a working studio needs no banner.
+    const missing = [
+      configured
+        ? ""
+        : "Voice cloning and German audio are unavailable right now. You can still record and listen on this device.",
+      profile.gemini_configured
+        ? ""
+        : "Transcription and translation are unavailable right now.",
+    ].filter(Boolean);
+    service.hidden = !("gradium_configured" in profile) || !missing.length;
+    service.textContent = missing.join(" ");
     byId("voice-profile").hidden = !profile.source_id;
     byId("clone-voice").disabled =
       locked || !configured || !recordings.sample || Boolean(profile.source_id);
@@ -912,29 +920,32 @@
     }
   };
   refreshProfile().catch(() => {
+    byId("voice-service-status").hidden = false;
     say(
       "voice-service-status",
-      "Voice service status could not be loaded. Record locally or retry after the server is ready.",
+      "Voice services can’t be reached right now. You can still record and listen on this device.",
     );
   });
-  fetch("/api/v1/demo/mimi")
-    .then((response) => {
-      if (!response.ok) throw Error();
-      return response.json();
-    })
-    .then((data) => {
-      demo = data;
-      say("demo-notice", data.notice);
-      renderDemo();
-    })
-    .catch(() => {
-      say(
-        "demo-notice",
-        "Mimi’s rehearsal is unavailable. Try reloading after the server is ready.",
-      );
-      byId("demo-back").disabled = true;
-      byId("demo-next").disabled = true;
-    });
+  // app.js (loaded first) sets demo-mode for /?demo=1; the rehearsal is hidden otherwise.
+  if (document.body.classList.contains("demo-mode"))
+    fetch("/api/v1/demo/mimi")
+      .then((response) => {
+        if (!response.ok) throw Error();
+        return response.json();
+      })
+      .then((data) => {
+        demo = data;
+        say("demo-notice", data.notice);
+        renderDemo();
+      })
+      .catch(() => {
+        say(
+          "demo-notice",
+          "Mimi’s rehearsal is unavailable. Try reloading after the server is ready.",
+        );
+        byId("demo-back").disabled = true;
+        byId("demo-next").disabled = true;
+      });
   window.addEventListener("beforeunload", () => {
     if (recorder) {
       recorder.stream.getTracks().forEach((track) => track.stop());

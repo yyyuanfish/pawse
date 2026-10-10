@@ -2,7 +2,7 @@
 
 > Your cat is limping, it's 9 pm, and every vet in Zürich answers in German. Just talk to Pawse in your own language. A team of AI agents, driven by a real-time **Gemini Live** conversation with tool calling, triages the symptoms, finds and ranks nearby vets, checks what your insurance covers, books a slot that fits your calendar, and calls the clinic in fluent German, in **your own cloned voice** with **Gradium**. From worried owner to booked appointment in one conversation.
 
-**[Live Demo](https://pawse-114215092948.europe-west6.run.app/app/)** · [Mimi rehearsal](https://pawse-114215092948.europe-west6.run.app) · [Local Demo](http://127.0.0.1:8765) · [Engineering Docs](docs/README.md) · [API Docs](docs/API_CONTRACT.md) · [Architecture](docs/ARCHITECTURE.md)
+**[Live Demo](https://pawse-114215092948.europe-west6.run.app/app/)** · [Mimi rehearsal](https://pawse-114215092948.europe-west6.run.app/?demo=1) · [Local Demo](http://127.0.0.1:8765) · [Engineering Docs](docs/README.md) · [API Docs](docs/API_CONTRACT.md) · [Architecture](docs/ARCHITECTURE.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Stage: Hackathon prototype](https://img.shields.io/badge/Stage-Hackathon_prototype-orange.svg)](docs/SPEC.md)
@@ -50,7 +50,7 @@ Ranking, cost calculations and execution control use deterministic tools. The co
 
 ## Demo
 
-Open the [voice-first app](https://pawse-114215092948.europe-west6.run.app/app/) or the [Mimi rehearsal](https://pawse-114215092948.europe-west6.run.app) (or run the app locally) to try **Mimi's two-minute story**:
+Open the [voice-first app](https://pawse-114215092948.europe-west6.run.app/app/) or the [Mimi rehearsal](https://pawse-114215092948.europe-west6.run.app/?demo=1) (or run the app locally) to try **Mimi's two-minute story**:
 
 The [complete 120-second scenario](docs/DEMO_STORY.md) includes the timeline, model/agent handoffs, cost assumptions and acceptance checks. The target experience accepts English, Mandarin Chinese, German or Hindi and prepares German dialogue with selectable subtitles and Gradium own-voice audio; see the [language and delivery requirements](docs/VOICE_CONCIERGE.md#language-and-delivery-requirements).
 
