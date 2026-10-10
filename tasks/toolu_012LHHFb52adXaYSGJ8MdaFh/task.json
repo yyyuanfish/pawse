@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_012LHHFb52adXaYSGJ8MdaFh",
+  "agent_id": "a0ebeacc678891479",
+  "subagent_type": "general-purpose",
+  "task_description": "File issue for Yuan's demo recording",
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 53476,
+    "cache_read_tokens": 135140,
+    "output_tokens": 57,
+    "api_call_count": 4
+  },
+  "started_at": "2026-10-10T16:19:54.186953054Z",
+  "completed_at": "2026-10-10T16:20:35.829772856Z"
+}
