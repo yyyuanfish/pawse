@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K8ZS097NRFCFMEPW8ZT5KH",
   "strategy": "manual-commit",
   "branch": "test/e2e-green",
-  "checkpoints_count": 12,
+  "checkpoints_count": 13,
   "files_touched": [
     "tests/e2e/test_browser_live_voice.py",
     "tests/e2e/test_browser_recording.py"
@@ -21,6 +21,13 @@
       "transcript": "/1/full.jsonl",
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
       "prompt": ""
     }
   ],
