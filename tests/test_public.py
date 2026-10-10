@@ -35,6 +35,7 @@ def test_total_cap_covers_all_sessions(monkeypatch):
 
 
 def test_extra_hosts_come_from_env(monkeypatch):
+    monkeypatch.delenv("PUBLIC_URL", raising=False)  # a running tunnel's host is added separately
     monkeypatch.setenv("PAWSE_ALLOWED_HOSTS", "pawse-abc.a.run.app, demo.example")
     assert public.allowed_hosts()[-2:] == ["pawse-abc.a.run.app", "demo.example"]
     monkeypatch.delenv("PAWSE_ALLOWED_HOSTS")

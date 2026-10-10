@@ -15,6 +15,7 @@ from .models import CareRequest, LegacyRequest, CareResult, ClinicSearchRequest,
 from .service import care_events, find_clinics
 from .legacy import capabilities, legacy_events
 from .voice import router as voice_router
+from .telephony import router as telephony_router
 from .live import router as live_router
 from .demo import router as demo_router
 from .knowledge import router as knowledge_router
@@ -167,6 +168,7 @@ async def index():
     return FileResponse(Path(__file__).parent / "static/index.html")
 
 app.include_router(voice_router)
+app.include_router(telephony_router)
 app.include_router(live_router)
 app.include_router(demo_router)
 app.include_router(knowledge_router)

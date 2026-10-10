@@ -618,3 +618,15 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .home-settings, .handoff-more { color: var(--muted); font-size: 14px; }
 .home-settings summary, .handoff-more summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; padding: 0 12px; }
 .home-settings[open], .handoff-more[open] { display: grid; gap: 8px; justify-items: center; }
+/* Real phone call card (LiveHandoff). */
+.call-pill { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+.call-pill.on { background: var(--brand); color: var(--brand-ink); animation: pill-pulse 1.4s ease-in-out infinite; }
+@keyframes pill-pulse { 50% { opacity: 0.7; } }
+@media (prefers-reduced-motion: reduce) { .call-pill.on { animation: none; } }
+.call-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.call-lines li { padding: 8px 12px; border-radius: 14px; max-width: 92%; font-size: 15px; }
+.call-lines li strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.call-lines li.ai { background: var(--soft); align-self: flex-start; }
+.call-lines li.callee { background: var(--surface); border: 1px solid var(--line); align-self: flex-end; }
+.call-outcome { padding: 10px 12px; border-radius: 12px; background: #e9f6ee; color: #1d5c3b; }
+.call-outcome.no_slot, .call-outcome.not_reached { background: #fff1d6; color: var(--yellow-ink); }
