@@ -23,7 +23,7 @@ function ActionRow({ icon, title, sub, doneText, button, next, onClick }) {
 export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
   if (!triage) return null;
   // A live "prepared" result is only a script; it never reads as a booking or a confirmed cover.
-  const vetDone = vet ? (vet.prepared ? `✓ ${t.prepared}` : `✓ ${t.booked} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}`) : '';
+  const vetDone = vet ? (vet.prepared ? `✓ ${t.prepared}` : `✓ ${vet.simulated === false ? t.booked : t.slotSim} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}`) : '';
   const insDone = insurance ? (insurance.prepared ? `✓ ${t.prepared}` : `✓ ${t.outOfPocket} ≈ ${insurance.currency || 'CHF'} ${insurance.outOfPocket}`) : '';
   const next = nextAction({ vet, insurance });
 
