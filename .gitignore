@@ -48,3 +48,5 @@ demo/playwright-report/
 # Private saved voice IDs (no recordings)
 .pawse-private/
 /test-results/
+
+.vercel/

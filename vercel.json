@@ -1,0 +1,78 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "landing": {
+      "root": "site",
+      "outputDirectory": ".",
+      "rewrites": [
+        {
+          "source": "/landing",
+          "destination": "/index.html"
+        }
+      ],
+      "devCommand": "node ../scripts/preview_site.mjs --landing"
+    },
+    "web": {
+      "root": ".",
+      "framework": "vite",
+      "installCommand": "npm ci --prefix web",
+      "buildCommand": "node scripts/build_site.mjs",
+      "outputDirectory": "dist",
+      "functions": {
+        "api/gateway.mjs": {
+          "maxDuration": 60
+        }
+      },
+      "rewrites": [
+        {
+          "source": "/api/:route*",
+          "destination": "/api/gateway?route=:route"
+        },
+        {
+          "source": "/app",
+          "destination": "/app/index.html"
+        },
+        {
+          "source": "/app/",
+          "destination": "/app/index.html"
+        }
+      ],
+      "devCommand": "node scripts/preview_site.mjs"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": {
+        "service": "web"
+      }
+    },
+    {
+      "source": "/app(.*)",
+      "destination": {
+        "service": "web"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "landing"
+      }
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ]
+}

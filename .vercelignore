@@ -1,0 +1,17 @@
+.env
+.env.*
+**/.env
+**/.env.*
+.pawse-private
+.venv
+backend
+research
+agent留底版本
+.git
+tmp
+test-results
+demo
+docs
+tests
+node_modules
+web/node_modules
