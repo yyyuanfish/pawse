@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01ULFQpuMNMe7xDeGqKrG4NU",
+  "agent_id": "a48909a509a80aa5d",
+  "subagent_type": "general-purpose",
+  "task_description": "Review or drop test/web-browser branch",
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 73314,
+    "cache_read_tokens": 1323185,
+    "output_tokens": 347,
+    "api_call_count": 22
+  },
+  "started_at": "2026-10-10T15:01:53.478564414Z",
+  "completed_at": "2026-10-10T15:04:49.850319974Z"
+}
