@@ -81,3 +81,15 @@ noncanonical limitation text; injury is now required and the limitation is enfor
 This is one example, not a sensitivity/specificity evaluation. The image and raw response stay
 outside Git. Mobile native-camera launch is requested via capture=environment but has not been
 verified on physical iOS/Android hardware.
+
+### Inline injury care handoff — 2026-10-10
+
+The conversation now connects suspected injury results to device-location clinic search, clinic
+selection, reviewed German scripts and playback/download using the saved German own voice.
+Mocked integration checks cover the request chain, consent gates, unknown hours, location required,
+saved-voice selection and missing-provider errors. The frontend production build passes.
+
+Current local environment has Gemini and Gradium configured but neither GOOGLE_PLACES_API_KEY nor
+MAPIFY_BASE_URL. Real nearby clinic discovery therefore remains blocked until a clinic provider
+is configured; no complete live injury-to-clinic-to-audio run is claimed. Physical phone location
+and camera permissions still require device testing. Calls and bookings remain unconnected.

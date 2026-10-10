@@ -144,3 +144,24 @@ Acceptance requires actual mic cleanup, mono PCM16 WAV conversion, safe transcri
 ## React client
 
 The additional `web/` client is served at `/app/` after building. Its backend mode, endpoint mapping, consent gates and evaluation scope are described in [React agent integration](WEB_AGENT_INTEGRATION.md). The original root interface remains available for voice enrollment.
+
+### Injury follow-up inside the voice conversation
+
+After `/vision/observations` returns a suspected wound or blood-like material, the conversation
+renders an inline care handoff. This stays visible instead of switching to the triage sheet.
+With an existing fresh device location it searches immediately; otherwise the owner taps
+**Use my location · find vets** and grants browser permission. No default coordinates are used.
+
+1. `POST /care/requests`: device coordinates, `share_location=true`, `share_with_ai=false`.
+   Keep server ranking and show source, unknown hours and missing phone numbers faithfully.
+2. Owner selects a returned practice and can add what happened/current bleeding information.
+   `POST /voice/scripts`: uncertain photo findings, separate owner report, selected practice,
+   `target_language=de`, owner-language subtitles, explicit existing Gemini consent.
+3. Show the draft in the same conversation. After owner review and Gradium consent,
+   `POST /voice/speech` with `voice=my_voice`, `language=de`; the server resolves the saved voice.
+4. Render audio playback/download and, when available, a validated `tel:` link. No automated call,
+   booking or phone-audio injection is performed. A missing saved voice disables generation.
+
+Requests time out after 60 seconds and are cancelled when this handoff is removed. Photo/care
+content is not persisted by this component. A missing provider or failed location shows an error;
+no simulated clinic results are substituted. Existing API schemas are unchanged.

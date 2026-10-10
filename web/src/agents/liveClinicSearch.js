@@ -44,7 +44,7 @@ export function mapClinic(c, location) {
   return out;
 }
 
-export async function liveSearchClinics({ lang = 'en', location = null, triage = null } = {}) {
+export async function liveSearchClinics({ lang = 'en', location = null, triage = null, signal } = {}) {
   if (!location) throw new Error('Location is needed to find nearby clinics (permission denied or unavailable).');
   const body = {
     query: 'Find nearby veterinary clinics for a cat.',
@@ -54,7 +54,7 @@ export async function liveSearchClinics({ lang = 'en', location = null, triage =
     share_with_ai: false,
   };
   const res = await fetch((CLINIC_SEARCH_URL || '') + ENDPOINT, {
-    method: 'POST',
+    method: 'POST', signal,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
