@@ -36,7 +36,7 @@ The existing localhost rehearsal was also walked through all six clinic-path sce
 - A real iPhone or Mac running Safari: never tested on a device. iOS Safari only starts Web Audio inside the tap that asked for it, so the Live call now creates and resumes its mic and playback audio in the Agree and start and mic taps (`primeAudio` in `web/src/agents/nativeAudio.js`). `tests/e2e/test_browser_webkit_audio.py` checks this in Playwright's WebKit engine on Linux (both contexts created in a tap, running, mic frames reach Live) and failed on the old code. Desktop WebKit is less strict than iOS, so this is engine evidence, not a device test.
 - A physical microphone and real speakers. The browser suite (below) uses Chromium's fake capture device and a synthetic signal; it proves the capture, encoding and upload path, not a particular device or room.
 - Chinese, English, German and Hindi recognition quality with representative human recordings. Only synthetic `espeak-ng` speech has been run (below); no human recording has been collected.
-- Live clinic discovery: no Mapify backend URL or Google Places key was supplied. Only provider adapters and normalization are tested.
+- Mapify clinic discovery: no Mapify backend URL was supplied, so only that adapter and its normalization are tested. Google Places is verified live (see the Cloud Run entry).
 - Telephone transport, audio injection into a mobile call, actual calendar checks, appointment/taxi booking and claim submission are not connected. Mimi's calls and policy decisions are explicitly synthetic.
 - Real owner-policy ingestion and vector RAG: the current evidence is the whole demo schedule and adapted terms under `synthetic_demo`, handed to Gemini to cite; there is no search. Legacy book collections and OpenAI/Chroma indexes remain excluded.
 - Imported device/report services, live video ingestion and public multi-user deployment have not been validated in this iteration.
@@ -83,8 +83,10 @@ None of this measures accuracy for human speakers; that still needs consented re
 
 - Deployed to Cloud Run (https://pawse-114215092948.europe-west6.run.app), one instance, `PAWSE_PUBLIC_DEMO=1`, Gemini and Gradium keys from Secret Manager.
 - Verified on the public URL: health reports `public_demo`; the Mimi rehearsal plays all six scenes in Chromium at desktop and 390px width with no horizontal overflow; a live care request ("jumped off the wardrobe and is limping") returned urgency `contact_vet` from Gemini.
-- Not verified on the public URL: clinic search (no Places key or Mapify configured, so care results are `partial`), Gradium voice cloning, Gemini Live voice.
+- Not verified on the public URL: Gradium voice cloning, Gemini Live voice.
 - The React app (`/app/`) loads at desktop and 390px width with no console errors or horizontal overflow; its live flows were not walked on the public URL.
+- Google Places on the public URL (https://pawse-ewt2scevfq-oa.a.run.app, verified 2026-10-10): `/api/v1/capabilities` lists `clinic_providers` `["google_places","gemini_maps"]`. `POST /api/v1/clinics/search` for Zurich (47.3769, 8.5417, 3 km) returned 200 in 0.6 s with 9 clinics, all `source=google_places`, all with a phone number and `distance_km`; non-vet places are filtered (PR #70). Gemini Maps grounding remains the fallback and carries no distances.
+- Clinic order (backend `rank_clinics`): provider-reported open first, then unknown hours, then reported closed, by distance within each group, OSM snapshot last. The web list subtitle says so ("Open now first, then nearest"), since a closed clinic at 0.9 km can sit below an open one at 2.75 km.
 - Known: `/favicon.ico` returns 404 on the rehearsal page (also locally).
 
 ## Gemini Live as the /app default (feat/live-default)
