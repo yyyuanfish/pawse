@@ -1,5 +1,19 @@
 # Validation record
 
+## Current integration — 10 October 2026
+
+PRs #76 and #78 were reconciled with the deployed map and telephony changes. Current location watching,
+numbered map markers, native camera/upload controls, account/history screens and Twilio handoff are retained.
+The extended Mimi options, confirmation, taxi and calendar are an explicitly simulated rehearsal.
+Live navigation keeps insurance optional and does not offer synthetic booking options or the demo policy deadline.
+Pet vision retains `gemini-3-flash-preview`; facial estimates remain experimental, not clinically validated.
+An owner's saved German voice is used only when that session has a usable voice and approves the script.
+
+The integration checks cover both navigation modes, server-rendered advice/handoff visibility, actual-policy
+checklists, vision consent/abstention and generated contract consistency. Existing historical probes below
+are not claims of a new clinical benchmark or a new production telephone test.
+
+
 Date: 2026-10-10. Scope: the unified `pawse/` app and its new voice, agent and evidence interfaces. This is not a certification of the imported backend.
 
 ## Passed
@@ -45,6 +59,24 @@ The existing localhost rehearsal was also walked through all six clinic-path sce
 - Imported device/report services, live video ingestion and public multi-user deployment have not been validated in this iteration.
 
 `gemini-2.5-flash` appeared in the model listing but returned HTTP 404 for generation in this project. Credentials and recordings are not included in test fixtures or publication artifacts.
+
+## React app: the whole Mimi story (10 October 2026)
+
+The React app now plays the second half of the 2-minute script in mock mode (`/app/`) and in the live
+rehearsal (`/app/?live=1`, vet hand-off → More → "Open simulated Mimi phone rehearsal"): a demo calendar
+("free from 16:00", no event titles) during the vet call, option cards A clinic today 16:30 ≈ CHF 385 incl. ~25 taxi /
+B home visit tonight ≈ CHF 510 (live numbers from `/api/v1/demo/mimi` costs, mock from the same formulas in
+`web/src/agents/story.js`), a confirmation call to the vet (`steps[4]`, `home_lines` for B), a taxi call (`steps[5]`,
+clinic only, not insured), and a plan with "16:05 taxi → 16:30 vet" and the claim checklist (video, itemised invoice,
+`claim_days` = 30). Every reply and result is labelled simulated; nothing is dialled or booked. German call audio plays at
+1.15× with pitch preserved (browser speech 1.1×); Gemini Live is asked to speak briskly instead of being sped up.
+
+Verified: `bash scripts/check.sh` (172 backend tests incl. a check that the React mock speaks the backend's `steps[4]`/`[5]`
+German lines word for word, plus `web/scripts/check-story.mjs`); a headless Chromium walk of both mock paths
+(clinic and home visit) with no console errors; `tests/e2e/test_browser_story.py` walks the live rehearsal against the real
+server with FakeLive and mocked provider routes. The full e2e suite has the same 5 failures as `origin/main`
+(denied-mic / own-voice / one Live tool-call test), none in the new flow. Not verified: real Gradium audio pace on a device,
+real telephony (none exists).
 
 ## React backend handoff (10 October 2026)
 

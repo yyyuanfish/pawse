@@ -19,12 +19,16 @@ Official reference: https://ai.google.dev/gemini-api/docs/image-understanding
 
 See [controller contract](controller-vision-contract.md). `POST /api/v1/vision/observations`, with `photo` using the existing bounded image schema and `share_with_ai: true`.
 
-Return `cat_detected: true | false | null`, `face_assessable: boolean`, `image_quality: adequate | limited | unusable`, `visible_observations` (ears, eyes, muzzle, whiskers, head/body posture), `limitations`, and `questions_for_owner`. Each observation can be `not_visible`; a face crop must not imply that gait or breathing was assessed. No numeric pain score, diagnosis, identity match, or reassurance from a photograph alone.
+Return `cat_detected: true | false | null`, `face_assessable: boolean`, `image_quality: adequate | limited | unusable`, `visible_observations` (ears, eyes, muzzle, whiskers, head/body posture), `limitations`, and `questions_for_owner`. Each observation can be `not_visible`; a face crop must not imply that gait or breathing was assessed. Experimental facial-cue estimates are separate from validated clinical pain scores. No diagnosis, identity match or reassurance is established from a photograph alone.
 
-Target care handoff (not automatically connected yet): selected photo → cat/quality check → visible observations → existing care guidance → nearby vets → reviewed German handoff using the saved voice. Owner-reported emergency signs must retain priority if the photo is normal-looking or unassessable. For limping, ask what happened and obtain appropriate video evidence later rather than inventing movement from a still.
+Connected in-conversation handoff: selected photo → cat/quality check → visible observations → existing care guidance → nearby vets → reviewed German handoff using the saved voice. Owner-reported emergency signs must retain priority if the photo is normal-looking or unassessable. For limping, ask what happened and obtain appropriate video evidence later rather than inventing movement from a still.
 
 Pet identity matching (“is this Mimi?”) is a separate, unvalidated capability requiring enrolled reference photos, an unknown result, and owner confirmation. Do not market the observation feature as reliable face identification.
 
 ## Before calling it validated
 
 Use owner-authorized cat images plus non-cat, blurred, occluded and multiple-cat cases. Measure abstention and observation errors; keep provider mocks for CI. Veterinary assessment is needed before using any automated feline pain scoring in a clinical workflow. No real-cat evaluation was performed in this access check.
+
+## Integration update
+
+The default remains `gemini-3-flash-preview`; the historical access probe above does not change the production default. The current conversation keeps its camera/upload controls and adds experimental facial cues plus an inline injury handoff. Saved voice use still depends on session-specific voice availability and reviewed Gradium consent.

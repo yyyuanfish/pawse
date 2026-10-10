@@ -6,13 +6,13 @@ See generated [OpenAPI](openapi.json) and [TypeScript](../schemas/pawse.ts).
 Request: `photo: {mime_type, data}` (base64 JPEG/PNG/WebP, max 3 MB),
 `share_with_ai: true`, optional `red_flags` using the existing care warning-sign enum.
 Consent is required server-side. Photos are forwarded inline to Gemini, not saved locally.
-`GEMINI_VISION_MODEL` defaults to the access-tested `gemini-3.8-flash`.
+`GEMINI_VISION_MODEL` defaults to the existing `gemini-3-flash-preview`.
 
 Response: nullable `cat_detected`, `face_assessable`, `image_quality`, five named
 `visible_observations`, `limitations`, `questions_for_owner`, `model`, `urgency`, `disclaimer`.
 Unusable/non-cat images force all features to `not_visible`. Owner-reported red flags force
-`urgency: emergency`; otherwise urgency remains `unknown`, never a photographic all-clear.
-This endpoint does not establish identity, diagnose, calculate pain scores or place calls.
+`urgency: emergency`; suspected wounds or concerning experimental facial cues return `contact_vet`. Other cases remain `unknown`, never a photographic all-clear.
+The response also contains `injury`, `facial_cues`, and `facial_estimate`. Estimates are experimental and not validated clinical pain scores. This endpoint does not establish identity, diagnose or place calls.
 
 Errors: 422 invalid photo/consent; 503 missing key; 502 upstream/invalid model output;
 429 shared voice/vision operation limit or public quota. Errors do not echo photographs or keys.
@@ -20,7 +20,7 @@ Errors: 422 invalid photo/consent; 503 missing key; 502 upstream/invalid model o
 ## Try it
 
 1. Open `/app/?live=1`, start the Pawse conversation and confirm Gemini sharing.
-2. Click the camera icon in the conversation input bar, then **Upload photo** or **Take photo**. With camera preview on, **Capture and analyze** submits the current frame.
+2. Click the camera icon in the conversation input bar, then **Upload photo** or **Take photo**. On phones, Take a photo opens the native camera; desktop uses a camera preview and capture button. Upload a photo opens the file picker.
 3. The selected photo is analyzed under the conversation’s explicit Gemini-sharing consent.
 4. Review **Photo observations** in the conversation. The LLM receives these observations as untrusted evidence and explains them in the conversation language.
 5. Try a non-cat or blurred image: the app should abstain rather than invent features.

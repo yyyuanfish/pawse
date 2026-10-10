@@ -38,7 +38,7 @@ function fmt(sec) {
 }
 
 // Voice first. The camera and photos are optional extras the user can add any time.
-export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, rail, onCall, onEnd }) {
+export default function VoiceCall({ t, lang, triage, vet, insurance, rehearsal = false, onTriage, rail, onCall, onEnd }) {
   const [consent, setConsent] = useState(false);
   const [voiceChoice, setVoiceChoiceState] = useState(loadVoiceChoice);
   const setVoiceChoice = (v) => {
@@ -542,7 +542,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
         <div className="sheet" role="dialog" aria-label={t.adviceTitle}>
           <div className="sheet-grab" aria-hidden="true" />
           {rail}
-          <PlanPanel t={t} triage={triage} vet={vet} insurance={insurance} onCall={onCall} />
+          <PlanPanel rehearsal={rehearsal} t={t} triage={triage} vet={vet} insurance={insurance} onCall={onCall} />
           <div className="sheet-foot">
             <button type="button" className="btn ghost" onClick={() => setSheetOpen(false)}>
               {t.keepTalking}
