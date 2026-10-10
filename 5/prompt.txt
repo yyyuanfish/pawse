@@ -1,0 +1,87 @@
+Finish:
+--
+
+6. ⚠️ The simpler step-by-step UX plan never got written. That session stopped while still reading code.
+--
+
+---
+
+<task-notification>
+<task-id>a9ee1b5f2b1007a25</task-id>
+<tool-use-id>toolu_011eC7YKhQU9HceDqMc6oAry</tool-use-id>
+<output-file>/tmp/claude-1000/-home-azureuser-pawse/bba44327-3138-46a7-8bbf-b95112cd9759/tasks/a9ee1b5f2b1007a25.output</output-file>
+<status>completed</status>
+<summary>Agent "Map web app UX flow" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I found one thing that changes the brief. The step-by-step UX plan was in fact written, but only for the static "My voice" studio. The React app and the rest of the static page have no UX plan.
+
+## 1. React app (`web/`, served at `/app`, mounted in `pawse/app.py:157-160`)
+
+Routing is a `view` state, not a router (`web/src/App.jsx:29`, flow described at :24-27). Screen order:
+
+1. **Home** (`pages/Home.jsx`)
+   - Shows a 4-language switch (:30-40), the "Start call" button (:53), an "Own voice" button (:58), and links to `?live=1` "Use backend agents" and `?demo=1` "Simulated rehearsal" (:59).
+   - It also shows a mock badge (:60) and the `InsuranceProfileForm` (Insurer/Plan inputs, `components/InsuranceProfileForm.jsx:17-19`) on the first screen.
+2. **VoiceCall** (`pages/VoiceCall.jsx`): a video-call-style triage.
+   - In live mode it starts with a consent card (:201-204).
+   - Then: avatar, camera (flip and close, :238-241), ProviderChips (:255), captions, keyword chips (:325), photo upload, a text box, and mic, hang-up and camera buttons (:358-371).
+   - Tool results and the "Agent results" trace appear as `&lt;details&gt;` (:206-212). The advice sheet has "Keep talking" and "Done" (:385-393).
+3. **Plan** (`pages/Plan.jsx` plus `components/PlanPanel.jsx`)
+   - Shows the triage level, the steps, and two action rows: call or prepare the vet, and call or prepare the insurer (`PlanPanel.jsx:50-65`).
+   - Below that: the summary with Copy, a checklist, and Restart.
+4. **ClinicList** (`pages/ClinicList.jsx`): asks for geolocation, then shows clinic cards with a "Call" button each (:131).
+5. **PhoneCall** in mock mode (`pages/PhoneCall.jsx`)
+   - A simulated call: a progress list, an ask-card with option buttons (:256), a transcript `&lt;details&gt;`, and a Gradium checkbox (:285-286).
+   - In live mode, **LiveHandoff** replaces it (`pages/LiveHandoff.jsx`). It has a textarea, a Gemini consent checkbox (:172), a script review, a voice `&lt;select&gt;` (:178), a Gradium consent checkbox (:180), and a demo-policy search shown only for the insurer (:184-190). It also has a dialer link, a "simulated rehearsal" button and Back (:191-194).
+6. Back to Plan. **OwnVoice** (`pages/OwnVoice.jsx`) is a separate branch from Home with about 8 buttons and 2 checkboxes (:62-94).
+
+**The "uncommitted" changes are now committed.** The working tree is clean and HEAD is `86f3b71` ("show the owner they are being recorded and heard"), 2 commits ahead of origin. That commit:
+- adds `hooks/useMicLevel.js` and uses it in `VoiceCall.jsx` for a level ring and bars;
+- adds "Recording / Hearing you / Transcribing… / Tap the mic" states;
+- streams partial user captions (`geminiLiveAgent.js`, sealed when Pawse answers) and adds a `transcribing` event (`liveVoiceAgent.js`, `contracts.js`);
+- adds 4 i18n strings per language and the matching CSS.
+
+## 2. Static app (`pawse/static/index.html`, `app.js`, `voice.js`)
+
+It is one long scrolling page with a nav (`index.html:14-20`): Mimi's story, My voice, Care now, Nearby vets, Insurance, My cat's agent.
+
+- **Intro hero** (:34-50) with two CTAs: `#demo` and `#voice`.
+- **`#demo` Mimi rehearsal** (:55-79), the first screen per AGENTS.md:38. It has 6 time-stamped scenes from `GET /api/v1/demo/mimi` (`pawse/demo.py:36-48`), a step rail, Previous/Continue, and a clinic-vs-home cost choice (`voice.js:776-796`). It is rendered by `renderDemo()` (`voice.js:715`).
+- **`#voice`** (:81-353)
+  - Two panels shown at once. "01 Make it your voice" has 3 checkboxes (:144, :148, :184). "02 Say it in your language" has 2 more consents (:269, :308).
+- **`#care`** (:355-524)
+  - Language, a concern textarea, photo upload and dictation.
+  - A warning-signs `&lt;details&gt;` with 6 checkboxes (:419-436).
+  - "Find care nearby" asks for **Latitude, Longitude and Radius** inputs.
+  - An insurance `&lt;details&gt;` (:479), then the AI consent (:507), location consent (:510) and an agent-workflow toggle (:515), then Submit.
+- **`#results`** (:526): progress, assessment, agent trace, clinics, insurance result, and a handoff with 4 buttons.
+- **`#insurance`** (:565) shows the policy. **`#agent`** (:576) shows the agent graph and CatAgent.
+
+## 3. Existing UX plans and what that session meant
+
+- **`~/.claude/plans/plan-how-to-simplfy-melodic-music.md`** (Oct 10 13:32) is the plan from session `55c41300-…jsonl`. The prompt was: "Plan how to simplfy this UX, showing things more 1 by 1", with the voice-studio text pasted in.
+  - It was written and stopped at ExitPlanMode.
+  - **Scope is only static `#voice`.** It proposes:
+    - a 4-step wizard (Voice → Message → German script → Audio) with a progress rail;
+    - one primary button per step, with finished steps collapsing to a summary line;
+    - one consent checkbox instead of 4;
+    - fixes for 2 bugs: `speech-voice` defaults to `my_voice` when no clone exists, and there is no retry or fallback after a clone error;
+    - a Playwright test, `demo/e2e/voice-studio.spec.ts`.
+  - It explicitly left `web/` alone.
+- Session `8d9f1e87-…jsonl` produced the claim "plan never got written … stopped while still reading code". That claim is wrong: the plan file exists. Its scope, though, never covered the React app or the full page flow.
+- `docs/`, `research/` and the repo `*.md` files contain no step-by-step, wizard or onboarding UX notes. The `docs/TEAM_INTEGRATION.md:50` "onboarding" hit is about Entire, not UX. The other plan files are unrelated.
+
+## 4. Pain points
+
+- **Mode switches are visible to users.** `?live=1` / `?demo=1` links and the mock badge are on Home (`Home.jsx:59-60`). LiveHandoff has an "Open simulated Mimi phone rehearsal" button (`LiveHandoff.jsx:193`), and ProviderChips with model names appear on 3 screens.
+- **Too many choices on Home.** It offers Start, Own voice, 2 mode links, 4 languages and an insurance form all at once.
+- **Lots of consent prompts.**
+  - React: a live consent card, then Gemini and Gradium checkboxes in LiveHandoff, plus 2 in OwnVoice (approve preview and Gradium).
+  - Static: 5 voice checkboxes, 2 care consents and the agent-workflow toggle.
+- **Jargon.** "Use backend agents", "Agent results" with `agent_id: state`, "Demo policy evidence … English lexical search" (`LiveHandoff.jsx:185-186`), "Insurance approval: {status}", "Gemini Live returns native audio", and "Seven responsibilities" in the agent graph.
+- **Raw inputs.** Latitude, Longitude and Radius in static `#care`. The demo-policy query box defaults to "accident deductible home visit" (`LiveHandoff.jsx:142`).
+- **Two paths that behave differently.** In live mode, Plan's "Call" becomes "Prepare", which leads to a script and audio rather than a call result. The vet and insurance rows then never show ✓, so the golden-path "summary" stays thin.
+- **Bug.** LiveHandoff's voice defaults to `my_voice` (`LiveHandoff.jsx:139`). The static studio has the same bug, but there it is already in the plan.
+- **No visible progress anywhere.** There is no "step X of N" indicator through triage → vet → insurer → summary, and the static page puts everything in one long scroll.</result>
+<usage><subagent_tokens>62311</subagent_tokens><tool_uses>17</tool_uses><duration_ms>76130</duration_ms></usage>
+</task-notification>
