@@ -21,6 +21,7 @@ from .vision import router as vision_router
 from .live import router as live_router
 from .demo import router as demo_router
 from .knowledge import router as knowledge_router
+from .places import router as places_router
 from .orchestration import router as orchestration_router
 from .state import records, active, TTL, MAX_RECORDS, prune, remember
 from . import public
@@ -185,6 +186,7 @@ app.include_router(vision_router)
 app.include_router(live_router)
 app.include_router(demo_router)
 app.include_router(knowledge_router)
+app.include_router(places_router)
 app.include_router(orchestration_router)
 
 app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")

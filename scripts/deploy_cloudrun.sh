@@ -9,7 +9,8 @@ PROJECT="${1:?usage: deploy_cloudrun.sh <gcp-project> [region]}"
 REGION="${2:-europe-west6}"
 cd "$(dirname "$0")/.."
 # ENV_VAR=secret-name for every key the app reads. Add new provider keys here.
-KEYS="GEMINI_API_KEY=pawse-gemini-key GRADIUM_API_KEY=pawse-gradium-key GOOGLE_PLACES_API_KEY=pawse-places-key"
+# GOOGLE_MAPS_BROWSER_KEY is the referrer-restricted browser key for the interactive map, never a server key.
+KEYS="GEMINI_API_KEY=pawse-gemini-key GRADIUM_API_KEY=pawse-gradium-key GOOGLE_PLACES_API_KEY=pawse-places-key GOOGLE_MAPS_BROWSER_KEY=pawse-maps-browser-key"
 ENV_FILE="${PAWSE_ENV_FILE:-.env}"
 [ -f "$ENV_FILE" ] || ENV_FILE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.env"
 env_value() {  # last NAME=value line, surrounding quotes removed
@@ -41,10 +42,11 @@ for pair in $KEYS; do
   SECRETS="${SECRETS:+$SECRETS,}$var=$secret:latest"
 done
 case ",$SECRETS" in *,GEMINI_API_KEY=*) ;; *) echo "GEMINI_API_KEY is required: set it in $ENV_FILE" >&2; exit 1 ;; esac
+MAP_ID="$(env_value GOOGLE_MAPS_MAP_ID)"  # not a secret; DEMO_MAP_ID is used when unset
 deploy() {
   gcloud run deploy pawse --project "$PROJECT" --region "$REGION" --source . \
     --allow-unauthenticated --min-instances 1 --max-instances 1 --timeout 3600 \
-    --set-secrets "$SECRETS" --set-env-vars "^@^PAWSE_PUBLIC_DEMO=1@PAWSE_ALLOWED_HOSTS=$1" "${@:2}"
+    --set-secrets "$SECRETS" --set-env-vars "^@^PAWSE_PUBLIC_DEMO=1@PAWSE_ALLOWED_HOSTS=$1${MAP_ID:+@GOOGLE_MAPS_MAP_ID=$MAP_ID}" "${@:2}"
 }
 # The host allowlist needs the service URL, which only exists after the first deploy.
 URL=$(gcloud run services describe pawse --project "$PROJECT" --region "$REGION" --format 'value(status.url)' 2>/dev/null || true)

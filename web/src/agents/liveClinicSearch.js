@@ -7,6 +7,7 @@
 // The backend enforces the consent server-side as well.
 
 import { CLINIC_SEARCH_URL } from '../config.js';
+import { validLatLng } from '../utils/mapMarkers.js';
 
 const ENDPOINT = '/api/v1/clinics/search';
 
@@ -42,6 +43,8 @@ export function mapClinic(c, location) {
   out.reasons = c.reasons || [];
   out.website = c.website;
   if (Array.isArray(c.opening_hours) && c.opening_hours.length) out.hoursList = c.opening_hours.map(String);
+  const where = validLatLng(c.location);
+  if (where) out.location = where;
   return out;
 }
 

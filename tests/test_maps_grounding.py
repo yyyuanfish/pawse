@@ -171,3 +171,17 @@ def test_live_saves_owner_insurance_for_the_session_and_reuses_it():
         assert answer['insurance_approval'] == 'not_obtained' and 'not from the owner' in answer['note']
         demo = tool(c, 'search_policy', {'question': 'deductible'}, insurance={'company': 'Pawse Demo Pet Insurance (fictional)'})
         assert demo['response']['matches_owner_policy'] is True and 'note' not in demo['response']
+
+
+@pytest.mark.asyncio
+async def test_places_clinics_keep_listed_hours(no_providers, monkeypatch):
+    from pawse.providers import google_clinics
+    monkeypatch.setenv('GOOGLE_PLACES_API_KEY', 'test-only')
+    def handler(r):
+        body = json.loads(r.content)
+        assert body['includedType'] == 'veterinary_care' and 'regularOpeningHours' in r.headers['X-Goog-FieldMask']
+        return httpx.Response(200, json={'places': [{'id': 'p', 'displayName': {'text': 'Tierarzt'}, 'location': {'latitude': 47.37, 'longitude': 8.54},
+                                                     'regularOpeningHours': {'weekdayDescriptions': ['Monday: 08:00–18:00']}}]})
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        result = await google_clinics(request(), client)
+    assert result[0].opening_hours == ['Monday: 08:00–18:00'] and result[0].open_now is None
