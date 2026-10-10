@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import Home from './pages/Home.jsx';
 import VoiceCall from './pages/VoiceCall.jsx';
 import ClinicList from './pages/ClinicList.jsx';
+import LiveHandoff from './pages/LiveHandoff.jsx';
+import { IS_LIVE_PHONE } from './agents/index.js';
 import PhoneCall from './pages/PhoneCall.jsx';
 import Plan from './pages/Plan.jsx';
 import { strings, detectLang, saveLang } from './i18n.js';
@@ -59,7 +61,8 @@ export default function App() {
   const gradiumAvailable = IS_LIVE_PHONE && (!voiceStatus || voiceStatus.gradium_configured === true);
   const ownVoice = !!(voiceStatus && voiceStatus.my_voice_ready);
 
-  const t = strings[lang];
+  const t = strings[lang] || strings.en;
+  const Handoff = IS_LIVE_PHONE ? LiveHandoff : PhoneCall;
 
   const setLang = (l) => {
     setLangState(l);
@@ -67,7 +70,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
   }, [lang]);
 
   const startCall = () => {
@@ -122,7 +125,7 @@ export default function App() {
   }
   if (view === 'phone') {
     return (
-      <PhoneCall
+      <Handoff
         key={`${target}-${clinic ? clinic.id : ''}`}
         t={t}
         lang={lang}
