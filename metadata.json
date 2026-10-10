@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4KAAWDWPRV0N5DTMZ37K9PW",
   "strategy": "manual-commit",
   "branch": "feat/gradium-callee-voice",
-  "checkpoints_count": 4,
+  "checkpoints_count": 6,
   "files_touched": [
     ".env.example",
     "docs/openapi.json",
@@ -27,13 +27,27 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 20,
-    "cache_creation_tokens": 1996,
-    "cache_read_tokens": 1391314,
-    "output_tokens": 1234,
-    "api_call_count": 6
+    "input_tokens": 52,
+    "cache_creation_tokens": 21733,
+    "cache_read_tokens": 3192176,
+    "output_tokens": 10933,
+    "api_call_count": 21,
+    "subagent_tokens": {
+      "input_tokens": 4,
+      "cache_creation_tokens": 2300,
+      "cache_read_tokens": 153478,
+      "output_tokens": 69,
+      "api_call_count": 2
+    }
   }
 }
