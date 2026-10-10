@@ -1,0 +1,7 @@
+{
+  "tool_use_id": "toolu_01XoU1CB6mqAT4qg6LMhKk2j",
+  "agent_id": "abd3da9a477cf9105",
+  "subagent_type": "general-purpose",
+  "task_description": "Show which AI is used",
+  "started_at": "2026-10-10T13:11:19.237031244Z"
+}

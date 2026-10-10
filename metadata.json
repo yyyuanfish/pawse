@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4JZ6V7GFEFEDW7B71MZHM97",
   "strategy": "manual-commit",
   "branch": "feat/web-ai-badges",
-  "checkpoints_count": 1,
+  "checkpoints_count": 3,
   "files_touched": [
     "pawse/legacy.py",
     "tests/test_care.py",
@@ -28,13 +28,27 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 136,
-    "cache_creation_tokens": 300001,
-    "cache_read_tokens": 8406064,
-    "output_tokens": 70892,
-    "api_call_count": 68
+    "input_tokens": 146,
+    "cache_creation_tokens": 303703,
+    "cache_read_tokens": 8975113,
+    "output_tokens": 73558,
+    "api_call_count": 73,
+    "subagent_tokens": {
+      "input_tokens": 54,
+      "cache_creation_tokens": 109657,
+      "cache_read_tokens": 2788903,
+      "output_tokens": 247,
+      "api_call_count": 27
+    }
   }
 }
