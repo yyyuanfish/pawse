@@ -39,7 +39,12 @@ demo/real/narrator-intro.wav Charon` (write Pawse as "Pause" so TTS says it righ
 
 ## How the sound gets in
 
-PulseAudio gets two null sinks. Chromium plays into `rec`, and ffmpeg records `rec.monitor` together with the X
-screen, so picture and sound share one clock. The owner's line is played into `mic`, which Chromium sees as the
-microphone `owner_mic`, and also into `rec` so viewers hear it. Every take differs a little: Gemini's wording and
-timing are live.
+Each take starts its own private PulseAudio server (`PULSE_SERVER` in the env) with two null sinks. Chromium plays
+into `rec`, and ffmpeg records `rec.monitor` together with the X screen, so picture and sound share one clock. The
+owner's line is played into `mic`, which Chromium sees as the microphone `owner_mic`, and also into `rec` so viewers
+hear it. Every take differs a little: Gemini's wording and timing are live.
+
+The server is private because anything else playing into a shared daemon's `rec` (another take, an audio test) is
+recorded too: takes 2 and 3 heard the owner's line 8 and 5 times over the video. `check-owner-line.py` fails the take
+before the cut unless the line is heard exactly once. Takes can run side by side (Xvfb and the stage port are picked
+free too).

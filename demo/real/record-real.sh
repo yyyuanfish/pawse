@@ -12,12 +12,20 @@ MIMI_DIR="${MIMI_DIR:-/mnt/pawse-demo-out/mimi}"  # make-mimi-clip.py output; sk
 OUT_DIR="${OUT_DIR:-/mnt/pawse-demo-out}"  # heavy media stays off the repo disk
 mkdir -p "$OUT_DIR"
 
-# Audio: Chromium plays into the null sink "rec" (ffmpeg records its monitor); the owner's line is
-# played into the null sink "mic", exposed to Chromium as the source "owner_mic".
-pulseaudio --check 2>/dev/null || pulseaudio --start --exit-idle-time=-1
-pactl list short sinks | grep -q '\brec\b' || pactl load-module module-null-sink sink_name=rec sink_properties=device.description=rec >/dev/null
-pactl list short sinks | grep -q '\bmic\b' || pactl load-module module-null-sink sink_name=mic sink_properties=device.description=mic >/dev/null
-pactl list short sources | grep -q owner_mic || pactl load-module module-remap-source master=mic.monitor source_name=owner_mic >/dev/null
+# Audio: a private PulseAudio server for this take only. Chromium plays into its null sink "rec" (ffmpeg records
+# its monitor); the owner's line is played into the null sink "mic", exposed to Chromium as the source "owner_mic".
+# Never the user's shared daemon: anything else playing there (another take, an audio test) lands in this recording
+# and repeats the owner's line over the video. PULSE_SERVER reaches Chromium, ffmpeg and paplay through the env.
+PULSE_DIR="$(mktemp -d)"
+export PULSE_RUNTIME_PATH="$PULSE_DIR" PULSE_STATE_PATH="$PULSE_DIR" PULSE_SERVER="unix:$PULSE_DIR/native"
+# No D-Bus: the shared daemon already owns the org.PulseAudio1 name, and a second claim makes this one exit.
+env -u DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR="$PULSE_DIR" pulseaudio -n --daemonize=yes --exit-idle-time=-1 \
+  --log-target="file:$PULSE_DIR/pulse.log" \
+  -L "module-native-protocol-unix socket=$PULSE_DIR/native auth-anonymous=1" \
+  -L "module-null-sink sink_name=rec sink_properties=device.description=rec" \
+  -L "module-null-sink sink_name=mic sink_properties=device.description=mic" \
+  -L "module-remap-source master=mic.monitor source_name=owner_mic"
+for _ in $(seq 50); do pactl info >/dev/null 2>&1 && break; sleep 0.1; done
 pactl set-default-sink rec
 pactl set-default-source owner_mic
 
@@ -29,15 +37,19 @@ if [ -f "$MIMI_DIR/mimi-16x9.mp4" ]; then
   ln -s "$MIMI_DIR/mimi-16x9.mp4" "$STAGE_DIR/mimi.mp4"
   MIMI_ENV=(MIMI_INTRO=1 MIMI_CAMERA="$MIMI_DIR/mimi-9x16.mp4" MIMI_STILL="$MIMI_DIR/mimi-still.jpg")
 fi
-python3 -m http.server 4180 --bind 127.0.0.1 --directory "$STAGE_DIR" >/dev/null 2>&1 &
+STAGE_PORT="$(python3 -c 'import socket;s=socket.socket();s.bind(("127.0.0.1",0));print(s.getsockname()[1])')"
+python3 -m http.server "$STAGE_PORT" --bind 127.0.0.1 --directory "$STAGE_DIR" >/dev/null 2>&1 &
 STAGE_PID=$!
-trap 'kill $STAGE_PID 2>/dev/null || true; rm -rf "$STAGE_DIR"' EXIT
+trap 'kill $STAGE_PID 2>/dev/null || true; pactl exit 2>/dev/null || true; rm -rf "$STAGE_DIR" "$PULSE_DIR"' EXIT
 sleep 1
 
 RAW="$OUT_DIR/pawse-demo-real.mkv"
-STAGE_URL="http://127.0.0.1:4180/stage.html?app=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$APP_URL")" \
+STAGE_URL="http://127.0.0.1:$STAGE_PORT/stage.html?app=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$APP_URL")" \
 env "${MIMI_ENV[@]}" OWNER_WAV="$OWNER_WAV" NARRATION_WAV="$NARRATION_WAV" OUT="$RAW" \
   xvfb-run -a -s "-screen 0 1920x1080x24" node "$HERE/record-real.mjs"
+
+# The owner's line must be in the take exactly once (anything else means foreign audio got in): fail before the cut.
+python3 "$HERE/check-owner-line.py" "$RAW" "$OWNER_WAV"
 
 # Deliverable: silent waits shortened to fit 2:00, h264 + loudness-normalised AAC mp4. Capped at 4 GB RAM so a
 # memory regression in the cut fails fast instead of freezing the machine.
