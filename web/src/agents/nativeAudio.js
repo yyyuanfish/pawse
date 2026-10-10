@@ -10,12 +10,23 @@ export function decodePCM(data) {
   for(let i=0;i<out.length;i++) out[i]=view.getInt16(i*2,true)/32768;
   return out;
 }
+// iOS Safari lets an AudioContext start only inside the tap that asked for it, and may keep one created
+// later (after a fetch or a React effect) suspended forever: the mic then sends nothing. primeAudio() runs
+// synchronously in the tap handlers (Agree and start, mic on); the call's audio adopts or resumes these contexts.
+const contextClass=()=>globalThis.AudioContext || globalThis.webkitAudioContext;
+let spare=null; const live=new Set();
+export function primeAudio() {
+  const AC=contextClass(); if(!AC) return;
+  if(!live.size&&!spare) spare={input:new AC({sampleRate:16000}),output:new AC({sampleRate:24000})};
+  for(const ctx of [...live,...(spare?[spare.input,spare.output]:[])]) ctx.resume().catch(()=>{});
+}
 export function createNativeAudio(onFrame, onSpeaking) {
-  const AC=globalThis.AudioContext || globalThis.webkitAudioContext;
+  const AC=contextClass();
   if (!AC) throw Error('Native audio is unavailable in this browser.');
-  const output=new AC({sampleRate:24000});
+  const {input,output}=spare||{input:new AC({sampleRate:16000}),output:new AC({sampleRate:24000})};
+  spare=null; live.add(input); live.add(output);
   output.resume().catch(()=>{});
-  let input=null, source=null, worklet=null, stream=null, closed=false, muted=false, inputGeneration=0, attachRequest=0;
+  let ready=null, source=null, worklet=null, stream=null, closed=false, muted=false, inputGeneration=0, attachRequest=0;
   let epoch=0; let next=0; const playing=new Set();
   function flush() { epoch++; for(const s of playing) {try{s.stop();}catch{}} playing.clear();next=0;onSpeaking(false); }
   async function detach() {
@@ -23,7 +34,11 @@ export function createNativeAudio(onFrame, onSpeaking) {
     if(worklet) {worklet.port.onmessage=null;worklet.disconnect();worklet=null;}
     source?.disconnect();source=null;
     stream?.getTracks().forEach(t=>t.stop());stream=null;
-    if(input) {const c=input;input=null;await c.close().catch(()=>{});}
+  }
+  // One input context per call, kept across mic off/on so it never has to be re-unlocked outside a tap.
+  function loadWorklet() {
+    ready??=input.audioWorklet.addModule(new URL('../audio/pcm-worklet.js', import.meta.url)).catch(e=>{ready=null;throw e;});
+    return ready;
   }
   return {
     async attach(media) {
@@ -31,14 +46,14 @@ export function createNativeAudio(onFrame, onSpeaking) {
       const request=++attachRequest;
       await detach(); if(!media||closed||request!==attachRequest) return;
       const generation=++inputGeneration;
-      stream=media; input=new AC({sampleRate:16000}); const ctx=input;
-      await ctx.audioWorklet.addModule(new URL('../audio/pcm-worklet.js', import.meta.url));
+      stream=media;
+      await loadWorklet();
       if(closed||generation!==inputGeneration) return;
-      await ctx.resume();
+      await input.resume();
       if(closed||generation!==inputGeneration) return;
-      source=ctx.createMediaStreamSource(media);worklet=new AudioWorkletNode(ctx,'pawse-pcm');
+      source=input.createMediaStreamSource(media);worklet=new AudioWorkletNode(input,'pawse-pcm');
       worklet.port.onmessage=e=>{if(!closed) onFrame(pcm16Base64(e.data));};
-      source.connect(worklet); worklet.connect(ctx.destination); // processor outputs silence
+      source.connect(worklet); worklet.connect(input.destination); // processor outputs silence
     },
     async play(data, rate=24000) {
       if(closed||muted) return;
@@ -54,6 +69,6 @@ export function createNativeAudio(onFrame, onSpeaking) {
     },
     flush,
     setMuted(value){muted=value;if(value)flush();},
-    async close(){closed=true;flush();await detach();await output.close().catch(()=>{});},
+    async close(){closed=true;flush();await detach();live.delete(input);live.delete(output);await Promise.all([input.close(),output.close()].map(p=>p.catch(()=>{})));},
   };
 }

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {createGeminiLiveAgent} from '../src/agents/geminiLiveAgent.js';
-import {pcm16Base64,decodePCM,createNativeAudio} from '../src/agents/nativeAudio.js';
+import {pcm16Base64,decodePCM,createNativeAudio,primeAudio} from '../src/agents/nativeAudio.js';
 import {micLevel} from '../src/utils/micLevel.js';
 assert.equal(micLevel(new Float32Array(512)),0);assert.equal(micLevel(new Float32Array(512).fill(1)),1);
 assert.ok(micLevel(new Float32Array(512).fill(.05))>.3,'normal speech moves the meter');
@@ -70,7 +70,7 @@ console.log('check-native-live: consent, PCM/resampling, all audio parts, transc
 const contexts=[], attached=[];
 globalThis.AudioContext=class {
  constructor(){this.audioWorklet={addModule:async()=>{}};this.destination={};this.closed=false;contexts.push(this);}
- async resume(){} async close(){this.closed=true;}
+ async resume(){this.resumed=(this.resumed||0)+1;} async close(){this.closed=true;}
  createMediaStreamSource(media){attached.push(media.id);return {connect(){},disconnect(){}};}
 };
 globalThis.AudioWorkletNode=class {constructor(){this.port={};}connect(){}disconnect(){}};
@@ -78,3 +78,15 @@ const media=id=>({id,getTracks:()=>[{stop(){}}]});
 const native=createNativeAudio(()=>{},()=>{});
 await Promise.all([native.attach(media('stale')),native.attach(media('current'))]);
 assert.deepEqual(attached,['current']);await native.close();assert.ok(contexts.every(x=>x.closed));
+
+// iOS Safari: the contexts are created and resumed synchronously in the tap, then adopted by the call.
+contexts.length=0;
+primeAudio();
+assert.deepEqual(contexts.map(c=>[c.closed,c.resumed]),[[false,1],[false,1]],'tap creates and resumes both contexts');
+const primed=[...contexts], tapped=createNativeAudio(()=>{},()=>{});
+await tapped.attach(media("a"));await tapped.attach(null);await tapped.attach(media("b"));
+assert.equal(contexts.length,2,'the call reuses the tapped contexts, also across mic off/on');
+primeAudio();assert.equal(contexts.length,2);assert.ok(primed.every(c=>c.resumed>=2),'a later mic tap resumes the live contexts');
+await tapped.close();assert.ok(primed.every(c=>c.closed));
+primeAudio();assert.equal(contexts.length,4,'the next call gets fresh contexts');
+console.log('check-native-live: iOS gesture unlock (prime in tap, adopt, reuse across mic toggles) OK');

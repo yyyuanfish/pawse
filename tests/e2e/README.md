@@ -7,7 +7,7 @@ speech. They drive the shipped pages: the React app at `/app` (built from `web/`
 ## Run
 
 ```bash
-pip install -r requirements-e2e.txt && python -m playwright install chromium
+pip install -r requirements-e2e.txt && python -m playwright install chromium webkit
 PAWSE_E2E=1 python -m pytest tests/e2e                      # 62 browser tests, no keys, about 75 s
 PAWSE_E2E=1 python -m pytest tests/e2e -k live_voice --headed   # watch one file
 ```
@@ -21,6 +21,7 @@ Layout screenshots land in `test-results/layout/` (git-ignored) for a human look
 | File | Page | What it proves |
 | --- | --- | --- |
 | `test_browser_live_voice.py` | `/app/?live=1` | Consent before any token; ephemeral token on the constrained socket; mic off until the owner turns it on; audible 16 kHz PCM at real-time pace; mute sends `audioStreamEnd` and stops audio; transcripts as text (no HTML); model audio plays and an interruption flushes it; typed text goes over the socket; tool calls forwarded once, answered and rendered; `open_clinic_call` only offers the dialer; token failure, denied mic and dropped socket are explained; hang-up and drops release the mic |
+| `test_browser_webkit_audio.py` | `/app/?live=1` in WebKit | iOS Safari rule: the call's 16 kHz mic and 24 kHz playback AudioContexts are created inside the Agree and start / mic taps and running, and mic frames reach Live (Chromium runs with autoplay unlocked, so only WebKit can catch this). Engine check, not a real iPhone |
 | `test_browser_recording.py` | `/app/?live=1&voice=rest`, own voice | REST fallback: one audible mono 16 kHz WAV per spoken turn, accepted by the server's validator, in the chosen language; own-voice recorder plays back locally, uploads nothing, rejects under 10 s; denied mic explained |
 | `test_browser_upload.py` | `/` | Audio upload (the React app has none): 48 kHz stereo, 44.1 kHz and 8 kHz WAVs play locally and are sent as mono 16-bit; too short, too long and non-audio files are explained and never sent; a new upload replaces the old; a recorded message is audible |
 | `test_browser_layout.py` | `/app`, call screen, `/` | At 1280, 1440, 1920 and 390 px: no sideways scroll, no overlapping controls, WCAG 2.2 target size (with its spacing and inline-link exceptions), call controls on screen, app column centred on desktop, demo badge visible |
