@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01DfSG49aWj8J95aoWnnHmjt",
+  "agent_id": "af8258790de4244f2",
+  "subagent_type": "general-purpose",
+  "task_description": "Browser-test the web app",
+  "token_usage": {
+    "input_tokens": 172,
+    "cache_creation_tokens": 320092,
+    "cache_read_tokens": 9749208,
+    "output_tokens": 1777,
+    "api_call_count": 86
+  },
+  "started_at": "2026-10-10T12:40:39.706403299Z",
+  "completed_at": "2026-10-10T13:27:34.2607305Z"
+}
