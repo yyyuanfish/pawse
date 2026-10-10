@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JZCKVRCZP8AHXTSR3RV46C",
+  "strategy": "manual-commit",
+  "branch": "docs/public-demo-url",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".dockerignore",
+    "Dockerfile",
+    "README.md",
+    "docs/HACKATHON.md",
+    "docs/VALIDATION.md",
+    "docs/images/screenshot-app.png",
+    "docs/images/screenshot-home.png",
+    "docs/images/screenshot-insurance.png",
+    "docs/images/screenshot-together.png",
+    "docs/images/screenshot-vet-call.png"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 14737,
+    "cache_read_tokens": 1445316,
+    "output_tokens": 11104,
+    "api_call_count": 7
+  }
+}
