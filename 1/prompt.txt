@@ -1,0 +1,211 @@
+Esnure this is used but doent beark anything prod, for tts and stt the other tool shoud stay used:
+--
+
+
+<pasted_content id="f416">
+Skip to content
+yyyuanfish
+pawse
+Repository navigation
+Code
+Issues
+11
+ (11)
+Pull requests
+1
+ (1)
+Agents
+Actions
+Projects
+Wiki
+Security and quality
+Insights
+Settings
+Gemini Live voice session with tool calling (DeepMind prize core)
+ #18
+Open
+Open
+Gemini Live voice session with tool calling (DeepMind prize core)
+#18
+Description
+@AriJordan
+AriJordan
+opened 3h ago
+Collaborator
+Goal
+Gemini Live is what the Google DeepMind prize judges, but Pawse doesn't use it yet: voice today is record-a-WAV, then generateContent. Build a real-time Live session where the owner talks to Pawse, Pawse answers out loud, and calls tools on the existing backend while it talks.
+
+Tasks
+
+POST /api/v1/live/tokens: the backend mints a single-use, short-lived ephemeral token locked to GEMINI_LIVE_MODEL (gemini-3.8-live), the system prompt and the tool declarations. The permanent key never reaches the browser. Requires explicit Gemini consent.
+
+Tools run server-side at POST /api/v1/live/tool-calls (the browser forwards each call): assess_and_find_vets (care requests), search_policy (knowledge search), draft_vet_call_script (voice scripts), open_clinic_call (tel: link, behind an app confirm dialog; telephony stays not connected).
+
+Frontend moved to Frontend: Gemini Live voice client (mic, playback, transcript, tool chips) #22 (Nami); contract in docs/GEMINI_LIVE.md.
+
+Tests in tests/test_live.py (consent, missing key, locked setup, key never returned, safe 502, concurrency 429).
+
+Docs: README, VALIDATION, ARCHITECTURE, API contract/OpenAPI, HACKATHON, .env.example, gemini skill. Update the repo description.
+
+Manual check in Chrome with a real mic (after Frontend: Gemini Live voice client (mic, playback, transcript, tool chips) #22), results recorded in docs/VALIDATION.md.
+Related
+Voice: try Gradium setup (STT + TTS) or choose an alternative #3 Gradium voice (separate partner tech)
+Demo: flesh out the 2 minute demo (story, script, live path, backup) #7 demo: this flow is the "Gemini Live + tool calling" moment, and a recording of it is the backup
+Submission: ensure full hackathon submission is complete (deadline 19:00) #9 submission: partner tech must actually run in the demo
+Done when
+A spoken request in Chrome gets a spoken answer that uses at least one real tool result, and the docs say exactly what was verified.
+
+Activity
+
+AriJordan
+self-assigned this
+3h ago
+
+AriJordan
+mentioned this 3h ago
+feat(live): Gemini Live tokens and server-run tool calls #21
+Frontend: Gemini Live voice client (mic, playback, transcript, tool chips) #22
+Deploy: public demo URL + screenshots for the submission #23
+
+AriJordan
+added a commit that references this issue 3h ago
+feat(live): Gemini Live tokens and server-run tool calls (#21)
+
+Verified
+526594d
+
+AriJordan
+mentioned this 3h ago
+feat: container + Cloud Run deploy with a public-demo quota guard #28
+Add a comment
+new Comment
+Markdown input: edit mode selected.
+Write
+Preview
+Use Markdown to format your comment
+
+Please follow this repository's contributing guidelines and security policy.
+Metadata
+Assignees
+Labels
+No labels
+Projects
+No projects
+Milestone
+No milestone
+Relationships
+None yet
+Development
+ for this issue or link a pull request.
+NotificationsCustomize
+You're receiving notifications because you're subscribed to this thread.
+
+Participants
+@AriJordan
+Issue actions
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+</pasted_content id="f416">
+
+-_
+Just focus on fixing/finshing thimhs here. plan
+
+---
+
+<task-notification>
+<task-id>a769234e08cb51778</task-id>
+<tool-use-id>toolu_01NM29bfodXqUvX7GtTcz45S</tool-use-id>
+<output-file>/tmp/claude-1000/-home-azureuser-pawse/a4e6486a-87ae-4c87-889d-ccd303a7b4c3/tasks/a769234e08cb51778.output</output-file>
+<status>completed</status>
+<summary>Agent "Audit Gemini Live completeness" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>Issue #18 is mostly done: the backend and the React client both exist. The doc claims are partly stale, and the Chrome check is only partly recorded. `.venv/bin/python -m pytest -q tests/test_live.py` gives **14 passed** (0.72s, one Starlette httpx deprecation warning).
+
+## 1. Backend: `pawse/live.py` (313 lines)
+- **Router and constants:** the router is `/api/v1/live` (`live.py:25`), mounted at `pawse/app.py:170`. Tokens last 30 minutes and must be used within 60 seconds. The limit is 10 mints per 10 minutes per owner (`live.py:27-30`).
+- **Model default:** `os.getenv("GEMINI_LIVE_MODEL") or "gemini-3.8-live"` (`live.py:194`). `.env.example:36`, `voice.py:277` and `legacy.py:15` use the same default.
+- **Consent:** `TokenRequest.share_with_gemini: Literal[True]` (`live.py:114`) and `ToolCall.share_with_gemini: Literal[True]` (`live.py:139`). Without consent you get 422.
+- **Missing key:** 503 (`live.py:190-192`).
+- **Token locking:** `setup()` (`live.py:104-109`) is sent as `bidiGenerateContentSetup` with `uses: 1` (`live.py:199-201`). It fixes the model, `responseModalities: ["AUDIO"]`, the system prompt, the tool declarations, and input/output transcription. The key travels only in the `x-goog-api-key` header. Any upstream failure returns a generic 502 (`live.py:206-207`), and a test checks the upstream text is not leaked.
+- **Tools (`live.py:39-81`):** five, all `NON_BLOCKING`. The issue lists four. The extra one is `set_insurance_profile`, which is not in the issue or in the `GEMINI_LIVE.md` token-response example.
+  - `assess_and_find_vets` runs `run_workflow`. It uses the owner's location only if they shared it, otherwise `ZURICH`.
+  - `search_policy` returns demo-policy evidence only, never an approval. It first needs an insurance profile.
+  - `draft_vet_call_script` reuses `draft_script`.
+  - `open_clinic_call` returns `ui.action = "confirm_call"` with `call_url`. It only works for clinic IDs from this owner's last search.
+- **Concurrency:** 3 tool calls per owner and 15 globally, else 429 (`live.py:286`). Tool failures return HTTP 200 with `response.error` so the conversation continues.
+
+## 2. Which frontend uses Live
+- **`pawse/static/*` (served at `/`) has no Live code.** It is the original page and the Mimi rehearsal.
+- **The React app at `/app` uses it, but only behind a flag.**
+  - `web/src/config.js:13-18`: `?live=1` sets all three agents to `live`. `?demo=1` forces mock. Otherwise the `VITE_VOICE_AGENT`, `VITE_CLINIC_SEARCH` and `VITE_PHONE_AGENT` env values apply, defaulting to **mock**.
+  - `web/src/agents/index.js:24-26`: `createVoiceAgent` returns `createGeminiLiveAgent` when voice is live. `?voice=rest` selects the older `createLiveVoiceAgent` (record, WAV, POST `/api/v1/voice/transcriptions`). Without the live flag it returns `createMockVoiceAgent`.
+  - `web/src/pages/VoiceCall.jsx:82` calls `createVoiceAgent({lang, shareWithGemini: consent, voice: gradiumVoice ? {engine:'gradium', voiceId} : null})`.
+  - `docker-compose.yml:25-27` sets the three `VITE_*` variables to `live`. The Dockerfile sets none, so the Cloud Run build defaults to mock. The production `/app/` therefore only uses Live with `?live=1`. `Home.jsx:58` has a "Use backend agents" link to `?live=1`.
+- **Call path:**
+  1. `VoiceCall.jsx` calls `createVoiceAgent`.
+  2. `geminiLiveAgent.start()` posts `/api/v1/live/tokens` (`geminiLiveAgent.js:106`).
+  3. It calls `ai.live.connect` from `@google/genai` with the token and `apiVersion` v1alpha (`:107-108`).
+  4. `message()` handles `toolCall` and calls `tool()` (`:56-76`), which posts `/api/v1/live/tool-calls`.
+  5. It then calls `session.sendToolResponse`. The `ui` payload becomes `agents`, care-result or `tool_result` events for the page.
+- **Supporting pieces:** `nativeAudio.js` and `audio/pcm-worklet.js` handle capture and playback. Transcripts and tool chips come from `emit` events. `open_clinic_call` is a confirm dialog.
+- **Missing from the issue's wording:** `geminiLiveAgent.js` is not dead code. The only loose end is that it needs `?live=1` or an env var in the build.
+
+## 3. STT/TTS and the Gradium question
+- **Default Live (no voice choice):** Gemini does both. The agent sends mic audio (PCM 16 kHz) to Gemini, which answers with native AUDIO. Gemini's input and output transcription feed the captions.
+- **Gradium mode** (`voice={engine:'gradium'}`, only for `en` and `de`; `VoiceCall.jsx:43`, `gradiumVoice.js:6-35`):
+  - **Hearing:** mic frames go to Gradium streaming STT instead of Gemini (`geminiLiveAgent.js:104`). The finished turn is sent to Live as text, `send({text})` (`:113`).
+  - **Speaking:** Gemini's own audio is dropped (`:88`). Live's output transcript is cut into sentences and streamed to Gradium TTS (`speakNew`, `:27-34`), played at 24 kHz.
+  - **Fallback:** if Gradium STT fails, the agent drops back to Gemini's voice (`:115`).
+  - **Auth:** Gradium access uses one-use tokens from `/api/v1/voice/stream-tokens`, so the key stays on the server.
+- **Is Live set to AUDIO or TEXT?** AUDIO, in two places: the server-locked setup (`live.py:106`) and the client config (`geminiLiveAgent.js:108`). In Gradium mode Gemini still generates audio that is discarded. That wastes tokens and latency, and the text comes only from `outputTranscription`.
+- **Could Live run in TEXT modality?**
+  - The code already uses the text path for input: `send({text})` is used for Gradium STT turns, typed messages and the intro prompt.
+  - A TEXT mode would need `setup()` to take a modality parameter, because the token locks the modality. The client would then read `modelTurn.parts[].text` instead of `outputTranscription`.
+  - I did not confirm that `gemini-3.8-live` supports TEXT output. Native-audio Live models often accept only AUDIO, so this is untested. Check the `gemini-live-api-dev` skill or run a test mint first.
+  - Nothing in the repo sets TEXT today.
+
+## 4. Docs: verified versus not
+- **`docs/GEMINI_LIVE.md:62-76`, verified on 2026-10-10:**
+  - A real token mint with `gemini-3.8-live`.
+  - A constrained v1alpha session.
+  - A typed turn that triggered `assess_and_find_vets`, the tool-call round trip, and an audio reply with transcripts.
+  - A browser run with a synthetic typed turn and a rendered care result, with no console errors.
+  - **Not verified:** human microphone capture, listening quality and multilingual accuracy.
+- **`docs/VALIDATION.md`:**
+  - Line 15: the server flow is verified, with a mic caveat.
+  - Lines 51-53: native Live in a real browser, with a greeting transcript and a tool result. No subjective audio quality or human speech was tested.
+  - Line 69: 62 Playwright tests in headless Chromium with a fake mic device, a fake socket and the wire format, in `tests/e2e`.
+  - Line 75: noise-induced hallucination, where Live "heard" Vietnamese in noise. This is inconclusive for real speech.
+  - Lines 82-84: the public URL has **not** been verified for Live voice, and the `/app` live flows were not walked there.
+  - Line 7: the Live insurer prompt was covered by mocked tests only.
+  - There is **no** record of a manual headed Chrome session with a real human mic (task 6).
+- **Stale docs:**
+  - `README.md:39` and `:151` still say browser capture and playback are "still to do" or "in progress". `GEMINI_LIVE.md` says implemented.
+  - The `GEMINI_LIVE.md:36` example `tools` list omits `set_insurance_profile`.
+  - `.claude/skills/gemini/SKILL.md:50` says "browser to-do".
+
+## 5. Deployment and quota
+- **Dockerfile:** a two-stage build that bundles `web/dist` and runs uvicorn with `--proxy-headers`. There is no Cloud Run YAML. The README lists the Cloud Run URL `pawse-114215092948.europe-west6.run.app`, where `/` is the static rehearsal and `/app/` is React (mock by default).
+- **Live env vars:** `GEMINI_API_KEY`, `GEMINI_LIVE_MODEL`, `PAWSE_PUBLIC_DEMO`, `PAWSE_ALLOWED_HOSTS`, `PAWSE_SESSION_CALLS_PER_HOUR` (60) and `PAWSE_TOTAL_CALLS_PER_HOUR` (600).
+- **Quota guard:** `pawse/public.py:8` includes `/api/v1/live/` in `PAID_PREFIXES`. It applies only when `PAWSE_PUBLIC_DEMO=1`, to POST requests, and counts HTTP requests rather than audio. It is per instance and in memory.
+
+## 6. Gaps and bugs
+- **Frontend routing:** the production build does not enable Live by default. It needs `?live=1` or `VITE_VOICE_AGENT=live` at build time.
+- **Chrome check:** the manual human-mic check from task 6 is not recorded.
+- **Token request (`geminiLiveAgent.js:108`):** the client sends `config: {responseModalities: ['AUDIO']}` even though the token already locks the config. It is harmless but redundant. It would need changing for a TEXT mode.
+- **Rate limits:** `minted`, `tool_active`, `session_clinics` and `session_insurance` are in memory and per process. They are not shared across Cloud Run instances.
+- **Session length:** the client ends sessions after 8 minutes (`geminiLiveAgent.js:118`) while the token lives 30 minutes. `goAway` ends the session with no resumption.
+- **Test coverage:** `tests/test_live.py` covers consent, missing key, locked setup, safe 502, minting 429 and tool 429. I did not confirm an explicit "token key never in response" assertion. The 502 test only checks the upstream text is absent.
+- **Docs gap:** HACKATHON and ARCHITECTURE mention Live only briefly (`ARCHITECTURE.md:30-33`). `HACKATHON.md` has no Live-specific mention in my grep.</result>
+<usage><subagent_tokens>58133</subagent_tokens><tool_uses>8</tool_uses><duration_ms>49781</duration_ms></usage>
+</task-notification>
