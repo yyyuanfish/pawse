@@ -12,6 +12,7 @@ import { VOICE_AGENT_URL } from '../config.js';
 import { validateTriage } from '../contracts.js';
 import { gradiumSupports, gradiumVoiceName, resolveVoiceChoice } from '../agents/gradiumVoice.js';
 import VoicePicker from '../components/VoicePicker.jsx';
+import { primeAudio } from '../agents/nativeAudio.js';
 
 // Pawse's voice in a live call: a Gradium voice id (default) or 'gemini' (Gemini Live native audio). Remembered per browser.
 const VOICE_KEY = 'pawse.liveVoice';
@@ -22,6 +23,9 @@ function loadVoiceChoice() {
     return '';
   }
 }
+
+// Gemini Live plays and records through Web Audio, which iOS Safari only starts inside a tap (see primeAudio).
+const unlockAudio = () => VOICE_PATH === 'native' && primeAudio();
 
 function fmt(sec) {
   return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
@@ -202,6 +206,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   const toggleMic = () => {
     const next = !micOn;
+    if (next) unlockAudio();
     setMicOn(next);
     agentRef.current && agentRef.current.setMicMuted(!next);
   };
@@ -227,7 +232,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
         {gradiumVoice
           ? <p>Share your messages, selected photos and recorded speech with Gemini for care guidance, and your speech and Pawse's replies with Gradium, which transcribes you and speaks Pawse's answers. Camera video is a local preview only. Enable your microphone after starting; headphones help prevent echo.</p>
           : <p>Share your messages, selected photos and recorded speech with Gemini for care guidance. Gemini Live returns native audio. Camera video is a local preview only. Enable your microphone after starting; headphones help prevent echo.</p>}
-        <button className="btn primary" onClick={() => setConsent(true)}>Agree and start</button>
+        <button className="btn primary" onClick={() => { unlockAudio(); setConsent(true); }}>Agree and start</button>
         <button className="btn ghost" onClick={onEnd}>Back</button>
       </section>}
       {toolResults.map((result,i) => <details className="card" key={i}><summary>{result.name}</summary>

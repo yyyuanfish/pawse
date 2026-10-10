@@ -1,7 +1,7 @@
 """Browser and real-speech tests (issue #25). Opt-in so `bash scripts/check.sh` stays fast and keyless.
 
 PAWSE_E2E=1 collects the Playwright tests (test_browser_*.py); they need `pip install -r
-requirements-e2e.txt`, `python -m playwright install chromium` and Node (to build web/ once). The
+requirements-e2e.txt`, `python -m playwright install chromium webkit` and Node (to build web/ once). The
 speech-metric tests always run; the real-recording tests skip unless PAWSE_LIVE_SPEECH=1 (README.md).
 """
 import importlib.util
