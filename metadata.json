@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4KB24459QQYMV43HZH06200",
+  "strategy": "manual-commit",
+  "branch": "fix/demo-camera-replay",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "demo/real/README.md",
+    "demo/real/check-owner-line.py",
+    "demo/real/make-cut.py",
+    "demo/real/record-real.mjs",
+    "demo/real/record-real.sh"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 72,
+    "cache_creation_tokens": 59251,
+    "cache_read_tokens": 6092690,
+    "output_tokens": 28487,
+    "api_call_count": 36
+  }
+}
