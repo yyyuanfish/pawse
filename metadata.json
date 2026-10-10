@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K4GK30D1A8HHV9M7M5BA5A",
+  "strategy": "manual-commit",
+  "branch": "feat/demo-real-video",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "demo/real/README.md",
+    "demo/real/make-cut.py",
+    "demo/real/make-owner-line.py",
+    "demo/real/owner-line.wav",
+    "demo/real/record-real.mjs",
+    "demo/real/record-real.sh",
+    "demo/real/stage.html",
+    "web/package.json",
+    "web/scripts/check-speech.mjs",
+    "web/src/agents/speech.js"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 64,
+    "cache_creation_tokens": 79617,
+    "cache_read_tokens": 2689599,
+    "output_tokens": 18199,
+    "api_call_count": 32
+  }
+}
