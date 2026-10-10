@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K5HKP8AF87V81SF01H7SHD",
+  "strategy": "manual-commit",
+  "branch": "fix/ci-web-install",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/check.yml",
+    "scripts/check.sh"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 22,
+    "cache_creation_tokens": 17723,
+    "cache_read_tokens": 1428734,
+    "output_tokens": 4262,
+    "api_call_count": 11
+  }
+}
