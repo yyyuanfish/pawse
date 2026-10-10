@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_016v5xH7nxByJfSZZkvyy3sY",
+  "agent_id": "a09d9bbbba9a350d4",
+  "subagent_type": "general-purpose",
+  "task_description": "Add narrator voice-over to demo intro",
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 45613,
+    "cache_read_tokens": 876981,
+    "output_tokens": 1204,
+    "api_call_count": 17
+  },
+  "started_at": "2026-10-10T15:54:33.167685719Z",
+  "completed_at": "2026-10-10T15:58:26.594862932Z"
+}
