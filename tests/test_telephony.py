@@ -128,3 +128,12 @@ def test_synth_queues_and_retries_gradium(monkeypatch):
         return await asyncio.gather(*[telephony.synth(t, 'v') for t in ['a', 'b', 'c', 'd', 'flaky']])
     out = asyncio.run(run())
     assert peak <= 2 and attempts['flaky'] == 2 and all(o.endswith(b'\xff' * 10) for o in out)
+
+
+def test_slot_start_only_accepts_plausible_upcoming_times():
+    from datetime import datetime, timedelta
+    soon = (datetime.now(telephony.ZURICH) + timedelta(hours=2)).strftime('%Y-%m-%dT%H:%M')
+    assert telephony.slot_start(soon) == soon
+    assert telephony.slot_start(soon + ':00+02:00') == soon
+    for bad in [None, '', 'today at 4:30', '2020-01-01T10:00', '2099-01-01T10:00']:
+        assert telephony.slot_start(bad) is None

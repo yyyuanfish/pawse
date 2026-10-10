@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { callStatus, startRealCall } from '../agents/realCall.js';
 import { resolveVoiceChoice } from '../agents/gradiumVoice.js';
+import { calendarEvent, googleCalendarUrl, icsFile } from '../utils/calendar.js';
 
 const STATE = { dialing: 'Dialing…', ringing: 'Ringing…', connected: 'Connected', ended: 'Call ended' };
 
@@ -25,6 +26,11 @@ export default function LiveCallCard({ target, place, summary, onBooked }) {
   if (!status) return null;
 
   const who = target === 'insurance' ? 'Insurer' : 'Vet';
+  const booked = outcome?.status === 'booked' && outcome.start
+    ? calendarEvent({ start: outcome.start, title: `Vet appointment for Mimi${place ? ` · ${place}` : ''}`, place: place || '',
+        details: `Booked by phone by Pawse (AI assistant). ${outcome.note || ''}\n\nCase: ${summary.slice(0, 600)}` })
+    : null;
+  const ics = booked ? URL.createObjectURL(new Blob([icsFile(booked)], { type: 'text/calendar' })) : null;
   const live = state && state !== 'ended';
   async function start() {
     setError('');
@@ -81,6 +87,16 @@ export default function LiveCallCard({ target, place, summary, onBooked }) {
           {outcome.slot ? <strong>Slot: {outcome.slot}. </strong> : null}
           {outcome.note}
         </p>
+      )}
+      {booked && (
+        <div className="cal-actions">
+          <a className="btn primary cal-google" href={googleCalendarUrl(booked)} target="_blank" rel="noopener noreferrer">
+            Add to Google Calendar
+          </a>
+          <a className="btn soft" href={ics} download="pawse-vet-appointment.ics">
+            Download .ics (Apple, Outlook)
+          </a>
+        </div>
       )}
       {error && <p role="alert">{error}</p>}
       {live && (

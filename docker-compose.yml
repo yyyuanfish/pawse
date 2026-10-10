@@ -16,6 +16,8 @@ services:
     volumes:
       - ./pawse:/app/pawse:ro
       - ./research:/app/research:ro
+      # Accounts, history (SQLite) and the saved voice profile survive container restarts.
+      - ./.pawse-private:/app/.pawse-private
 
   web:
     build: ./web

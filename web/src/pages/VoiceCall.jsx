@@ -12,6 +12,7 @@ import { VOICE_AGENT_URL } from '../config.js';
 import { validateTriage } from '../contracts.js';
 import { gradiumSupports, gradiumVoiceName, resolveVoiceChoice } from '../agents/gradiumVoice.js';
 import VoicePicker from '../components/VoicePicker.jsx';
+import { saveAssessment } from '../agents/account.js';
 import { primeAudio } from '../agents/nativeAudio.js';
 
 // Pawse's voice in a live call: a Gradium voice id (default) or 'gemini' (Gemini Live native audio). Remembered per browser.
@@ -118,6 +119,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
           const problems = validateTriage(e);
           if (problems.length) console.warn('[Pawse] triage violates the contract:', problems, e);
           onTriageRef.current(e);
+          if (IS_LIVE_VOICE) saveAssessment(e);
           setSheetOpen(true);
           break;
         }

@@ -13,6 +13,8 @@ import re
 import secrets
 import struct
 import time
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from typing import Literal
 from urllib.parse import parse_qs, quote, urlparse
 from xml.sax.saxutils import escape, quoteattr
@@ -22,6 +24,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import Response, StreamingResponse
 from pydantic import Field
 
+from . import store
 from .models import Model
 
 router = APIRouter(prefix="/api/v1/calls", tags=["Phone calls"])
@@ -79,6 +82,10 @@ def finish(call, outcome=None):
     if call["state"] == "ended":
         return
     call["state"] = "ended"
+    req, result = call["request"], outcome or call["outcome"]
+    title = f"{'Vet' if req.target == 'vet' else 'Insurer'} call{' · ' + req.place if req.place else ''}"
+    store.add(call.get("user"), "call", title, {"target": req.target, "place": req.place, "outcome": result,
+                                                "lines": [{"who": w, "text": t} for w, t in call.get("history", [])]})
     emit(call, {"type": "status", "state": "ended", "outcome": outcome or call["outcome"]})
 
 
@@ -123,8 +130,9 @@ async def start_call(payload: CallRequest, request: Request):
         raise HTTPException(429, "A call is already running. Hang up first.")
     call_id = secrets.token_urlsafe(24)
     call = calls[call_id] = {"id": call_id, "owner": owner, "state": "dialing", "created": time.monotonic(), "events": [], "subs": set(),
-                             "request": payload, "outcome": {"status": "unknown", "slot": None, "note": ""}, "twilio_sid": None,
-                             "history": [], "audio": {}, "sentences": {}}
+                             "request": payload, "outcome": {"status": "unknown", "slot": None, "start": None, "note": ""}, "twilio_sid": None,
+                             "history": [], "audio": {}, "sentences": {},
+                             "user": store.user_for(request.cookies.get("pawse_user"))}
     base = s["PUBLIC_URL"].rstrip("/")
     # Trial accounts accept only basic parameters: Twilio fetches the instructions from our URL, and the
     # time limit and ringing/no-answer states are handled here (watch) instead of with callbacks.
@@ -234,8 +242,10 @@ def instruction(req: CallRequest):
             "you do not know, say the owner will follow up. When the goal is reached, or the callee cannot help, thank them, "
             "say goodbye and end the call. The call already opened with: '" + DISCLOSURE + "' so never introduce yourself again.\n"
             f"Case facts: {req.summary}\n"
+            f"It is now {datetime.now(ZURICH):%A %Y-%m-%d %H:%M} in Zurich.\n"
             'Reply with JSON only: {"say": string, "end_call": boolean, "outcome": {"status": "booked"|"no_slot"|"answered"|"unknown", '
-            '"slot": string or null (the confirmed day and time, as said), "note": string (one-line result for the owner)}}')
+            '"slot": string or null (the confirmed day and time, as said), "start": string or null (that slot as local Zurich time '
+            'YYYY-MM-DDTHH:MM, only once a time is confirmed), "note": string (one-line result for the owner)}}')
 
 
 async def next_line(req, history):
@@ -306,10 +316,24 @@ async def speak(call, text, end):
                f'<Redirect method="POST">{escape(turn)}?silence=1</Redirect>')
 
 
+ZURICH = ZoneInfo("Europe/Zurich")
+
+
+def slot_start(value):
+    """The confirmed slot as 'YYYY-MM-DDTHH:MM' Zurich time, or None unless it is a plausible upcoming time."""
+    try:
+        start = datetime.fromisoformat(str(value)[:16]).replace(tzinfo=ZURICH)
+    except (TypeError, ValueError):
+        return None
+    now = datetime.now(ZURICH)
+    return start.strftime("%Y-%m-%dT%H:%M") if now - timedelta(hours=1) <= start <= now + timedelta(days=60) else None
+
+
 def update_outcome(call, outcome):
     if outcome:
         call["outcome"] = {"status": str(outcome.get("status") or "unknown")[:20],
                            "slot": (str(outcome["slot"])[:120] if outcome.get("slot") else None),
+                           "start": slot_start(outcome.get("start")),
                            "note": str(outcome.get("note") or "")[:300]}
         emit(call, {"type": "outcome", **call["outcome"]})
 

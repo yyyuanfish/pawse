@@ -6,6 +6,9 @@ import ClinicList from './pages/ClinicList.jsx';
 import LiveHandoff from './pages/LiveHandoff.jsx';
 import PhoneCall from './pages/PhoneCall.jsx';
 import Plan from './pages/Plan.jsx';
+import History from './pages/History.jsx';
+import Welcome from './pages/Welcome.jsx';
+import { me } from './agents/account.js';
 import { strings, detectLang, saveLang } from './i18n.js';
 import { primeSpeech } from './agents/speech.js';
 import { buildSummary } from './utils/summary.js';
@@ -15,6 +18,7 @@ import { IS_LIVE_PHONE, IS_MOCK } from './agents/index.js';
 import { PHONE_AGENT_URL } from './config.js';
 
 const GRADIUM_KEY = 'pawse.gradium';
+const GUEST_KEY = 'pawse.guest';
 function loadGradiumChoice() {
   try {
     return localStorage.getItem(GRADIUM_KEY) !== '0'; // on by default, the owner can turn it off
@@ -28,7 +32,20 @@ function loadGradiumChoice() {
 //   → "call the insurer": Pawse calls the insurer
 //   → plan (summary)
 export default function App() {
-  const [view, setView] = useState('home'); // home | voice | clinics | phone | plan
+  const [view, setView] = useState('home'); // welcome | home | voice | clinics | phone | plan | history
+  // Live app: the first open asks to sign in; "Continue as guest" is remembered in this browser.
+  useEffect(() => {
+    let guest = false;
+    try {
+      guest = localStorage.getItem(GUEST_KEY) === '1';
+    } catch { /* storage unavailable */ }
+    if (IS_MOCK || guest) return undefined;
+    let alive = true;
+    me().then((m) => alive && !m.signed_in && setView((v) => (v === 'home' ? 'welcome' : v))).catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
   const [lang, setLangState] = useState(detectLang);
   const [triage, setTriage] = useState(null);
   const [vet, setVet] = useState(null);
@@ -117,6 +134,21 @@ export default function App() {
   const simulated = IS_MOCK || (view === 'phone' && rehearsal);
   const screen = (() => {
     if (view === 'ownvoice') return <OwnVoice onBack={() => setView('home')} />;
+    if (view === 'history') return <History onBack={() => setView('home')} />;
+    if (view === 'welcome') {
+      return (
+        <Welcome
+          onDone={(asGuest) => {
+            if (asGuest) {
+              try {
+                localStorage.setItem(GUEST_KEY, '1');
+              } catch { /* storage unavailable */ }
+            }
+            setView('home');
+          }}
+        />
+      );
+    }
     if (view === 'voice') {
       return (
         <VoiceCall
@@ -173,7 +205,7 @@ export default function App() {
         />
       );
     }
-    return <Home t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} />;
+    return <Home t={t} lang={lang} setLang={setLang} onStart={startCall} onOwnVoice={() => setView('ownvoice')} onHistory={() => setView('history')} />;
   })();
   return (
     <>

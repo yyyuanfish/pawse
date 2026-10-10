@@ -61,7 +61,7 @@ export default function LiveHandoff({ t, lang, target, clinic, context, rail, on
     <h1>Prepare the {who} conversation</h1>
     <p className="note">No call has been placed. No appointment or insurance coverage has been confirmed.</p>
     {clinic && <p>{clinic.name} · {clinic.phone || 'No published phone available'}</p>}
-    <LiveCallCard target={target} place={clinic?.name} summary={message} onBooked={target === 'insurance' ? null : (o) => onDone({ time: o.slot, place: clinic?.name || 'Vet', estimate: context.estimate, currency: 'CHF', simulated: false, confirmedBy: 'phone' })} />
+    <LiveCallCard target={target} place={clinic?.name} summary={message} onBooked={target === 'insurance' ? null : (o) => onDone({ time: o.slot, start: o.start, place: clinic?.name || 'Vet', estimate: context.estimate, currency: 'CHF', simulated: false, confirmedBy: 'phone' })} />
 
     {step === 'facts' ? <section className="card substep">
       <h2>1 · What should the {who} know?</h2>

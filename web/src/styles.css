@@ -632,3 +632,13 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .call-lines li.callee { background: var(--surface); border: 1px solid var(--line); align-self: flex-end; }
 .call-outcome { padding: 10px 12px; border-radius: 12px; background: #e9f6ee; color: #1d5c3b; }
 .call-outcome.no_slot, .call-outcome.not_reached { background: #fff1d6; color: var(--yellow-ink); }
+.cal-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cal-actions .btn { flex: 1 1 200px; text-align: center; text-decoration: none; }
+.history-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.history-item p { margin-top: 4px; }
+.account input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 12px; font: inherit; }
+.home-history { margin-top: 4px; }
+.account-link { margin-left: auto; margin-right: 8px; font-weight: 700; color: var(--brand-strong); }
+.welcome { max-width: 440px; margin: 0 auto; padding: 32px var(--gutter); display: grid; gap: 14px; justify-items: center; text-align: center; }
+.welcome .card { width: 100%; display: grid; gap: 10px; text-align: left; }
+.welcome h1 { font-size: 28px; }

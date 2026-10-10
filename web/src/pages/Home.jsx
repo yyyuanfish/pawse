@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { me } from '../agents/account.js';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
 import InsuranceProfileForm from '../components/InsuranceProfileForm.jsx';
@@ -10,7 +12,19 @@ const PETALS = [
   { left: '84%', delay: '4.5s', dur: '10s', size: 13 },
 ];
 
-export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
+function AccountLink({ onClick }) {
+  const [name, setName] = useState(null);
+  useEffect(() => {
+    me().then((m) => setName(m.signed_in ? m.username : '')).catch(() => setName(''));
+  }, []);
+  return (
+    <button type="button" className="chip account-link" onClick={onClick}>
+      {name ? `👤 ${name}` : 'Sign in'}
+    </button>
+  );
+}
+
+export default function Home({ t, lang, setLang, onStart, onOwnVoice, onHistory }) {
   return (
     <main className="home">
       <div className="petals" aria-hidden="true">
@@ -25,6 +39,7 @@ export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
 
       <header className="topbar">
         <span className="brand">{t.appName}</span>
+        {onHistory && <AccountLink onClick={onHistory} />}
         <div className="lang-switch" role="group" aria-label="Language">
           {['en', 'zh', 'de', 'hi'].map((l) => (
             <button
@@ -54,6 +69,7 @@ export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
           {t.startCall}
         </button>
         <p className="muted">{t.startHint}</p>
+        {onHistory && <button type="button" className="btn soft home-history" onClick={onHistory}>My history &amp; account</button>}
         <details className="home-settings">
           <summary>{t.settings}</summary>
           <button className="btn soft" onClick={onOwnVoice}>Record my voice · emergency rehearsal</button>
