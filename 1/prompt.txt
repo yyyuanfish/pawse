@@ -1,0 +1,40 @@
+<pasted_content id="a8ae">
+#: 1
+Where: pawse/providers.py:260
+Problem: AI consent bypassed. Clinic search sends the owner's coordinates to Gemini (Maps grounding) with only location
+consent. share_with_ai is never checked, and ClinicSearchRequest has no AI-consent field. docs/VALIDATION.md:7 records
+a real run with share_with_ai: false that went to Gemini.
+</pasted_content id="a8ae">
+
+--
+TaHts ok accept forhackathn
+same for 2
+
+---
+
+fake booking also mark as accept
+
+---
+
+<pasted_content id="a8ae">
+#: 5
+Where: .github/workflows/check.yml
+Problem: CI is red on a fresh clone. The workflow never runs npm ci in web/, and check-native-live.mjs imports
+@google/genai. It only passes locally because web/node_modules exists.
+</pasted_content id="a8ae">
+
+<- let suabgengt fix this
+
+---
+
+- Distant clinics ranked first: Gemini Maps clinics have no distance, are never filtered by radius, and rank above nearby OSM clinics (providers.py:190). The React app then shows "NaN km" (PhoneCall.jsx:65).
+<- subagent fix this
+
+---
+
+- German policy questions find nothing: the knowledge tokenizer is [a-z]+ only, so "Hausbesuch gedeckt?" returns no_evidence (knowledge.py:95).
+<- cosndeit simpler logic here that jst uses the entire policy an diemnt do a search
+
+---
+
+and let the subagnets put their fixes on main
