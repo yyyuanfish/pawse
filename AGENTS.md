@@ -111,8 +111,8 @@ Switching its branch silently moves every other session onto the wrong base.
   `bash scripts/worktree.sh <type>/<slug>` (type as in rule 7: feat/fix/chore/docs/test/research) fetches,
   refuses a branch that already exists on origin, creates `../pawse-wt/<slug>` on `<type>/<slug>`, copies
   `.env` if present and prints next steps. Works from the root or from inside another worktree.
-- **In the worktree:** make your own venv and run `cd web && npm install` (`scripts/check.sh` needs it; never symlink
-  `node_modules`). Push straight to `main` (`git push origin HEAD:main`) or open a PR, per the [gp](.claude/skills/gp/SKILL.md) skill.
+- **In the worktree:** make your own venv. `scripts/check.sh` needs no npm install; run `cd web && npm install` only
+  to run or build the React app (never symlink `node_modules`). Push straight to `main` (`git push origin HEAD:main`) or open a PR, per the [gp](.claude/skills/gp/SKILL.md) skill.
 - **Root found off `main`:** only if its owner is not live, commit the leftover work on the branch it is on
   under a real `type: what` subject (never `WIP`), then `git checkout main && git pull --ff-only`.
   If someone may still be working there, leave it and tell them.
