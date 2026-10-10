@@ -98,8 +98,8 @@ export const strings = {
     backToPawse: '回到 Pawse',
 
     clinicsTitle: '选一家诊所',
-    clinicsSub: '按距离排序 · Pawse 用德语打过去，用中文向你汇报',
-    clinicsSubDistance: '按距离排序',
+    clinicsSub: '营业中优先，其次按距离 · Pawse 用德语打过去，用中文向你汇报',
+    clinicsSubDistance: '营业中优先，其次按距离',
     clinicsSubMaps: '按 Google 地图顺序 · 未提供距离',
     distanceUnknown: '距离未知',
     clinicsSubLive: 'Pawse 准备好德语对话，由你拨打',
@@ -235,8 +235,8 @@ export const strings = {
     backToPawse: 'Back to Pawse',
 
     clinicsTitle: 'Pick a clinic',
-    clinicsSub: 'Sorted by distance · Pawse calls in German and reports back in English',
-    clinicsSubDistance: 'Sorted by distance',
+    clinicsSub: 'Open now first, then nearest · Pawse calls in German and reports back in English',
+    clinicsSubDistance: 'Open now first, then nearest',
     clinicsSubMaps: 'In Google Maps order · distance not shared',
     distanceUnknown: 'distance unknown',
     clinicsSubLive: 'Pawse prepares the German conversation, you place the call',
