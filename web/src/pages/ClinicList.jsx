@@ -5,17 +5,8 @@ import ProviderChips from '../components/ProviderChips.jsx';
 import { clinicProviders } from '../agents/providers.js';
 import { validateClinics } from '../contracts.js';
 
-/** Best-effort location; resolves null if refused, unavailable or slow. */
-function getLocation() {
-  return new Promise((resolve) => {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) return resolve(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => resolve(null),
-      { timeout: 5000, maximumAge: 120000 }
-    );
-  });
-}
+import { currentLocation, locate } from '../agents/location.js';
+async function getLocation() { return currentLocation() || await locate().catch(()=>null); }
 
 export default function ClinicList({ t, lang, triage, onPick, onBack }) {
   const [state, setState] = useState({ status: 'loading', clinics: [], located: true });

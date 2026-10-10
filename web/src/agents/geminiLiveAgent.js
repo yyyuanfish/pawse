@@ -1,3 +1,4 @@
+import { currentLocation } from './location.js';
 import { GoogleGenAI } from '@google/genai';
 import { VOICE_AGENT_URL } from '../config.js';
 import { mapCareResult } from './liveVoiceAgent.js';
@@ -35,7 +36,7 @@ export function createGeminiLiveAgent({lang='en',shareWithGemini=false,
     emit({type:'tool_status',name:call.name,state:'running'});
     let response;
     try{
-      const result=await post('tool-calls',{id:call.id,name:call.name,args:call.args||{},share_with_gemini:true,context:{language:lang,share_location:false}});
+      const result=await post('tool-calls',{id:call.id,name:call.name,args:call.args||{},share_with_gemini:true,context:{language:lang,share_location:!!currentLocation(),location:currentLocation()}});
       response=result.response;
       if(ended||cancelledTools.has(call.id))return;
       const ui=result.ui;

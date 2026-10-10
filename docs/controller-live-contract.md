@@ -98,3 +98,12 @@ Mint counters, active-call counts and the latest clinic list are process-local. 
 ## 5. Handoff acceptance
 
 Backend checks cover consent, token constraints, argument validation, tool-error envelopes, clinic lookup and concurrency in `tests/test_live.py`. Frontend acceptance must additionally cover all four starting languages, microphone denial, reconnect failure, interrupted playback, simultaneous tools, draft subtitles and confirm-before-dialing. Record real microphone/speaker validation separately from the existing server-session check.
+
+## Device location and owner insurance
+
+The home screen's **Use my current location** requests browser geolocation with a 15-second
+limit. It reports permission/unavailability errors explicitly, supports clearing, and retains
+coordinates only in page memory for two minutes. Clinic search and Gemini Live tool calls reuse
+this position with `share_location: true`; missing/expired coordinates are not replaced with a
+fictional Zurich location. Browser/OS permission is required. Location is shared with the backend
+and its clinic discovery providers only when care/search is requested.

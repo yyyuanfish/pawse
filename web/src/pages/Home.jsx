@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { locate, clearLocation } from '../agents/location.js';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
 import { IS_MOCK } from '../agents/index.js';
@@ -11,6 +13,14 @@ const PETALS = [
 ];
 
 export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
+  const [locating, setLocating] = useState(false);
+  const [locationMessage, setLocationMessage] = useState('');
+  async function useLocation() {
+    setLocating(true);
+    try { const p = await locate(); setLocationMessage(`Location ready (accuracy about ${Math.round(p.accuracy)} m). Nearby care will use this position.`); }
+    catch (e) { setLocationMessage(e.message); }
+    finally { setLocating(false); }
+  }
   return (
     <main className="home">
       <div className="petals" aria-hidden="true">
@@ -54,6 +64,11 @@ export default function Home({ t, lang, setLang, onStart, onOwnVoice }) {
           {t.startCall}
         </button>
         <p className="muted">{t.startHint}</p>
+        <button className="btn soft" disabled={locating} onClick={useLocation}>{locating ? 'Locating…' : 'Use my current location'}</button>
+        <p className="muted">Allow location to find nearby vets. Your position is shared with Pawse and its clinic search providers when you request care.</p>
+        {locationMessage && <p role="status">{locationMessage}</p>}
+        {locationMessage && <button className="btn ghost" onClick={()=>{clearLocation();setLocationMessage('Location cleared.');}}>Clear location</button>}
+
         <button className="btn soft" onClick={onOwnVoice}>Record my voice · emergency rehearsal</button>
         <p><a href="?live=1">Use backend agents</a> · <a href="?demo=1">Simulated rehearsal</a></p>
         {IS_MOCK && <span className="badge">{t.mockBadge}</span>}
