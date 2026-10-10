@@ -1,6 +1,7 @@
 """Public-demo guard: host allowlist and a quota on paid endpoints. Off unless PAWSE_PUBLIC_DEMO=1."""
 import os
 import time
+from urllib.parse import urlparse
 from collections import deque
 
 LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]", "testserver"]
@@ -16,7 +17,9 @@ def enabled():
 
 def allowed_hosts():
     extra = [h.strip() for h in os.getenv("PAWSE_ALLOWED_HOSTS", "").split(",") if h.strip()]
-    return LOCAL_HOSTS + extra
+    # The tunnel host in PUBLIC_URL must be accepted, or Twilio's webhooks and media stream are rejected.
+    public_host = urlparse(os.getenv("PUBLIC_URL", "")).hostname
+    return LOCAL_HOSTS + ([public_host] if public_host else []) + extra
 
 
 def over_quota(owner, method, path):
