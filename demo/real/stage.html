@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pawse live demo stage</title>
+<style>
+  :root { --bg: #2a1620; --ink: #fff4f7; --muted: #e8b9c9; --pink: #e0457b; --live: #2fbf71; --sim: #f0a43a; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: radial-gradient(1200px 800px at 75% 40%, #4a2335 0%, var(--bg) 70%); color: var(--ink);
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif; overflow: hidden; cursor: none; }
+  .wrap { display: grid; grid-template-columns: 1fr 520px; gap: 64px; height: 100%; padding: 40px 120px 40px 140px; align-items: center; }
+  .brand { font-size: 30px; font-weight: 800; letter-spacing: .02em; color: var(--muted); margin-bottom: 48px; }
+  .brand b { color: var(--ink); }
+  .clock { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 22px; margin-bottom: 18px; }
+  .caption { font-size: 64px; line-height: 1.12; font-weight: 800; min-height: 220px; transition: opacity .35s; }
+  .sub { font-size: 30px; line-height: 1.35; color: var(--muted); margin-top: 24px; min-height: 90px; transition: opacity .35s; }
+  .badges { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 48px; min-height: 60px; }
+  .badge { font-size: 22px; font-weight: 700; padding: 10px 18px; border-radius: 999px; border: 2px solid; }
+  .badge.live { color: var(--live); border-color: var(--live); }
+  .badge.sim { color: var(--sim); border-color: var(--sim); }
+  .phone { width: 470px; height: 940px; border-radius: 56px; background: #111; padding: 20px; box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 0 2px #333; }
+  iframe { width: 430px; height: 900px; border: 0; border-radius: 38px; background: #fff; }
+  .fade { opacity: 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section>
+    <div class="brand"><b>Pawse</b> · calls the vet in German for you</div>
+    <div class="clock" id="clock">Recorded live in the real app</div>
+    <div class="caption" id="caption"></div>
+    <div class="sub" id="sub"></div>
+    <div class="badges" id="badges"></div>
+  </section>
+  <div class="phone"><iframe id="app" allow="microphone; camera; geolocation; autoplay"></iframe></div>
+</div>
+<script>
+  const q = new URLSearchParams(location.search);
+  document.getElementById('app').src = q.get('app') || 'http://127.0.0.1:8790/app/?live=1';
+  // Driven by the recorder: window.stage({ caption, sub, badges: [['live', 'Gemini Live'], ['sim', '...']] })
+  window.stage = ({ caption = '', sub = '', badges = [] } = {}) => {
+    const c = document.getElementById('caption'), s = document.getElementById('sub'), b = document.getElementById('badges');
+    c.classList.add('fade'); s.classList.add('fade');
+    setTimeout(() => {
+      c.textContent = caption; s.textContent = sub;
+      b.innerHTML = '';
+      for (const [kind, text] of badges) {
+        const el = document.createElement('span');
+        el.className = `badge ${kind}`;
+        el.textContent = (kind === 'live' ? '● LIVE · ' : '◆ SIMULATED · ') + text;
+        b.appendChild(el);
+      }
+      c.classList.remove('fade'); s.classList.remove('fade');
+    }, 350);
+  };
+</script>
+</body>
+</html>

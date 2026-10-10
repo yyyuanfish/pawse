@@ -77,11 +77,16 @@ export function speak(text, lang, { speed = 1, pitch = 1, rate = 1, silent = fal
 
   return new Promise((resolve) => {
     let done = false;
+    const started = Date.now();
     const finish = () => {
       if (done) return;
       done = true;
       clearTimeout(guard);
-      resolve();
+      // A device without a voice for this language ends (or errors) at once. Keep the line's
+      // spoken length anyway, so a call does not rush through every line in a few seconds.
+      const left = est - (Date.now() - started);
+      if (left > est * 0.7) setTimeout(resolve, left);
+      else resolve();
     };
     const guard = setTimeout(finish, est * 2 + 3000); // never hang if the engine stalls
     try {
