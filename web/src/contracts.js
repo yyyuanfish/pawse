@@ -25,7 +25,8 @@
  *   {type:'listening', on:boolean}
  *   {type:'suggestions', items:string[]}                       keyword chips ([] hides them)
  *   {type:'image_received'}                                    the last photo arrived
- *   {type:'triage', level, headline, steps:string[], escalation?:string, summary:string}
+ *   {type:'triage', level, headline, steps:string[], askVet?:string[], escalation?:string, summary:string}
+ *                                                  steps = what the owner does now; askVet = questions for the vet
  *   {type:'error', message}
  *   {type:'ended'}
  *
@@ -82,6 +83,7 @@ export function validateTriage(e) {
   if (!LEVELS.includes(e.level)) p.push(`level must be one of ${LEVELS.join('|')}`);
   if (!e.headline) p.push('headline missing');
   if (!Array.isArray(e.steps) || !e.steps.length) p.push('steps must be a non-empty array');
+  if (e.askVet !== undefined && !(Array.isArray(e.askVet) && e.askVet.every(s => typeof s === 'string'))) p.push('askVet must be an array of strings');
   if (typeof e.summary !== 'string' || !e.summary) p.push('summary missing');
   return p;
 }

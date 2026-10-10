@@ -44,6 +44,17 @@ export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
         {triage.escalation && <p className="escalation">{triage.escalation}</p>}
       </section>
 
+      {triage.askVet?.length > 0 && (
+        <section>
+          <h3>{t.askVet}</h3>
+          <ul className="steps">
+            {triage.askVet.map((s, i) => (
+              <li key={i}>{s}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section>
         <h3>{IS_LIVE_PHONE ? 'Prepare your next conversation' : t.transferTitle}</h3>
         <div className="actions">

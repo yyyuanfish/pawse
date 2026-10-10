@@ -11,6 +11,8 @@ export const IS_LIVE_VOICE = VOICE_AGENT === 'live';
 export const IS_LIVE_CLINICS = CLINIC_SEARCH === 'live';
 export const IS_LIVE_PHONE = PHONE_AGENT === 'live';
 export const IS_MOCK = !IS_LIVE_VOICE || !IS_LIVE_CLINICS || !IS_LIVE_PHONE;
+// ?debug=1 shows raw agent traces (e.g. the voice call's "Agent results" box); off for owners.
+export const DEBUG = new URLSearchParams(globalThis.location?.search || '').get('debug') === '1';
 
 /** Which voice path runs: 'mock' (scripted), 'rest' (transcribe + care over REST) or 'native' (Gemini Live audio). */
 export const VOICE_PATH = !IS_LIVE_VOICE ? 'mock' : new URLSearchParams(globalThis.location?.search || '').get('voice') === 'rest' ? 'rest' : 'native';
