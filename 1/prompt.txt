@@ -1,0 +1,26 @@
+Try to get the app to run for me on my browser
+
+---
+
+"Couldn't open the camera. You can keep going by voice, photo or text." try to fix that
+
+---
+
+<pasted_content id="e2a2">
+ari.jordan@iudexnc.ai
+iudexnc.ai
+Tailscale Serve is ready to use
+You can now close this window.
+</pasted_content id="e2a2">
+
+---
+
+For the user it should be in English. The call in th ebackground happens in German. Adapt to that. The user just gets sunmary and questions
+
+---
+
+in english
+
+---
+
+it should be somehow clear UX that shows for user its in english but in backround in German
