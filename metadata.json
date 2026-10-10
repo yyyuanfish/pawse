@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K8ZW4FR5QH5F3388Q3MM6E",
   "strategy": "manual-commit",
   "branch": "test/e2e-green",
-  "checkpoints_count": 11,
+  "checkpoints_count": 12,
   "files_touched": [
     ".github/workflows/e2e-nightly.yml",
     "docs/VALIDATION.md",
@@ -15,6 +15,13 @@
       "transcript": "/0/full.jsonl",
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
       "prompt": ""
     }
   ],
