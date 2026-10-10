@@ -1,0 +1,53 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4KB24459QQYMV43HZH06200",
+  "session_id": "662ecbea-dc48-4bc6-8283-035c11f05a44",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T16:41:48.02551595Z",
+  "branch": "fix/demo-camera-replay",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "demo/real/README.md",
+    "demo/real/check-owner-line.py",
+    "demo/real/make-cut.py",
+    "demo/real/record-real.mjs",
+    "demo/real/record-real.sh"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "a1bd4fa10fc6",
+  "checkpoint_transcript_start": 1341,
+  "transcript_lines_at_start": 1341,
+  "compact_transcript_start": 221,
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 19286,
+    "cache_read_tokens": 3933275,
+    "output_tokens": 9698,
+    "api_call_count": 15
+  },
+  "session_metrics": {
+    "turn_count": 53
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T16:41:47.392125777Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 589,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 589,
+    "total_lines_changed": 589,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
