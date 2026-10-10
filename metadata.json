@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K53ZFX9MJ2X24YSKB0RN0F",
+  "strategy": "manual-commit",
+  "branch": "feat/demo-real-video",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "demo/real/make-cut.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 25558,
+    "cache_read_tokens": 171195,
+    "output_tokens": 1170,
+    "api_call_count": 4
+  }
+}
