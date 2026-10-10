@@ -89,7 +89,15 @@ selection, reviewed German scripts and playback/download using the saved German 
 Mocked integration checks cover the request chain, consent gates, unknown hours, location required,
 saved-voice selection and missing-provider errors. The frontend production build passes.
 
-Current local environment has Gemini and Gradium configured but neither GOOGLE_PLACES_API_KEY nor
-MAPIFY_BASE_URL. Real nearby clinic discovery therefore remains blocked until a clinic provider
-is configured; no complete live injury-to-clinic-to-audio run is claimed. Physical phone location
-and camera permissions still require device testing. Calls and bookings remain unconnected.
+The local Google Places key is now configured. A real search at an explicitly labelled Zurich-centre
+test coordinate returned 20 provider-listed results. Primary veterinary-care filtering is enforced;
+provider categorisation does not verify that a practice treats cats or has an appointment. The browser
+returned location unavailable, so the owner-location end-to-end path is not verified. Physical phone
+location and camera permissions still require device testing. Calls and bookings remain unconnected.
+
+A bounded live rehearsal subsequently searched Google Places at that Zurich test coordinate,
+selected a returned small-animal practice, generated four German script lines with Gemini and
+received 1,989,164 bytes of WAV audio from Gradium using `voice=my_voice`. The audio stays in ignored
+`tmp/`. This validates the provider chain independently of the unavailable device location; it did
+not telephone a clinic. Browser inspection with the owner-supplied injury photo confirmed that the
+care card and location retry remain in the same conversation.

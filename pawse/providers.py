@@ -83,7 +83,7 @@ async def google_clinics(req, client):
         raise ProviderError("google_places_not_configured")
     fields = "places.id,places.displayName,places.formattedAddress,places.location,places.internationalPhoneNumber,places.googleMapsUri,places.websiteUri,places.rating,places.currentOpeningHours"
     r = await client.post("https://places.googleapis.com/v1/places:searchNearby", headers={"X-Goog-Api-Key": key, "X-Goog-FieldMask": fields}, json={
-        "includedTypes": ["veterinary_care"], "maxResultCount": 20, "rankPreference": "DISTANCE",
+        "includedTypes": ["veterinary_care"], "includedPrimaryTypes": ["veterinary_care"], "maxResultCount": 20, "rankPreference": "DISTANCE",
         "locationRestriction": {"circle": {"center": {"latitude": req.location.lat, "longitude": req.location.lng}, "radius": req.radius_km * 1000}},
     }, timeout=15)
     r.raise_for_status()

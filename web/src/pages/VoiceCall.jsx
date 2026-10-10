@@ -44,6 +44,11 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
   const videoRef = useRef(null);
   const fileRef = useRef(null);
   const agentRef = useRef(null);
+  const contextMessages = useRef(new Set());
+  function sendContext(text) {
+    contextMessages.current.add(text);
+    agentRef.current?.sendText(text);
+  }
   const photoUrls = useRef([]);
   const onTriageRef = useRef(onTriage);
   onTriageRef.current = onTriage;
@@ -60,7 +65,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
       switch (e.type) {
         case 'transcript':
           if (e.role === 'ai') setAiLine(e.text);
-          else setUserLine(e.text);
+          else if (!contextMessages.current.has(e.text)) setUserLine(e.text);
           break;
         case 'speaking':
           setSpeaking(e.who);
@@ -173,7 +178,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
       const result=await observePhoto(file,consent,controller.signal);
       if(controller.signal.aborted)return;
       setPhotoResult(result);setPhotos(p=>p.map(x=>x.url===url?{...x,received:true}:x));
-      agentRef.current?.sendText(observationMessage(result));
+      sendContext(observationMessage(result));
+      setUserLine("Photo shared for visual observations.");
     } catch(e) { if(!controller.signal.aborted)setError(e.message);else setError('Photo analysis stopped or timed out. Please retry.'); }
     finally {clearTimeout(timer);photoRequest.current=null;setPhotoBusy(false);}
   }
@@ -287,7 +293,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, o
             )}
             {photoBusy&&<p role="status">Analyzing your photo…</p>}
             {photoResult?.injury&&(photoResult.injury.wound==='suspected'||photoResult.injury.blood_like_material==='suspected')&&<div role="alert" className="cap-error"><strong>Possible injury / blood-like material</strong><p>{photoResult.injury.description}</p><p>{photoResult.next_step}</p><p>Is it bleeding now? Is the bleeding heavy or not stopping?</p></div>}
-            {hasVisibleInjury(photoResult)&&<InjuryHandoff observation={photoResult} lang={lang} shareWithGemini={consent} onContext={text=>agentRef.current?.sendText(text)}/>}
+            {hasVisibleInjury(photoResult)&&<InjuryHandoff observation={photoResult} lang={lang} shareWithGemini={consent} onContext={sendContext}/>}
             {photoResult&&<details><summary>Photo observations · {photoResult.image_quality}</summary>{Object.entries(photoResult.visible_observations).map(([k,v])=><p key={k}>{k}: {v}</p>)}{photoResult.injury&&<p>Injury observation: {photoResult.injury.description} Active bleeding cannot be determined from a photo.</p>}{photoResult.limitations.map((x,i)=><p key={i}>{x}</p>)}<p>{photoResult.disclaimer}</p></details>}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error">{error}</p>}

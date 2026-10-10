@@ -132,6 +132,7 @@ async def test_google_places_normalization(monkeypatch):
     monkeypatch.setenv('GOOGLE_PLACES_API_KEY','test-only')
     def handler(r):
         assert json.loads(r.content)['includedTypes']==['veterinary_care']
+        assert json.loads(r.content)['includedPrimaryTypes']==['veterinary_care']
         return httpx.Response(200,json={'places':[{'id':'123','displayName':{'text':'Animal Clinic'},'location':{'latitude':47.37,'longitude':8.54},'internationalPhoneNumber':'+41441234567'}]})
     async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
         result=await google_clinics(CareRequest(**payload(location={'lat':47.37,'lng':8.54})),client)
