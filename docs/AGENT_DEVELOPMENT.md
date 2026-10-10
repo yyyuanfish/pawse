@@ -13,7 +13,7 @@ Start integration work with [Controller–Frontend](controller-frontend-contract
 | Multimodal/voice/phone backend | `feat/voice-calling` | `pawse/voice.py`, voice tests, future telephony module | Record the owner's voice, clone/localize it, preview German audio, and translate input with paired subtitles | Validate consent and audio bounds; preview before sharing; stop microphone tracks; handle missing Gradium credentials; label all current calls as simulated/unconnected. |
 | RAG/open-data backend | `feat/rag-open-data` | `pawse/knowledge.py`, retrieval tests, `research/`, clinic-adapter functions in `pawse/providers.py` | Cited policy search and a documented Zurich clinic-data adapter | Keep demo policy evidence separate from live cases; return source/version and relevant clauses; preserve unknown hours/services; document dataset reuse conditions. |
 
-Feature branches start from a shared reviewed baseline. Integrate changes through the common API contract and validate dependent modules before merging.
+Feature branches start from a shared reviewed baseline. Each branch lives in its own worktree (`bash scripts/worktree.sh <type>/<slug>`); the shared root checkout stays on `main` ([AGENTS.md, Branching and worktrees](../AGENTS.md#branching-and-worktrees)). Integrate changes through the common API contract and validate dependent modules before merging.
 
 Shared integration files include `pawse/app.py`, request/response models, `schemas/pawse.ts`, generated `docs/openapi.json`, dependency files and the root README. Coordinate these changes through the orchestration branch. Regenerate OpenAPI after changing a contract and check its consumers; avoid concurrent manual edits to the generated schema.
 

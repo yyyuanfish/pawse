@@ -12,8 +12,11 @@ disable-model-invocation: true
 ## Pre-flight
 
 1. `gh auth status` (fails: `gh auth login`, GitHub.com, HTTPS, browser).
-2. `git status --porcelain`. Anything uncommitted: run [commit-secure](../commit-secure/SKILL.md) first.
-3. `bash scripts/check.sh` must be green. It is the gate: CI is on request and `main` has no branch
+2. **Where am I?** Work only in a linked worktree, never the shared root checkout: `git rev-parse --git-dir`
+   must differ from `git rev-parse --git-common-dir`. Equal means you are in the root: stop, `bash scripts/worktree.sh <type>/<slug>`
+   ([AGENTS.md, Branching and worktrees](../../../AGENTS.md#branching-and-worktrees)), move your work there.
+3. `git status --porcelain`. Anything uncommitted: run [commit-secure](../commit-secure/SKILL.md) first.
+4. `bash scripts/check.sh` must be green. It is the gate: CI is on request and `main` has no branch
    protection, so nothing else stops a red build reaching teammates.
 
 ## Which mode
@@ -25,7 +28,7 @@ disable-model-invocation: true
 
 ## Push to main
 
-1. `git fetch origin && git pull --rebase origin main`. Conflicts: resolve, re-run the check,
+1. From your worktree branch: `git fetch origin && git rebase origin/main`. Conflicts: resolve, re-run the check,
    `git rebase --continue`. Unsure whose change wins: ask, do not guess.
 2. `git push origin HEAD:main`.
 3. Report the commit URL: `gh browse -n "$(git rev-parse HEAD)"` prints it.
@@ -33,14 +36,14 @@ disable-model-invocation: true
 ## PR + squash-merge
 
 1. **Existing PR?** `gh pr view --json number,url,state 2>/dev/null`. One open for this branch: push to it.
-2. **On main?** Branch first: `git checkout -b <feat|fix|chore|docs>/<short-name>`.
+2. **No branch yet?** Make a worktree: `bash scripts/worktree.sh <feat|fix|chore|docs|test|research>/<short-name>`. Never `git checkout -b` in the root checkout.
 3. **Sync:** `git fetch origin && git rebase origin/main`, then `bash scripts/check.sh`.
 4. **Push + open:** `git push -u origin HEAD`, then `gh pr create --base main --title "<type: what>" --body-file <tmpfile>`
    using `.github/pull_request_template.md` (what changed, how verified, known gaps).
 5. **CI only on request:** if the user asks for CI, `gh workflow run check --ref <branch>`, then `gh run watch`.
    Red: `gh run view <id> --log-failed`; fix, push, re-run.
 6. **Merge:** after a green local check (and green CI, if it was requested), `gh pr merge <n> --squash --delete-branch`, then confirm
-   `gh pr view <n> --json state` says `MERGED`.
+   `gh pr view <n> --json state` says `MERGED`. Then `git worktree remove <dir>` from the root (keep it if you are still using it).
 7. Report the full PR URL (`https://github.com/<owner>/<repo>/pull/<n>`), not just `#<n>`.
 
 ## Safety

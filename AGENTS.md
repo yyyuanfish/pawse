@@ -61,7 +61,7 @@ fallback, not the goal.
 | `tests/` | pytest, providers always mocked |
 | `docs/openapi.json` | Generated API contract: never edit by hand |
 | `backend/` | Imported legacy CatAgent backend: leave alone unless the task needs it |
-| `scripts/` | `dev.sh` (free ports + `docker compose up --build`), `check.sh` (all checks), `export_contract.py`, `probe_models.py`, checkers |
+| `scripts/` | `dev.sh` (free ports + `docker compose up --build`), `check.sh` (all checks), `worktree.sh` (new branch worktree), `export_contract.py`, `probe_models.py`, checkers |
 
 ## Commands
 
@@ -96,9 +96,31 @@ agents may merge their own PRs (`gh pr merge <n> --squash`) without waiting for 
    (`pawse/static/`, `schemas/pawse.ts`) in the same change.
 7. **Small commits, clear messages:** `type: plain-English what` (feat/fix/chore/docs/test/research),
    stage files by name. Push small in-module changes straight to `main`; use a PR for shared files ([gp](.claude/skills/gp/SKILL.md)).
+   Either way the work happens in a worktree, never in the root checkout (see [Branching and worktrees](#branching-and-worktrees)).
 8. **Protect the golden path.** No change may break the 2-minute demo (see [The golden path](#the-golden-path-the-2-minute-mimi-demo)); check it before pushing.
 9. **Stay in your lane.** Several people and agents work in parallel by module (see AGENT_DEVELOPMENT).
    Don't refactor files outside your task; pull/rebase before pushing.
+
+## Branching and worktrees
+
+The root checkout (on the shared VM: `/home/azureuser/pawse`) is shared by several live agent sessions.
+It **stays on `main` and never gets tracked-file edits**, not even a quick experiment you mean to revert.
+Switching its branch silently moves every other session onto the wrong base.
+
+- **First edit of a tracked file, for any reason:** make a worktree off `origin/main` first.
+  `bash scripts/worktree.sh <type>/<slug>` (type as in rule 7: feat/fix/chore/docs/test/research) fetches,
+  refuses a branch that already exists on origin, creates `../pawse-wt/<slug>` on `<type>/<slug>`, copies
+  `.env` if present and prints next steps. Works from the root or from inside another worktree.
+- **In the worktree:** make your own venv and run `cd web && npm install` (`scripts/check.sh` needs it; never symlink
+  `node_modules`). Push straight to `main` (`git push origin HEAD:main`) or open a PR, per the [gp](.claude/skills/gp/SKILL.md) skill.
+- **Root found off `main`:** only if its owner is not live, commit the leftover work on the branch it is on
+  under a real `type: what` subject (never `WIP`), then `git checkout main && git pull --ff-only`.
+  If someone may still be working there, leave it and tell them.
+- **Cleanup after merge:** `git worktree remove ../pawse-wt/<slug>` and `git branch -D <type>/<slug>` (`-D`: a squash merge is not an ancestry merge).
+- **Enforcement:** `.claude/hooks/root-checkout-guard.sh` (Claude Code PreToolUse) denies `git checkout`/`switch`
+  off `main` in the root; `main`, pathspec restores and linked worktrees stay allowed; `PAWSE_ALLOW_ROOT_CHECKOUT=1`
+  disables it. `.claude/hooks/worktree-create.sh` makes `EnterWorktree` and `isolation: "worktree"` land in
+  `../pawse-wt/<name>` off `origin/main`. Both match text and Cursor ignores them, so the rule above is what counts.
 
 ## Skills catalog
 
