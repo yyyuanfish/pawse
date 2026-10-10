@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K4P47Z11VZ56C00RBK2SKG",
+  "strategy": "manual-commit",
+  "branch": "feat/production-landing",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 30717,
+    "cache_read_tokens": 279476,
+    "output_tokens": 5033,
+    "api_call_count": 6,
+    "subagent_tokens": {
+      "input_tokens": 60,
+      "cache_creation_tokens": 355604,
+      "cache_read_tokens": 1381336,
+      "output_tokens": 1576,
+      "api_call_count": 30
+    }
+  }
+}
