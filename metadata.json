@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K7H1PK82ADBW19D5KT29ER",
+  "strategy": "manual-commit",
+  "branch": "feat/demo-story-beats",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "pawse/demo.py",
+    "pawse/live.py",
+    "tests/test_live.py",
+    "tests/test_orchestration.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 4,
+    "cache_creation_tokens": 625,
+    "cache_read_tokens": 323384,
+    "output_tokens": 742,
+    "api_call_count": 2
+  }
+}
