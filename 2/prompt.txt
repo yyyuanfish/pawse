@@ -1,0 +1,4 @@
+DO:
+-_
+1. 🛑 /app/ returns 404 on the live site. #48 is merged, but the last deploy ran on 0d2f7f5, which is before #48. https://pawse-114215092948.europe-west6.run.app/app/ returns 404 right now; / returns 200. The fix is to redeploy from a clean copy of origin/main: bash scripts/deploy_cloudrun.sh agentic26zrh-2030, about 3 minutes.
+--
