@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K55WY4JMFJXB0ACJ692XTN",
+  "strategy": "manual-commit",
+  "branch": "fix/places-vets-and-deploy-keys",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "README.md",
+    "docs/MAPIFY_ADAPTER.md",
+    "docs/VALIDATION.md",
+    "pawse/providers.py",
+    "scripts/deploy_cloudrun.sh",
+    "tests/test_care.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 8,
+    "cache_creation_tokens": 4257,
+    "cache_read_tokens": 546220,
+    "output_tokens": 2888,
+    "api_call_count": 4
+  }
+}
