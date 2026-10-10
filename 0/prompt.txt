@@ -1,0 +1,66 @@
+<pasted_content id="0504">
+
+Console Logo
+Search (/) for resources, docs, products, and more
+
+APIs & Services
+Credentials
+Create credentials to access your enabled APIs. Learn more 
+
+Remember to configure the OAuth consent screen with information about your application.
+API Keys
+Name
+Creation date
+Restrictions
+Actions
+Workshop API key    Oct 7, 2026    2 APIs     
+OAuth 2.0 Client IDs
+Name
+Creation date
+Type
+Client ID
+Actions
+No OAuth clients to display
+Service Accounts
+Manage service accounts
+Email
+Name
+Actions
+114215092948-compute@developer.gserviceaccount.com    Default compute service account    
+
+
+
+Create API key
+Name 
+Places key
+Use a unique name to identify your API key
+APIs that can be accessed using this key
+Service account required: To use Agent Platform API or Gemini API, you must create an authorization key  (auth key) by binding this API key to a service account. The option to bind will appear once you select either API.
+
+Note: An organization policy governs creating API keys bound to a service account for projects with a Google Cloud organization. Learn more 
+Select API restrictions 
+1 API
+This list includes only APIs enabled in this project. If you don't see the API you need, visit the API Library to enable it.
+Selected APIs:
+Places API (New)
+
+Restrict your key to reduce security risks
+Select a specific application type to restrict access
+
+Application restrictions
+
+None
+
+Websites
+
+IP addresses
+
+Android apps
+
+iOS apps
+1Password menu is available. Press down arrow to select.1Password menu is available. Press down arrow to select.1 result showing.
+</pasted_content id="0504">
+
+---
+
+i cpoed, test
