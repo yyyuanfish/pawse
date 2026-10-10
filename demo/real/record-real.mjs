@@ -95,6 +95,8 @@ const ff = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-thread_queue_size', '1
 await page.waitForTimeout(800);
 t0 = Date.now();
 
+// Spans make-cut.py must keep whole even when silent (the camera preview, the final plan).
+const keep = (name, edge) => marks.push({ t: (Date.now() - t0) / 1000, keep: name, edge });
 const stage = (caption, sub = '', badges = []) => { marks.push({ t: (Date.now() - t0) / 1000, caption }); return page.evaluate((a) => window.stage(a), { caption, sub, badges }); };
 const hold = (ms) => page.waitForTimeout(ms);
 
@@ -154,6 +156,7 @@ try {
 
   // 2. The owner films Mimi and sends a photo, then speaks
   if (MIMI_CAMERA) {
+    keep('camera', 'start');
     await stage('The owner shows Mimi', 'Camera preview stays on the phone. One photo goes to Gemini.', [['live', 'Gemini Live'], ['gen', 'Mimi footage']]);
     await tap(app.getByRole('button', { name: 'Camera', exact: true }));
     await app.locator('video').first().waitFor({ timeout: 10000 }).catch(() => log('camera preview did not appear'));
@@ -170,6 +173,7 @@ try {
     await app.locator('video').first().waitFor({ state: 'detached', timeout: 3000 })
       .then(() => log('camera off'))
       .catch(async () => { log('camera still on, toggling again'); await tap(app.getByRole('button', { name: 'Camera', exact: true })); });
+    keep('camera', 'end');
   }
   await tap(app.locator('button.ctl').first()); // unmute the mic
   await hold(600);
@@ -259,12 +263,14 @@ try {
 
   // 11. Plan
   await app.locator('[data-beat=today]').waitFor({ timeout: 20000 });
+  keep('plan', 'start');
   await stage('One plan the owner can act on', '16:05 taxi, 16:30 vet, case summary and claim checklist.', [['live', 'Gemini'], ['live', 'Gradium'], ['sim', 'calls and bookings']]);
   await hold(3000);
   await scrollPhone(900, 20);
   await hold(3500);
   await stage('Pawse', 'A little cat. A helping hand.');
   await hold(3500);
+  keep('plan', 'end');
 } catch (e) {
   log('FAILED', e.message.split('\n')[0]);
   await page.screenshot({ path: OUT.replace(/\.\w+$/, '-fail.png') });
