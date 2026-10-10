@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01XRpKUD4dwUkp9cWjDLJW5h",
+  "agent_id": "af486ae1a22fa8d4b",
+  "subagent_type": "general-purpose",
+  "task_description": "Audit open pawse issues",
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 60413,
+    "cache_read_tokens": 732618,
+    "output_tokens": 128,
+    "api_call_count": 13
+  },
+  "started_at": "2026-10-10T14:39:38.401700508Z",
+  "completed_at": "2026-10-10T14:41:15.36150151Z"
+}
