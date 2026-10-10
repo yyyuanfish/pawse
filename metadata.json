@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K7HP1970XDAVX78W8RYK4M",
   "strategy": "manual-commit",
   "branch": "feat/demo-story-beats",
-  "checkpoints_count": 3,
+  "checkpoints_count": 5,
   "files_touched": [
     "tests/e2e/test_browser_steps.py",
     "tests/e2e/test_browser_story.py"
@@ -29,6 +29,13 @@
       "compact_transcript": "/2/transcript.jsonl",
       "content_hash": "/2/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/3/metadata.json",
+      "transcript": "/3/full.jsonl",
+      "compact_transcript": "/3/transcript.jsonl",
+      "content_hash": "/3/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
@@ -38,11 +45,11 @@
     "output_tokens": 266,
     "api_call_count": 1,
     "subagent_tokens": {
-      "input_tokens": 62,
-      "cache_creation_tokens": 27546,
-      "cache_read_tokens": 2287624,
-      "output_tokens": 399,
-      "api_call_count": 31
+      "input_tokens": 150,
+      "cache_creation_tokens": 137647,
+      "cache_read_tokens": 4424524,
+      "output_tokens": 1075,
+      "api_call_count": 75
     }
   }
 }
