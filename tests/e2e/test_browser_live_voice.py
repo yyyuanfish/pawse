@@ -31,6 +31,11 @@ def mic_button(page: Page):
     return page.locator("nav.call-controls button").first
 
 
+def tool_card(page: Page, name: str):
+    """The call's card for one tool result (its own summary is the tool name; nested <details> may follow)."""
+    return page.locator("details.card").filter(has=page.locator("> summary", has_text=name))
+
+
 def turn_mic_on(page: Page, live: FakeLive):
     mic_button(page).click()
     expect(mic_button(page)).to_have_attribute("aria-pressed", "false")  # pressed = muted
@@ -135,18 +140,18 @@ def test_tool_call_is_forwarded_answered_and_rendered(page: Page, app_server):
     assert call["context"] == {"language": "en", "share_location": False, "insurance": None}  # no location without consent; no saved policy
     [answer] = live.frames("toolResponse")[0]["functionResponses"]
     assert (answer["id"], answer["name"], answer["response"]) == ("fc-1", "search_policy", {"ok": True, "echo": "fc-1"})
-    card = page.locator("details", has_text="search_policy")
-    card.locator("summary").click()
-    expect(card).to_contain_text("Demo policy")
-    expect(card).to_contain_text(evidence["evidence"][0]["snippet"][:40])
+    card = tool_card(page, "search_policy")
+    card.locator("> summary").click()
+    card.get_by_text("Demo policy shared with Pawse").click()  # the evidence is its own nested <details>
+    expect(card.get_by_text(evidence["evidence"][0]["snippet"][:40])).to_be_visible()
 
 
 def test_clinic_call_only_offers_the_dialer_and_places_no_call(page: Page):
     live = FakeLive(page, tool_ui={"open_clinic_call": CLINIC_UI})
     open_call(page, live)
     live.push({"toolCall": {"functionCalls": [{"id": "fc-2", "name": "open_clinic_call", "args": {"clinic_index": 0}}]}})
-    card = page.locator("details", has_text="open_clinic_call")
-    card.locator("summary").click()
+    card = tool_card(page, "open_clinic_call")
+    card.locator("> summary").click()
     expect(card).to_contain_text("No call placed")
     expect(card.get_by_role("link", name="Open device dialer for Tierarztpraxis Seefeld")).to_have_attribute("href", "tel:+41440000000")
 

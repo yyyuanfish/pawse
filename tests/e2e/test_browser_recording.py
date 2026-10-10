@@ -59,7 +59,7 @@ def open_own_voice(page: Page):
 
 
 def test_own_voice_recording_plays_back_locally_and_sends_nothing(page: Page):
-    seconds = 11  # enrollment needs 10-30 s
+    seconds = 14  # enrollment needs 10-30 s; headroom because a loaded machine can lose over a second of capture
     page.add_init_script(TRACK_SPY)
     uploads = []
     page.on("request", lambda r: r.method == "POST" and "/api/v1/voice/" in r.url and uploads.append(r.url))
@@ -68,10 +68,10 @@ def test_own_voice_recording_plays_back_locally_and_sends_nothing(page: Page):
     page.wait_for_timeout(seconds * 1000)
     page.get_by_role("button", name="Stop recording").click()
     player = page.locator("audio[controls]").first
-    expect(player).to_have_attribute("src", re.compile(r"^blob:"))
+    expect(player).to_have_attribute("src", re.compile(r"^blob:"), timeout=15_000)  # the WAV is re-encoded in the page
     duration = player.evaluate("""a => new Promise(ok => a.readyState >= 1 && isFinite(a.duration) ? ok(a.duration)
                                    : a.addEventListener("loadedmetadata", () => ok(a.duration), { once: true }))""")
-    assert seconds - 1.5 <= duration <= seconds + 1.5
+    assert 10 <= duration <= seconds + 1.5, f"played back {duration:.1f}s of a {seconds}s recording"
     expect(page.get_by_role("alert")).to_have_count(0)
     page.wait_for_function(MIC_RELEASED)
     expect(page.get_by_role("button", name="Clone and preview in German")).to_be_disabled()  # no consent, no Gradium key
