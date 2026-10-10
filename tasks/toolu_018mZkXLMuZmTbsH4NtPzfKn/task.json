@@ -1,0 +1,14 @@
+{
+  "tool_use_id": "toolu_018mZkXLMuZmTbsH4NtPzfKn",
+  "agent_id": "a0707624d4a55efb0",
+  "task_description": "Run e2e browser suite on main",
+  "token_usage": {
+    "input_tokens": 10,
+    "cache_creation_tokens": 25084,
+    "cache_read_tokens": 177088,
+    "output_tokens": 111,
+    "api_call_count": 5
+  },
+  "started_at": "2026-10-10T15:00:11.791142333Z",
+  "completed_at": "2026-10-10T15:02:35.846182135Z"
+}
