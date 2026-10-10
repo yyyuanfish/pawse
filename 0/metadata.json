@@ -1,0 +1,50 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K9FWSP7YAMH75YJ0MJSNW1",
+  "session_id": "5fe9db71-2697-41f2-83dc-6f17a354fa18",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T16:14:18.523675523Z",
+  "branch": "feat/demo-real-beats",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "demo/real/README.md",
+    "demo/real/make-cut.py",
+    "demo/real/make-mimi-clip.py",
+    "demo/real/narrator-intro.wav",
+    "demo/real/record-real.mjs",
+    "demo/real/record-real.sh",
+    "demo/real/stage.html"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "3e0c3f60ba95",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 47374,
+    "cache_read_tokens": 512897,
+    "output_tokens": 3725,
+    "api_call_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T16:14:18.333319344Z",
+    "agent_lines": 0,
+    "agent_removed": 73,
+    "human_added": 585,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 585,
+    "total_lines_changed": 658,
+    "agent_percentage": 11.094224924012158,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
