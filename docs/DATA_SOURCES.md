@@ -11,7 +11,7 @@ Reviewed on 2026-10-10. The implemented knowledge endpoint indexes only the loca
 | `research/pet-insurance/scenarios/scenarios.yaml` | Synthetic expected answers and payouts | Use as evaluation material, not independent evidence or real medical validation |
 | `backend/utils/embedding.py` | Imported OpenAI embedding/translation implementation | Reference only; depends on separate credentials |
 | `backend/utils/chromadb_client.py` and `backend/nodes.py` | Imported Chroma client and four-layer retrieval node | Collections and source books were not imported; the legacy RAG path is incomplete |
-| `pawse/knowledge.py` | Working local lexical retrieval service | No credentials, uploads, network calls, or vector database needed |
+| `pawse/knowledge.py` | Working local full-policy evidence service (no search) | No credentials, uploads, network calls, or vector database needed |
 
 The source research README identifies real terms that inspired the demo, including which clause sub-numbers were introduced by the project. The local adaptation is not the binding wording of any actual product, and it does not establish a real insurer's current coverage. Original third-party PDFs and unreviewed medical books remain outside this corpus.
 

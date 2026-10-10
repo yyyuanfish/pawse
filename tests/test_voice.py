@@ -204,6 +204,23 @@ def test_mimi_costs_and_status_are_explicitly_synthetic():
         assert 'No appointments' in d['notice']
 
 
+def test_mimi_avb_citations_name_real_corpus_sections():
+    import re
+    from pathlib import Path
+    from pawse.knowledge import corpus
+    sections = {c.section for c in corpus()[0] if c.source_id == 'pawse-demo-avb'}
+    with TestClient(app) as c:
+        story = json.dumps(c.get('/api/v1/demo/mimi').json(), ensure_ascii=False)
+    script = (Path(__file__).resolve().parent.parent / 'research/pet-insurance/demo-video-script.md').read_text()
+    for text in (story, script):
+        cited = set(re.findall(r'(?:AVB |§)(\d+(?:\.\d+)*)', text))
+        assert cited and cited <= sections, cited - sections
+    # The insurer beat and checklist cite the exact clauses: house call, physio, 30-day claim rule.
+    exclusions = ' '.join(costs()['exclusions'])
+    assert 'AVB 1.2.5' in exclusions and 'AVB 1.2.6' in exclusions
+    assert 'Submit the invoice within 30 days (AVB 2).' in json.loads(story)['checklist']
+
+
 def test_malformed_gemini_parts_return_safe_error(monkeypatch):
     monkeypatch.setenv('GEMINI_API_KEY', 'test')
     upstream(monkeypatch, lambda req: httpx.Response(200, json={'candidates': [{'content': {'parts': [None]}}]}))

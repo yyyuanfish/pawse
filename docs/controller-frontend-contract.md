@@ -28,7 +28,7 @@ The implementation is the static app in [pawse/static](../pawse/static/) with co
 | Dictation and call draft | `POST /voice/transcriptions`, `POST /voice/scripts` | 200 JSON | Let the owner review transcript, facts and subtitles |
 | My voice | Voice clone/localization routes | JSON or WAV | Follow the [voice state sequence](controller-voice-contract.md) |
 | Generate German audio | `POST /voice/speech` | 200 WAV | Play/download after user action; do not label as a completed call |
-| Demo policy evidence | `POST /knowledge/search` | 200 `KnowledgeResult` | Show synthetic scope, exact snippets and citations |
+| Demo policy evidence | `GET /knowledge/evidence` | 200 `KnowledgeResult` | Show synthetic scope, exact snippets and citations |
 | Mimi rehearsal | `GET /demo/mimi` | 200 JSON | Keep simulated replies, costs and arrangements visibly labeled |
 | Existing CatAgent chat/report | `POST /agent/requests` | 200 SSE | Render wrapped legacy events and stream-level failures |
 

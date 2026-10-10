@@ -8,7 +8,7 @@ For integration work, use the [docs index](README.md), [Controller–Frontend](c
 
 The default app is a **local single-user prototype**, bound to `127.0.0.1`. A public demo mode now exists through `PAWSE_PUBLIC_DEMO=1` and the Cloud Run/container setup. Host checking accepts localhost/test hosts plus `PAWSE_ALLOWED_HOSTS`, read at startup. A random HttpOnly, SameSite=Strict browser cookie isolates result retrieval between sessions and is Secure on HTTPS. It is not a login system; public demo mode does not provide authenticated private-document storage or production multi-user authorization.
 
-Public mode caps selected POST requests at 60 per session and 600 per process per rolling hour by default. Limits are configurable with `PAWSE_SESSION_CALLS_PER_HOUR` and `PAWSE_TOTAL_CALLS_PER_HOUR`. Covered prefixes are `/care/requests`, `/clinics/`, `/agents/runs`, `/voice/`, `/live/` and `/knowledge/search`; rejected validation/provider requests also consume an admitted attempt. Knowledge search is local but is currently included. The quota counts HTTP requests, not tokens, audio duration or provider spend; a Live token's subsequent provider audio stream is outside this HTTP counter. State resets on restart and is not shared across workers/instances.
+Public mode caps selected POST requests at 60 per session and 600 per process per rolling hour by default. Limits are configurable with `PAWSE_SESSION_CALLS_PER_HOUR` and `PAWSE_TOTAL_CALLS_PER_HOUR`. Covered prefixes are `/care/requests`, `/clinics/`, `/agents/runs`, `/voice/` and `/live/`; rejected validation/provider requests also consume an admitted attempt. The local policy evidence route is a GET and is not counted. The quota counts HTTP requests, not tokens, audio duration or provider spend; a Live token's subsequent provider audio stream is outside this HTTP counter. State resets on restart and is not shared across workers/instances.
 
 Exhaustion returns HTTP 429 with `error: demo_quota_reached`, plus identical human-readable `detail` and `message` fields. Existing frontend helpers read `detail`; the keyless Mimi rehearsal and GET routes remain available. Quota errors retain the normal session cookie and no-store headers. This is separate from the active-work limits of care, Live and voice. See [team integration status](TEAM_INTEGRATION.md) for deployment and pending frontend/testing work.
 
@@ -27,7 +27,7 @@ Mutation request bodies are bounded at 4.5 MB by both declared Content-Length an
 | POST | `/agent/requests` | SSE bridge to configured existing CatAgent |
 | GET | `/agents/graph` | Seven runtime roles, model/tool types, owners, dependencies and configuration state |
 | POST | `/agents/runs` | HTTP 201; nested `care` request → care result, agent trace and action gates |
-| POST | `/knowledge/search` | Cited lexical search of the fixed synthetic insurance corpus |
+| GET | `/knowledge/evidence` | The whole fixed synthetic insurance corpus as cited sections (no search) |
 | POST | `/live/tokens` | HTTP 201; consented → single-use Gemini Live token locked to model, prompt and tools ([Gemini Live](GEMINI_LIVE.md)) |
 | POST | `/live/tool-calls` | Run a Gemini Live tool call server-side → `response` for Gemini plus `ui` data |
 | GET | `/voice/status` | Current session's voice readiness and configuration booleans |
@@ -119,11 +119,11 @@ Audio must be complete mono 16-bit PCM WAV, 8–48 kHz, 0.5–60 seconds, up to 
 
 The server adds an AI-assistant disclosure to generated speech. There is no telephone transport, remote-recipient audio stream or OS phone-call audio injection in these routes. The [voice concierge guide](VOICE_CONCIERGE.md) documents the provider lifecycle, full flow and remaining live verification.
 
-## Evidence search and Mimi rehearsal
+## Policy evidence and Mimi rehearsal
 
-`POST /knowledge/search` accepts `{ "query": "home visit surcharge 1.2.5", "top_k": 3, "scope": "synthetic_demo" }`. `top_k` is 1–5. It performs local English lexical retrieval over the reviewed demo policy and English AVB, without an embedding call or owner-document upload.
+`GET /knowledge/evidence` returns every section of the reviewed demo policy and English AVB, locally, without a model call or owner-document upload. There is no search: Gemini gets the whole policy and picks and cites the clauses in any language. The former `POST /knowledge/search` (English-only lexical search) is retired.
 
-The result carries `synthetic: true`, `method: "lexical"`, `insurance_approval: "not_obtained"`, a corpus version, `evidence_found`/`no_evidence` status and evidence entries with source path/hash, clause or JSON section, exact snippet and relevance score. The score is not coverage confidence. No request may choose an arbitrary file, collection or live-policy scope. See the [RAG contract](RAG_CONTRACT.md).
+The result carries `synthetic: true`, `method: "full_policy"`, `insurance_approval: "not_obtained"`, a corpus version, `status: "evidence_found"` and evidence entries with `evidence_id`, source path/hash, clause or JSON section and exact snippet. No request may choose an arbitrary file, collection or live-policy scope. See the [RAG contract](RAG_CONTRACT.md).
 
 `GET /demo/mimi` supplies the six-scene rehearsal and explicit synthetic notice. CHF 385 clinic and CHF 510 home-visit costs assume CHF 600 eligible treatment, an unused CHF 300 deductible, 80% reimbursement after that deductible, unused annual limit, CHF 25 owner-paid taxi and an excluded CHF 150 home surcharge. Real policy terms and clinic costs are not inferred from this example. All recipient replies, calendar slots and arrangements in the story remain simulated.
 

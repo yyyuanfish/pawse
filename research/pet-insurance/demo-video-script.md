@@ -17,7 +17,7 @@ vet about the coverage limits and books a taxi that accepts cats.
 
 | Item | Covered? | Clause |
 | --- | --- | --- |
-| Exam + X-ray after a jump injury | ✅ Accident: covered from day one, even inside the 30-day illness waiting period. CHF 300 deductible, then 80% | AVB 1.2.1, 3.2 a, 1.5 |
+| Exam + X-ray after a jump injury | ✅ Accident: covered from day one, even inside the 30-day illness waiting period. CHF 300 deductible, then 80% | AVB 1.2.1, 3 (item 3.2 a), 1.5 |
 | Home-visit surcharge (CHF 150) | ❌ Only on plans with an annual sum of CHF 12'000 or more; this plan has CHF 5'000 | AVB 1.2.5 |
 | Physiotherapy afterwards | ❌ Complementary medicine not in the plan | AVB 1.2.6 |
 | Taxi | ❌ Transport is not an insured cost | (not listed in AVB 1.2) |
@@ -61,9 +61,9 @@ Roughly 230 spoken English words plus subtitled German, which fits 2 minutes whe
   Say so in the submission ("simulated calls"); the hackathon checklist asks to separate working features from future plans.
 - **Insurer name on screen.** Say "your pet insurer"; show no insurer name or logo, since the call is simulated.
   The coverage rules are real: every claim in the insurer call matches the real AVB (December 2025 edition) listed in
-  [`README.md`](README.md#sources), so a judge can check them: accidents from day one (§1.4 d, §3.2 a), house call only
-  from CHF 12'000 sum insured (§1.2 *Notfallbehandlung*), physio only with the complementary module (§1.2
-  *Komplementärmedizinische Behandlung*), claim within 30 days (§2.2). Only the policyholder and schedule are synthetic.
+  [`README.md`](README.md#sources), so a judge can check them: accidents from day one (§1.4 d, §3 item 3.2 a), house call only
+  from CHF 12'000 sum insured (§1.2.5 *Notfallbehandlung*), physio only with the complementary module (§1.2.6
+  *Komplementärmedizinische Behandlung*), claim within 30 days (§2). Only the policyholder and schedule are synthetic.
 - **Honest money.** Don't say the taxi is covered: transport is not in the AVB. The saving is that Pawse steered the
   user away from the CHF 150 home-visit fee, which the insurance would not have paid.
 - **Triage wording** is demo copy written by non-vets, not veterinary advice; keep the 🟡 card text conservative.

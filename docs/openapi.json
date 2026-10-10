@@ -764,23 +764,13 @@
         }
       }
     },
-    "/api/v1/knowledge/search": {
-      "post": {
+    "/api/v1/knowledge/evidence": {
+      "get": {
         "tags": [
           "Knowledge evidence"
         ],
-        "summary": "Search",
-        "operationId": "search_api_v1_knowledge_search_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/KnowledgeQuery"
-              }
-            }
-          },
-          "required": true
-        },
+        "summary": "Evidence",
+        "operationId": "evidence_api_v1_knowledge_evidence_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -788,16 +778,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/KnowledgeResult"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -1872,11 +1852,6 @@
             "const": true,
             "title": "Synthetic",
             "default": true
-          },
-          "score": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Score"
           }
         },
         "additionalProperties": false,
@@ -1888,8 +1863,7 @@
           "source_sha256",
           "section",
           "title",
-          "snippet",
-          "score"
+          "snippet"
         ],
         "title": "Evidence"
       },
@@ -2066,35 +2040,6 @@
         ],
         "title": "InsuredCat"
       },
-      "KnowledgeQuery": {
-        "properties": {
-          "query": {
-            "type": "string",
-            "maxLength": 1000,
-            "minLength": 1,
-            "title": "Query"
-          },
-          "top_k": {
-            "type": "integer",
-            "maximum": 5.0,
-            "minimum": 1.0,
-            "title": "Top K",
-            "default": 3
-          },
-          "scope": {
-            "type": "string",
-            "const": "synthetic_demo",
-            "title": "Scope",
-            "default": "synthetic_demo"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "title": "KnowledgeQuery"
-      },
       "KnowledgeResult": {
         "properties": {
           "scope": {
@@ -2111,9 +2056,9 @@
           },
           "method": {
             "type": "string",
-            "const": "lexical",
+            "const": "full_policy",
             "title": "Method",
-            "default": "lexical"
+            "default": "full_policy"
           },
           "insurance_approval": {
             "type": "string",
@@ -2127,18 +2072,17 @@
           },
           "status": {
             "type": "string",
-            "enum": [
-              "evidence_found",
-              "no_evidence"
-            ],
-            "title": "Status"
+            "const": "evidence_found",
+            "title": "Status",
+            "default": "evidence_found"
           },
           "evidence": {
             "items": {
               "$ref": "#/components/schemas/Evidence"
             },
             "type": "array",
-            "maxItems": 5,
+            "maxItems": 64,
+            "minItems": 1,
             "title": "Evidence"
           },
           "disclaimer": {
@@ -2151,7 +2095,6 @@
         "type": "object",
         "required": [
           "corpus_version",
-          "status",
           "evidence"
         ],
         "title": "KnowledgeResult"

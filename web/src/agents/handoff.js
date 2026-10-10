@@ -16,8 +16,11 @@ export function draftHandoff(message, lang, target, consent, signal) {
   return requestTool('voice/scripts', { message, input_language: lang, subtitle_language: lang,
     target_language: 'de', recipient: target === 'insurance' ? 'insurer' : 'vet', share_with_gemini: true }, { signal });
 }
-export function searchDemoPolicy(query, signal) {
-  return requestTool('knowledge/search', { query, top_k: 3, scope: 'synthetic_demo' }, { signal });
+/** The whole demo policy as cited sections (no search; local, no provider call, no owner data sent). */
+export async function loadDemoPolicy(signal) {
+  const response = await fetch(`${PHONE_AGENT_URL || ''}/api/v1/knowledge/evidence`, { signal });
+  if (!response.ok) throw new Error(`Request failed (${response.status})`);
+  return response.json();
 }
 export function generateSpeech(text, voice, consent, signal) {
   if (!consent) return Promise.reject(new Error('Confirm sharing the reviewed script with Gradium.'));

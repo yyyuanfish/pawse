@@ -60,7 +60,7 @@ The ten-attempt limit is Pawse's local session limit; Gemini project quotas are 
 | Tool name | Validated `args` | Backend service | `ui` on success |
 | --- | --- | --- | --- |
 | `assess_and_find_vets` | `concern`: 1–4,000 characters; `warning_signs`: up to six [reported red flags](controller-care-contract.md) | `run_workflow(CareRequest)`; stores nested care result and session's latest clinic list | `{care: CareResult, trace: AgentTrace[]}` |
-| `search_policy` | `question`: 1–1,000 characters | `search_knowledge(KnowledgeQuery)`; fixed demo corpus | `KnowledgeResult` |
+| `search_policy` | `question`: 1–1,000 characters | `policy_evidence()`; the whole fixed demo corpus, any language | `KnowledgeResult` |
 | `draft_vet_call_script` | `message`: 1–4,000 characters; `recipient`: `vet`, `insurer` or `taxi`, default `vet` | `draft_script`; German output and subtitles in `context.language` | `CallScript` |
 | `open_clinic_call` | `clinic_id`: 1–300 characters, from this session's latest Live care search | Server lookup; no phone transport | `{action: "confirm_call", clinic_name, phone, call_url}` |
 

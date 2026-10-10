@@ -47,7 +47,7 @@ Home visit                       = CHF 360 + CHF 150 = CHF 510
 | Home-visit surcharge excluded | Adapted AVB 1.2.5; demo base plan is CHF 5'000, below CHF 12'000 |
 | Physiotherapy excluded | Adapted AVB 1.2.6; complementary medicine not selected |
 | Taxi paid by the owner | Explicit demo estimate assumption; confirm transport benefits independently for a real policy |
-| Invoice submission within 30 days | Adapted AVB 2.2 and demo `claims_process.submit_within_days` |
+| Invoice submission within 30 days | Adapted AVB 2 and demo `claims_process.submit_within_days` |
 
 The adapted clause identifiers are the repository's citation labels. The [research source list](../research/pet-insurance/README.md#sources) links the original terms; the home-visit and complementary-medicine provisions appear under section 1.2 headings there. The policyholder and schedule are synthetic. No insurer has approved a real claim.
 
@@ -57,7 +57,7 @@ The adapted clause identifiers are the repository's citation labels. The [resear
 | --- | --- | --- |
 | Voice Agent | Owner dialogue/transcription; selected language; requests tools | Recorded-audio route exists. Gemini Live token/tool backend exists; browser streaming remains to do. |
 | Vision + Care Guidance | Photo observations, reported jump, care summary and vet questions | Photo assessment exists; video intake and a separate Vision handoff are planned. |
-| Document + Policy Evidence | Extract policy/invoice facts; retrieve clauses with page/source references | Demo lexical retrieval exists. Private-document upload, scoped indexing and grounded synthesis are planned. |
+| Document + Policy Evidence | Extract policy/invoice facts; retrieve clauses with page/source references | The whole demo policy is cited by Gemini (no search). Private-document upload, scoped indexing and grounded synthesis are planned. |
 | Vet Discovery + Ranking | Find suitable nearby practices and retain unknown opening/service data | Provider adapters exist; configured live discovery must be checked. |
 | Orchestrator | Coordinate results, keep unknowns, validate estimates and pause for decisions | Bounded care run and Live tools exist; full shared case/document integration remains planned. |
 | Communication + Gradium Speech | German script, paired subtitles, owner-consented German voice audio | Scripts and voice adapters exist. Live Gradium output still needs a key, sample and verification. |

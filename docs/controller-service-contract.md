@@ -10,7 +10,7 @@ This is the backend integration agreement: which controller owns each route, whi
 | Agent workflow | `pawse/orchestration.py` router | `/agents/graph`, `/agents/runs` | LLM/orchestration: `feat/llm-orchestrator` |
 | Live session and tools | `pawse/live.py` router | `/live/tokens`, `/live/tool-calls` | Voice + orchestration: `feat/voice-calling`, `feat/llm-orchestrator` |
 | Voice communication | `pawse/voice.py` router | `/voice/*` | Voice: `feat/voice-calling` |
-| Knowledge evidence | `pawse/knowledge.py` router | `/knowledge/search` | RAG/data: `feat/rag-open-data` |
+| Knowledge evidence | `pawse/knowledge.py` router | `/knowledge/evidence` | RAG/data: `feat/rag-open-data` |
 | Legacy bridge | `pawse/app.py` | `/agent/requests` | Shared integration, with legacy backend maintained separately |
 | Metadata and rehearsal | `pawse/app.py`, `pawse/demo.py` router | `/health`, `/capabilities`, `/demo/mimi` | Shared integration / scenario fixtures |
 
@@ -70,7 +70,7 @@ Adapters raise `ProviderError` with a safe public code. `care_events` converts e
 | `google_clinics(req, client)` | Nearby Search `veterinary_care` → up to 20 normalized `Clinic` records |
 | `mapify_clinics(req, client)` | Generic vet query + coordinates → initial results + up to ten place-detail lookups |
 | `normalize_mapify(summary, detail, origin)` | Upstream dictionaries + `Location` → `Clinic` or `None` when not recognizable as veterinary care |
-| `search_knowledge(payload)` | `KnowledgeQuery` → `KnowledgeResult`; synchronous, local lexical retrieval |
+| `policy_evidence()` | → `KnowledgeResult`; synchronous, local, every corpus section (no search) |
 | `knowledge.search(payload)` | HTTP wrapper translating missing/invalid corpus failures into safe HTTP 503 |
 
 `discover` selects Google Places when its key exists, otherwise Mapify. It does not silently switch provider on failure. Clinic output retains nullable phone, coordinates and opening state. Mapify opening state is deliberately `null` because the inspected upstream implementation can assume open when hours are missing. See [Mapify adapter](MAPIFY_ADAPTER.md).
@@ -99,7 +99,7 @@ Model settings: `GEMINI_CARE_MODEL` and `GEMINI_VOICE_MODEL` override `GEMINI_MO
 
 ### Live session and tool dispatch
 
-`live.create_token(TokenRequest, request)` mints a model/prompt/tool-constrained token. `live.run_tool(ToolCall, request)` validates per-tool arguments, derives the owner from the session and returns `{id, name, response, ui}`. It calls `run_workflow`, `search_knowledge` and `draft_script` directly; the clinic dialer tool only reads the session's last Live clinic search. It does not proxy the public HTTP routes or place a telephone call.
+`live.create_token(TokenRequest, request)` mints a model/prompt/tool-constrained token. `live.run_tool(ToolCall, request)` validates per-tool arguments, derives the owner from the session and returns `{id, name, response, ui}`. It calls `run_workflow`, `policy_evidence` and `draft_script` directly; the clinic dialer tool only reads the session's last Live clinic search. It does not proxy the public HTTP routes or place a telephone call.
 
 The Live wrapper limits active tools to three per session and fifteen globally. Its token and error semantics, reduced model-facing results and full frontend payloads are defined in the [Live controller contract](controller-live-contract.md). This dispatch has no persistent case revision, duplicate suppression or tool-cancellation endpoint today.
 

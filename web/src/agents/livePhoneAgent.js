@@ -151,8 +151,8 @@ function buildInsuranceResult(story, lang) {
           ? `先付前 ${deductible} 瑞郎，之后报销 ${Math.round(rate * 100)}%`
           : `You pay the first ${cur} ${deductible}, then ${Math.round(rate * 100)}% is reimbursed`,
       },
-      { ok: false, text: zh ? '上门费不保' : 'Home visit not covered', ref: 'AVB 1.2' },
-      { ok: false, text: zh ? '之后的理疗不保' : 'Physiotherapy not covered', ref: 'AVB 1.2' },
+      { ok: false, text: zh ? '上门费不保' : 'Home visit not covered', ref: 'AVB 1.2.5' },
+      { ok: false, text: zh ? '之后的理疗不保' : 'Physiotherapy not covered', ref: 'AVB 1.2.6' },
       {
         ok: true,
         text: zh

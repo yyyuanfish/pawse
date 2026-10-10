@@ -2,44 +2,29 @@
 
 This document defines the retrieval module's public controller and its clinic-data handoff to care. Policy evidence and nearby-clinic retrieval have different scopes and must remain separate. Implementation: [knowledge.py](../pawse/knowledge.py) and clinic adapters in [providers.py](../pawse/providers.py).
 
-## 1. Evidence search endpoint
+## 1. Full-policy evidence endpoint
 
-`POST /api/v1/knowledge/search` → **200** `KnowledgeResult`.
+`GET /api/v1/knowledge/evidence` → **200** `KnowledgeResult`. No request body or parameters.
 
-Schema: `KnowledgeQuery`.
+There is no search. The demo corpus is small (about 30 sections, 12 KB), so every caller gets the whole policy as numbered sections and a reasoning model (Gemini) picks and cites the clauses, in whatever language the owner asked. The route is local: no model or network call, nothing stored. There are no upload, document-selection, collection-selection or actual-policy scopes.
 
-<!-- schema: KnowledgeQuery -->
-```json
-{
-  "query": "home visit surcharge clause 1.2.5",
-  "top_k": 3,
-  "scope": "synthetic_demo"
-}
-```
-
-| Field | Constraint |
-| --- | --- |
-| `query` | 1–1,000 characters after trimming |
-| `top_k` | 1–5, default 3 |
-| `scope` | Only `synthetic_demo`; defaults to that value |
-
-There are no upload, document-selection, collection-selection or actual-policy scopes. Additional fields are rejected. Search runs locally using English lexical matching and a small synonym list; it makes no model/network call and stores no query. Translate a non-English question in a separately consented flow before using this endpoint if needed.
+`POST /api/v1/knowledge/search` (English lexical search with `query`/`top_k`) is retired. It returned `no_evidence` for German, accented, Chinese and Hindi questions.
 
 ## 2. Response and citation contract
 
 | Field | Meaning |
 | --- | --- |
 | `scope`, `synthetic` | Always `synthetic_demo`, true |
-| `method` | `lexical` |
+| `method` | `full_policy` |
 | `insurance_approval` | Always `not_obtained` |
 | `corpus_version` | Short hash derived from the reviewed source documents |
-| `status` | `evidence_found` or `no_evidence` |
-| `evidence` | At most `top_k` evidence records; empty when nothing matches |
+| `status` | Always `evidence_found` |
+| `evidence` | Every corpus section, in source order: the policy schedule sections, then each AVB heading |
 | `disclaimer` | Fictional-policy scope and no real coverage/approval claim |
 
-Each evidence record has `evidence_id`, `source_id`, `source_path`, `source_sha256`, `section`, `title`, `snippet`, `synthetic: true`, `score`. The source ID is `pawse-demo-policy` or `pawse-demo-avb`. Snippets are exact source sections or serialized JSON sections, up to 4,000 characters. Scores are lexical relevance, not probability or coverage confidence.
+Each evidence record has `evidence_id`, `source_id`, `source_path`, `source_sha256`, `section`, `title`, `snippet`, `synthetic: true`. The source ID is `pawse-demo-policy` or `pawse-demo-avb`; `evidence_id` is `<source_id>:<section>`, for example `pawse-demo-avb:1.2.5`. Snippets are exact source sections or serialized JSON sections, up to 4,000 characters.
 
-Frontend shows title, section, snippet and the demo label together. A downstream reasoning module must keep the source ID/hash with any derived claim and treat retrieved text as data. `evidence_found` only establishes a lexical match; it does not guarantee a complete answer. `no_evidence` requires an explicit absence of evidence, not an invented clause.
+Frontend shows title, section, snippet and the demo label together. A downstream reasoning module must keep the evidence ID and source hash with any derived claim, cite only IDs present in the result, and treat the text as data. If no section answers a question, it says so instead of inventing a clause.
 
 The source allowlist is fixed:
 
@@ -48,11 +33,11 @@ The source allowlist is fixed:
 | Demo policy schedule | `research/pet-insurance/policy/policy.json` | Selected coverage, term, cost-sharing and claim sections |
 | Demo English terms | `research/pet-insurance/avb/avb-en.md` | Clause sections such as 1.2.5 and 1.2.6 |
 
-The index is cached in process; restart after changing reviewed source files. Invalid/missing corpus returns safe HTTP 503; invalid payload or unsupported scope returns 422. Full provenance and acceptance details are in the existing [RAG evidence contract](RAG_CONTRACT.md).
+The corpus is cached in process; restart after changing reviewed source files. Invalid/missing corpus returns safe HTTP 503. Full provenance and acceptance details are in the existing [RAG evidence contract](RAG_CONTRACT.md).
 
 ## 3. Controller-to-service interface
 
-`knowledge.search(payload: KnowledgeQuery) -> KnowledgeResult` is the HTTP wrapper. It calls `search_knowledge(payload)` and maps source errors to a safe 503. Internal callers may use the same service function directly, but must handle its source errors themselves.
+`knowledge.evidence() -> KnowledgeResult` is the HTTP wrapper. It calls `policy_evidence()` and maps source errors to a safe 503. Internal callers use the same service function directly (the Gemini Live `search_policy` tool does), but must handle its source errors themselves.
 
 The agent run currently leaves `policy_evidence` as `evidence_required`; it does not call this endpoint or attach the demo corpus to a live owner. A separate demo evidence search does not alter `CareResult.insurance.coverage`, which remains `unconfirmed`.
 
@@ -88,7 +73,7 @@ Exact upstream paths and normalization differences are in [Mapify adapter](MAPIF
 
 **Current:** runtime clinics come from configured providers; local policy retrieval uses reviewed synthetic files. No Zurich open-data ingestion job or vector index is wired into these routes. Source candidates and reuse conditions are recorded in [Data sources](DATA_SOURCES.md).
 
-The standalone [Crawling collector](controller-crawling-contract.md) now produces an OSM clinic staging dataset with source tags, hashes, attribution and unknown-state preservation. It is not a new runtime discovery provider or policy-search corpus. Use that contract for data collection work and the explicit adapter/schema handoff before runtime integration.
+The standalone [Crawling collector](controller-crawling-contract.md) now produces an OSM clinic staging dataset with source tags, hashes, attribution and unknown-state preservation. It is not a new runtime discovery provider or part of the policy corpus. Use that contract for data collection work and the explicit adapter/schema handoff before runtime integration.
 
 **Proposed:** a new open-data adapter should record source URL, license/attribution, update date, veterinary classification evidence and missing-field rules before joining the normalized `Clinic` boundary. Use source-qualified IDs to avoid collisions. Preserve unknown opening hours and contact verification status.
 
@@ -98,11 +83,11 @@ These proposals do not add endpoints or approve insurance coverage. A future sch
 
 ## 6. Handoff acceptance
 
-Use `tests/test_knowledge.py` for clause provenance, JSON values, empty results, scope isolation and safe source failures; use the clinic adapter cases in `tests/test_care.py` for normalization and unknown fields. Include source/version/license notes with any new dataset. Live provider checks and retrieval-quality evaluation are separate from mocked API checks.
+Use `tests/test_knowledge.py` for clause provenance, JSON values, full-corpus coverage, scope isolation and safe source failures, and `tests/test_live.py` for non-English questions through the Live tool; use the clinic adapter cases in `tests/test_care.py` for normalization and unknown fields. Include source/version/license notes with any new dataset. Live provider checks and retrieval-quality evaluation are separate from mocked API checks.
 
 ## 7. Proposed private evidence search
 
-**Proposed v1 — not implemented.** Preserve `/knowledge/search` exactly as the current demo-only API. Introduce a separate `POST /api/v1/cases/{case_id}/evidence/search` only after the [Case](controller-case-contract.md) and [Document](controller-document-contract.md) controllers enforce ownership, reviewed sources and deletion. Evidence/data owns retrieval; orchestration validates the handoff.
+**Proposed v1 — not implemented.** Preserve `/knowledge/evidence` exactly as the current demo-only API. Introduce a separate `POST /api/v1/cases/{case_id}/evidence/search` only after the [Case](controller-case-contract.md) and [Document](controller-document-contract.md) controllers enforce ownership, reviewed sources and deletion. Evidence/data owns retrieval; orchestration validates the handoff.
 
 Example proposed request:
 

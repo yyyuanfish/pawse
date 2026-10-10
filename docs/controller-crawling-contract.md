@@ -99,7 +99,7 @@ Gemini extraction can be an optional helper after permitted HTML collection. It 
 
 **Current integration gap:** live `Clinic.source` permits only `google_places` and `mapify`. Never relabel OSM records as either provider. The next integration PR must explicitly add an OSM source/adapter, preserve attribution, agree source selection in `discover`, regenerate OpenAPI and update consumers. Recompute distance for the consented user location; do not reuse distance from the crawl centre as if it were user distance. The current UI does not consume this snapshot yet.
 
-Public clinic evidence stays separate from `synthetic_demo` insurance knowledge and owner-private documents. Do not put clinic data into `/knowledge/search`'s fixed policy corpus.
+Public clinic evidence stays separate from `synthetic_demo` insurance knowledge and owner-private documents. Do not put clinic data into the fixed policy corpus behind `/knowledge/evidence`.
 
 ## 6. Completion checklist for your module
 

@@ -39,7 +39,7 @@ The running default remains `GEMINI_MODEL=gemini-3-flash-preview`. `GEMINI_CARE_
 
 The diagram selects 3.8 Flash for the next iteration. This documentation change does not edit `.env`, provider code or defaults. Evaluate real care/schema and language cases before switching a running demo, then run checks and rehearse. There are no implemented `GEMINI_DOCUMENT_MODEL` or `GEMINI_POLICY_MODEL` settings yet. The current coordinator makes no additional planner-model call.
 
-The knowledge module uses lexical retrieval. A future vector index can start with the already accessible `gemini-embedding-001`, but needs a retrieval evaluation. Never mix legacy OpenAI vectors with Gemini vectors; record model, dimension, corpus hash and version, and isolate each owner's documents. Embeddings are optional for the small demo corpus.
+The knowledge module has no retrieval: the small demo corpus goes to Gemini whole. A future vector index can start with the already accessible `gemini-embedding-001`, but needs a retrieval evaluation. Never mix legacy OpenAI vectors with Gemini vectors; record model, dimension, corpus hash and version, and isolate each owner's documents. Embeddings are optional for the small demo corpus.
 
 Credentials stay in the ignored `.env`. The supplied Gradium coupon URL is an account-credit redemption page, not an API key, voice ID or speech endpoint. Its logged-out HTML showed a redemption loader; no credit amount or redemption result was verified.
 

@@ -18,13 +18,13 @@ def test_paid_calls_capped_per_session_but_rehearsal_stays_open(monkeypatch):
     monkeypatch.setenv("PAWSE_SESSION_CALLS_PER_HOUR", "2")
     with TestClient(app) as c:
         body = {"text": "hi"}
-        codes = [c.post("/api/v1/knowledge/search", json=body).status_code for _ in range(3)]
+        codes = [c.post("/api/v1/voice/scripts", json=body).status_code for _ in range(3)]
         assert 429 not in codes[:2] and codes[2] == 429
-        assert c.post("/api/v1/knowledge/search", json=body).json()["error"] == "demo_quota_reached"
+        assert c.post("/api/v1/voice/scripts", json=body).json()["error"] == "demo_quota_reached"
         assert c.get("/api/v1/demo/mimi").status_code == 200
         assert c.get("/api/v1/health").json()["mode"] == "public_demo"
     with TestClient(app) as other:
-        assert other.post("/api/v1/knowledge/search", json=body).status_code != 429
+        assert other.post("/api/v1/voice/scripts", json=body).status_code != 429
 
 
 def test_total_cap_covers_all_sessions(monkeypatch):
@@ -45,7 +45,7 @@ def test_quota_rejection_preserves_frontend_error_and_session_contract(monkeypat
     monkeypatch.setenv("PAWSE_PUBLIC_DEMO", "1")
     monkeypatch.setenv("PAWSE_TOTAL_CALLS_PER_HOUR", "1")
     with TestClient(app) as first:
-        first.post("/api/v1/knowledge/search", json={"query": "deductible"})
+        first.post("/api/v1/voice/scripts", json={})
     with TestClient(app) as newcomer:
         response = newcomer.post("/api/v1/voice/scripts", json={})
         assert response.status_code == 429

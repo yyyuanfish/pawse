@@ -19,7 +19,7 @@ def costs():
             "clinic": float(treatment - reimbursed + taxi), "home": float(treatment - reimbursed + house_call),
             "taxi": float(taxi), "home_visit_extra": float(house_call),
             "assumptions": "Demo accident claim; CHF 300 annual deductible unused, annual limit unused, CHF 600 eligible treatment, CHF 25 taxi paid by the owner. No insurer has approved this claim.",
-            "exclusions": ["Home-visit surcharge not covered: it needs an annual limit of at least CHF 12'000 (AVB 1.2, Emergency treatment).", "Physiotherapy is not covered: the complementary medicine module is not in this policy (AVB 1.2, Complementary medicine). Ask the owner before adding it."],
+            "exclusions": ["Home-visit surcharge not covered: it needs an annual limit of at least CHF 12'000 (AVB 1.2.5, Emergency treatment).", "Physiotherapy is not covered: the complementary medicine module is not in this policy (AVB 1.2.6, Complementary medicine). Ask the owner before adding it."],
             "claim_days": policy["claims_process"]["submit_within_days"]}
 
 
@@ -48,4 +48,4 @@ async def mimi():
                 {"time": "1:42–2:00", "title": "A carrier, a ride, and a clear next step.", "description": "Clinic path: rehearse the taxi request for 16:05. Home-visit path: an evening time still needs confirmation. Keep the case notes and claim checklist together.", "lines": [
                     line("Pawse", "Wir benötigen um 16:05 Uhr ein Taxi zur Tierarztpraxis. Ist eine Katze in einer geschlossenen Transportbox erlaubt? Bitte bestätigen Sie den Preis und die Abholadresse mit der Halterin oder dem Halter.", "We need a taxi to the vet at 16:05. Is a cat in a closed carrier allowed? Please confirm the price and pickup address with the owner."),
                     line("Taxi · simulated", "Ja, eine Katze in der Transportbox ist kein Problem. In dieser Demo beträgt der Fahrpreis 25 Franken.", "Yes, a cat in a carrier is fine. In this demo the fare is CHF 25.")]}],
-            "checklist": ["Keep the original video or photo for the vet.", "Keep the itemised invoice, receipts and prescriptions.", "Ask before physiotherapy or other excluded extras.", "Submit the invoice within 30 days (AVB 2.2).", "A real appointment, pickup address, fare and coverage still need direct confirmation."]}
+            "checklist": ["Keep the original video or photo for the vet.", "Keep the itemised invoice, receipts and prescriptions.", "Ask before physiotherapy or other excluded extras.", "Submit the invoice within 30 days (AVB 2).", "A real appointment, pickup address, fare and coverage still need direct confirmation."]}

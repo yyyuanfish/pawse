@@ -199,18 +199,13 @@ export interface AgentRunResult {
   external_actions_performed: false;
   note: string;
 }
-export interface KnowledgeQuery {
-  query: string;
-  top_k?: number;
-  scope?: "synthetic_demo";
-}
 export interface KnowledgeResult {
   scope: "synthetic_demo";
   synthetic: true;
-  method: "lexical";
+  method: "full_policy";
   insurance_approval: "not_obtained";
   corpus_version: string;
-  status: "evidence_found" | "no_evidence";
+  status: "evidence_found";
   evidence: Array<{
     evidence_id: string;
     source_id: "pawse-demo-policy" | "pawse-demo-avb";
@@ -220,7 +215,6 @@ export interface KnowledgeResult {
     title: string;
     snippet: string;
     synthetic: true;
-    score: number;
   }>;
   disclaimer: string;
 }

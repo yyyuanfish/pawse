@@ -34,7 +34,7 @@ def mock_backend(page: Page):
     page.route("**/api/v1/voice/speech", lambda r: r.fulfill(body=WAV, content_type="audio/wav"))
     page.route("**/api/v1/clinics/search", lambda r: r.fulfill(json={
         "status": "complete", "clinics": [CLINIC], "warnings": [], "elapsed_ms": 1, "search_url": "", "completeness": "partial"}))
-    page.route("**/api/v1/knowledge/search", lambda r: r.fulfill(json={"evidence": []}))
+    page.route("**/api/v1/knowledge/evidence", lambda r: r.fulfill(json={"evidence": []}))
 
 
 def reach_plan(page: Page):

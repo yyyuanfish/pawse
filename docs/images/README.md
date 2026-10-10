@@ -28,7 +28,7 @@ Design roles are not new runtime IDs. The existing `/api/v1/agents/graph` contin
 | `nearby_vets` | Clinic provider adapters | Vet Discovery |
 | `ranking` | Deterministic clinic ordering | Included inside the Vet Discovery card |
 | `orchestrator` | Bounded coordination, trace, partial results and action gates | Execution layer used by the conversational orchestrator |
-| `policy_evidence` | Separate lexical search under `synthetic_demo` | Existing foundation for proposed private-document retrieval and synthesis |
+| `policy_evidence` | Whole demo policy under `synthetic_demo`, cited by Gemini | Existing foundation for proposed private-document retrieval and synthesis |
 | `communication` | Gemini scripts/transcription and Gradium voice adapters | Split visually into communication, enrollment and speech responsibilities |
 
 Live token/tool endpoints are a separate controller in `pawse/live.py`. Document extraction has no callable endpoint yet. Demo evidence includes a fictional schedule and an English adaptation of real Swiss terms; it never establishes an owner's actual coverage.

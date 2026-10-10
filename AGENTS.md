@@ -55,7 +55,7 @@ fallback, not the goal.
 | `pawse/service.py`, `orchestration.py`, `state.py`, `demo.py` | Agent run, deadlines, ranking, the synthetic Mimi story |
 | `pawse/providers.py` | Gemini care guidance + clinic adapters (Mapify, Google Places) |
 | `pawse/voice.py` | Gemini transcription/translation, Gradium cloning and German speech |
-| `pawse/knowledge.py` | Cited search over the synthetic policy corpus in `research/` |
+| `pawse/knowledge.py` | The whole synthetic policy corpus in `research/` as cited evidence for Gemini (no search) |
 | `pawse/static/` | Frontend (no build step) |
 | `web/` | React/Vite voice-first app (call Pawse → clinics → vet/insurer calls → summary), served at `/app` after `npm run build`; slots in `web/src/agents/live*.js` |
 | `tests/` | pytest, providers always mocked |

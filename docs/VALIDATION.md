@@ -38,7 +38,7 @@ The existing localhost rehearsal was also walked through all six clinic-path sce
 - Chinese, English, German and Hindi recognition quality with representative human recordings. Only synthetic `espeak-ng` speech has been run (below); no human recording has been collected.
 - Live clinic discovery: no Mapify backend URL or Google Places key was supplied. Only provider adapters and normalization are tested.
 - Telephone transport, audio injection into a mobile call, actual calendar checks, appointment/taxi booking and claim submission are not connected. Mimi's calls and policy decisions are explicitly synthetic.
-- Real owner-policy ingestion and vector RAG: the current retrieval baseline is lexical and searches only the demo schedule and adapted terms under `synthetic_demo`. Legacy book collections and OpenAI/Chroma indexes remain excluded.
+- Real owner-policy ingestion and vector RAG: the current evidence is the whole demo schedule and adapted terms under `synthetic_demo`, handed to Gemini to cite; there is no search. Legacy book collections and OpenAI/Chroma indexes remain excluded.
 - Imported device/report services, live video ingestion and public multi-user deployment have not been validated in this iteration.
 
 `gemini-2.5-flash` appeared in the model listing but returned HTTP 404 for generation in this project. Credentials and recordings are not included in test fixtures or publication artifacts.

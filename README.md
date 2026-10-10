@@ -128,7 +128,7 @@ React app: [localhost:5173/app/](http://localhost:5173/app/) (live; the scripted
 | `GOOGLE_PLACES_API_KEY` | Optional clinic search with Places. Without it, `GEMINI_API_KEY` finds clinics through Gemini's Google Maps grounding, with an optional offline OpenStreetMap snapshot; see `.env.example` |
 | `LEGACY_AGENT_BASE_URL`, `LEGACY_AGENT_USER_ID`, `LEGACY_AGENT_CAT_IDS` | Optional connection to the existing CatAgent backend |
 
-The story rehearsal and local demo-policy search work without provider keys. See the [voice guide](docs/VOICE_CONCIERGE.md), [clinic data contract](docs/controller-knowledge-contract.md) and [API contract](docs/API_CONTRACT.md) for integration details.
+The story rehearsal and local demo-policy evidence work without provider keys. See the [voice guide](docs/VOICE_CONCIERGE.md), [clinic data contract](docs/controller-knowledge-contract.md) and [API contract](docs/API_CONTRACT.md) for integration details.
 
 Run the automated checks with `pip install -r requirements-dev.txt` followed by `pytest -q tests`. Tests use mocked providers; live model access checks are a separate opt-in script. See the [validation record](docs/VALIDATION.md).
 
@@ -152,7 +152,7 @@ This is a local hackathon prototype:
 - Live clinic results require a configured provider. Unknown opening hours, services and insurance coverage remain unknown.
 - Gradium adapters are contract-tested; real cloning and voice quality still need a configured key and an owner sample. Chinese and Hindi input use Gemini; Gradium output in this app is German.
 - Telephone transport, calendar access, actual appointments, taxi bookings and claim submission are not connected. Dial links open a device dialer; generated audio is not injected into a phone call.
-- Retrieval currently uses lexical search over the demo policy and an English adaptation of its terms. Real-policy ingestion and vector indexing are future work.
+- Policy evidence is the whole demo policy and an English adaptation of its terms, handed to Gemini to cite (no search). Real-policy ingestion is future work.
 - Legacy device, report and knowledge services require their own configuration. Public multi-user hosting needs authentication and durable ownership controls.
 
 Pawse provides care navigation, not a diagnosis or a guarantee of treatment, coverage or response time. AI, location and voice sharing are separate opt-ins. Photos and recordings are not written to disk; care summaries expire from the local cache after 15 minutes. Gradium-created voices remain in the provider account until deleted. See [voice lifecycle details](docs/VOICE_CONCIERGE.md).

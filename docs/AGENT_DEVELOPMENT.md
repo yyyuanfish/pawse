@@ -30,7 +30,7 @@ The checks below ran on **2026-10-10** with synthetic inputs and this developmen
 | Care guidance and image intake | `gemini-3-flash-preview` | Text and synthetic image requests returned HTTP 200 with usable responses | Default fast model for care guidance. |
 | Audio transcription and German script/subtitle drafting | `gemini-3-flash-preview` | A one-second silent WAV was accepted with HTTP 200; real language accuracy remains unmeasured | Voice pipeline; evaluate actual English, Chinese, German and Hindi recordings. |
 | Optional complex review | `gemini-3.1-pro-preview` | Text request returned HTTP 200 with a usable response | Evaluate for difficult reasoning; no automatic second-model review is wired into the current graph. |
-| Future vector retrieval | `gemini-embedding-001` | `embedContent` returned HTTP 200 with an embedding | Retrieval pipeline; the current small demo corpus can use deterministic lexical retrieval without a vector database. |
+| Future vector retrieval | `gemini-embedding-001` | `embedContent` returned HTTP 200 with an embedding | Retrieval pipeline; the current small demo corpus goes to Gemini whole, without retrieval or a vector database. |
 | Older Flash choice | `gemini-2.5-flash` | Generation returned HTTP 404 despite appearing in the listing | Do not use it as the current default; listing a model is not the same as being able to invoke it. |
 | Own-voice cloning and German output | Gradium voice APIs | Adapter implemented; no configured Gradium credential at this check | Validate the voice pipeline with a consented sample and preview. No live cloning or voice-similarity result is claimed. |
 | Coordination, ranking and cost arithmetic | Python rules and asynchronous tasks | Covered by local tests | Orchestration rules; these roles do not need a separate generative model. |
@@ -46,7 +46,7 @@ If the existing CatAgent vector store was created with an OpenAI embedding model
 | Frontend → care/orchestrator | `CareRequest`, `/api/v1/care/requests`, `/api/v1/agents/runs` | Text/photo facts and separate AI/location consent. The agent run body is `{ "care": CareRequest }`. |
 | Orchestrator → frontend | `CareResult`, `AgentRunResult`, `/api/v1/agents/graph` | Provider-backed clinics, safe partial result, per-agent state and unresolved action requirements. |
 | Frontend → voice | `/api/v1/voice/transcriptions`, `/voice/scripts`, `/voice/clone`, localization/preview/audio endpoints | Own-voice consent and provider-sharing consent are separate; generated scripts are drafts. |
-| RAG/data → frontend or future coordinator | `/api/v1/knowledge/search` | Cited synthetic corpus results; not actual policy approval. Live policy ingestion is later work. |
+| RAG/data → frontend or future coordinator | `/api/v1/knowledge/evidence` | The whole cited synthetic corpus; not actual policy approval. Live policy ingestion is later work. |
 | Clinic adapter → ranking | `Clinic[]` | Source, retrieval time, phone, coordinates and nullable `open_now`; never manufacture travel time or specialties. |
 | Future phone adapter → coordinator | Proposed call events with recipient, transcript, provider status and owner approval reference | Design after choosing a telephone transport. Do not represent generated audio as a completed call. |
 

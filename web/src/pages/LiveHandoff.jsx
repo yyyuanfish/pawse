@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { draftHandoff, searchDemoPolicy, generateSpeech, initialVoice, preparedResult } from '../agents/handoff.js';
+import { draftHandoff, loadDemoPolicy, generateSpeech, initialVoice, preparedResult } from '../agents/handoff.js';
 import ProviderChips from '../components/ProviderChips.jsx';
 import InsuranceProfileForm from '../components/InsuranceProfileForm.jsx';
 import { loadCapabilities, handoffProviders } from '../agents/providers.js';
 import { PHONE_AGENT_URL } from '../config.js';
-
-const POLICY_QUERY = 'accident deductible home visit';
 
 // One step at a time: facts → German script → ready. Finished steps collapse to one line with Edit.
 function Done({ label, onEdit }) {
@@ -20,7 +18,6 @@ export default function LiveHandoff({ t, lang, target, clinic, context, rail, on
   const [voice, setVoice] = useState(() => initialVoice(context));
   const [script, setScript] = useState(null);
   const [evidence, setEvidence] = useState(null);
-  const [query, setQuery] = useState(POLICY_QUERY);
   const [audio, setAudio] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -47,7 +44,7 @@ export default function LiveHandoff({ t, lang, target, clinic, context, rail, on
     setScript(await draftHandoff(message, lang, target, consent, signal));
     setStep('script');
     // The demo policy evidence is local and needs no sharing consent: fetch it once the facts are in.
-    if (target === 'insurance' && !evidence) setEvidence(await searchDemoPolicy(POLICY_QUERY, signal).catch(() => null));
+    if (target === 'insurance' && !evidence) setEvidence(await loadDemoPolicy(signal).catch(() => null));
   });
   const speak = () => run(async signal => {
     clearAudio();
@@ -92,12 +89,10 @@ export default function LiveHandoff({ t, lang, target, clinic, context, rail, on
 
     {target === 'insurance' && step !== 'facts' && <section className="card">
       <h2>Demo policy, not your coverage</h2>
-      {evidence ? evidence.evidence.map(e => <article key={e.evidence_id}><h3>{e.title} · {e.section}</h3><p style={{ whiteSpace: 'pre-wrap' }}>{e.snippet}</p><small>{e.source_id}</small></article>) : <p className="muted">No demo policy clauses loaded.</p>}
-      <details>
-        <summary>Ask another policy question</summary>
-        <input aria-label="Demo policy question in English" value={query} maxLength={1000} onChange={e => setQuery(e.target.value)} />
-        <button className="btn soft" disabled={busy || !query.trim()} onClick={() => run(async signal => setEvidence(await searchDemoPolicy(query, signal)))}>Search the demo policy</button>
-      </details>
+      {evidence ? <details>
+        <summary>Read the demo policy ({evidence.evidence.length} sections)</summary>
+        {evidence.evidence.map(e => <article key={e.evidence_id}><h3>{e.title} · {e.section}</h3><p style={{ whiteSpace: 'pre-wrap' }}>{e.snippet}</p><small>{e.source_id}</small></article>)}
+      </details> : <p className="muted">No demo policy clauses loaded.</p>}
     </section>}
 
     {busy && <p role="status">Preparing…</p>}{error && <p role="alert">{error}</p>}

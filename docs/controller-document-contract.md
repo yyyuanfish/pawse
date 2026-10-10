@@ -1,6 +1,6 @@
 # Pawse Document Controller Contract
 
-**Proposed v1 — not implemented.** The Document Agent will extract policy schedules, terms, invoices and veterinary records into reviewable facts and page citations. A successful Gemini PDF access probe is recorded in [Model allocation](MODEL_ALLOCATION.md); it does not establish an upload pipeline. Current `/knowledge/search` accepts only the fixed demo corpus.
+**Proposed v1 — not implemented.** The Document Agent will extract policy schedules, terms, invoices and veterinary records into reviewable facts and page citations. A successful Gemini PDF access probe is recorded in [Model allocation](MODEL_ALLOCATION.md); it does not establish an upload pipeline. Current `/knowledge/evidence` serves only the fixed demo corpus.
 
 ## 1. Scope and ownership
 

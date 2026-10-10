@@ -50,7 +50,7 @@ Response: `{ "id", "name", "response": { ... }, "ui": { ... } | null }`.
 | Tool | What it runs | `ui` |
 | --- | --- | --- |
 | `assess_and_find_vets` | The agent workflow (`/agents/runs`): care guidance plus ranked clinics | `{ care: CareResult, trace: AgentTrace[] }` |
-| `search_policy` | `/knowledge/search` (demo corpus, cited) | `KnowledgeResult` |
+| `search_policy` | `policy_evidence()`: the whole demo policy for Gemini to cite by `evidence_id`, any language | `KnowledgeResult` |
 | `draft_vet_call_script` | The reviewed German script logic behind `/voice/scripts`, with subtitles in `context.language` | `CallScript` |
 | `set_insurance_profile` | Saves the owner's insurer and plan from the conversation to this browser | `{ action: "save_insurance_profile", ... }` |
 | `open_clinic_call` | Looks up a clinic from this session's last search | `{ action: "confirm_call", clinic_name, phone, call_url }` |

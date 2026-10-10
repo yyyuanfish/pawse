@@ -124,7 +124,7 @@ def test_typed_message_goes_over_the_live_socket(page: Page):
 
 
 def test_tool_call_is_forwarded_answered_and_rendered(page: Page, app_server):
-    evidence = httpx.post(f"{app_server}/api/v1/knowledge/search", json={"query": "accident cover"}).json()
+    evidence = httpx.get(f"{app_server}/api/v1/knowledge/evidence").json()
     live = FakeLive(page, tool_ui={"search_policy": evidence})
     open_call(page, live)
     live.push({"toolCall": {"functionCalls": [{"id": "fc-1", "name": "search_policy", "args": {"query": "accident cover"}}]}})

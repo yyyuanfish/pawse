@@ -82,6 +82,33 @@ def test_search_policy_returns_cited_demo_evidence_never_approval():
     assert body['ui']['synthetic'] is True
 
 
+@pytest.mark.parametrize('question', ['Ist der Hausbesuch gedeckt?', 'Ist Physiotherapie versichert?', '上门费保吗？'])
+def test_search_policy_gives_gemini_the_whole_policy_in_any_language(question):
+    from pawse.knowledge import corpus
+    with TestClient(app) as c:
+        r = call(c, 'search_policy', {'question': question}, context={'insurance': {'company': live.DEMO_INSURER}})
+    response = r.json()['response']
+    assert response['status'] == 'evidence_found' and response['insurance_approval'] == 'not_obtained'
+    by_id = {e['evidence_id']: e for e in response['evidence']}
+    # The house-call and physio clauses reach the model in full, whatever the question's language.
+    assert "CHF 12'000" in by_id['pawse-demo-avb:1.2.5']['text']
+    assert 'pawse-demo-avb:1.2.6' in by_id
+    # Every id the model may cite resolves to a real corpus section, and every section is there.
+    chunks, _ = corpus()
+    assert set(by_id) == {f'{c.source_id}:{c.section}' for c in chunks}
+    assert all(by_id[f'{c.source_id}:{c.section}']['text'] == c.snippet for c in chunks)
+    # Data framing, no instructions in the payload; small enough for one Live toolResponse.
+    assert 'data' in response['content_notice'].lower()
+    assert len(json.dumps(r.json()['response'], ensure_ascii=False).encode()) < 32_000
+
+
+def test_live_prompt_and_tool_ask_for_answers_only_from_cited_clauses():
+    tool = next(t for t in live.TOOLS if t['name'] == 'search_policy')
+    assert 'evidence_id' in tool['description']
+    prompt = live.instruction('en')
+    assert 'evidence_id' in prompt and 'only from' in prompt
+
+
 def test_invalid_arguments_go_back_to_the_model():
     with TestClient(app) as c:
         r = call(c, 'assess_and_find_vets', {'concern': '', 'warning_signs': ['made_up']})

@@ -14,7 +14,7 @@ The end-to-end target is [Mimi's 120-second journey](DEMO_STORY.md): understand 
 | Orchestrator | [Agents](controller-agent-contract.md), [Case](controller-case-contract.md) | Bounded care run and Live tool dispatch | Versioned multimodal case state and stale-result rejection |
 | Care Guidance | [Care](controller-care-contract.md) | Text/photo assessment and immediate reported-warning-sign handling | Consume reviewed modality facts without waiting on insurance |
 | Vet Discovery & Ranking | [Knowledge/Data](controller-knowledge-contract.md) | Clinic adapters and deterministic ranking inside care | Verified open-data adapter; preserve unknown hours/services |
-| Policy Evidence | [Knowledge/Data](controller-knowledge-contract.md), [Document](controller-document-contract.md) | Fixed demo corpus, lexical search, source hashes | Owner-scoped retrieval with page citations and grounded explanation |
+| Policy Evidence | [Knowledge/Data](controller-knowledge-contract.md), [Document](controller-document-contract.md) | Fixed demo corpus served whole for Gemini to cite, source hashes | Owner-scoped retrieval with page citations and grounded explanation |
 | Communication Agent | [Voice](controller-voice-contract.md), [Action](controller-action-contract.md) | German draft and paired subtitles | Bind the reviewed draft to case/recipient/voice revisions |
 | Own-Voice Setup / Speech Agent | [Voice](controller-voice-contract.md) | Gradium clone, localization, preview/save and WAV adapters | Real provider validation with a configured key |
 | Owner review / Care handoff | [Action](controller-action-contract.md) | Script/audio review and manual dialer handoff | Approval, idempotent execution and verifiable connector receipts |
@@ -27,7 +27,7 @@ All paths below have the `/api/v1` prefix.
 
 | Status | Paths | Schema authority |
 | --- | --- | --- |
-| Current | `/care/requests`, `/agents/graph`, `/agents/runs`, `/live/tokens`, `/live/tool-calls`, `/voice/*`, `/knowledge/search` | Pydantic models and generated [OpenAPI](openapi.json); domain docs cover dynamic results and streaming |
+| Current | `/care/requests`, `/agents/graph`, `/agents/runs`, `/live/tokens`, `/live/tool-calls`, `/voice/*`, `/knowledge/evidence` | Pydantic models and generated [OpenAPI](openapi.json); domain docs cover dynamic results and streaming |
 | Proposed v1 | `/cases/*`, including document, vision, evidence and action resources | Drafts in the contracts below; deliberately absent from OpenAPI and `schemas/pawse.ts` |
 
 **Do not call proposed paths from the shipped frontend.** Each proposed controller specifies its own payload, lifecycle and acceptance boundary. Implement and validate the server first, export OpenAPI, update client types, then enable its UI. Proposed `case_id` values are not the current care `request_id` or agent `run_id`.

@@ -8,7 +8,7 @@ Checked on 10 October 2026. The React app lives in `web/`. Build with `npm ci --
 | Care / vision / orchestration | `POST /api/v1/agents/runs` | `{care: CareRequest}`; consumes nested `care`, `trace`, `actions`. Text and selected photos require Gemini consent. Video stays local. |
 | Vet discovery | `POST /api/v1/care/requests` | Generic veterinary query, location consent, no symptoms and no AI consent. Preserve backend ranking, unknown hours, source and retrieval time. |
 | Communication | `POST /api/v1/voice/scripts` | Owner-reviewed facts, separate consent, German draft with EN/ZH/DE/HI subtitles. No recipient replies or bookings. |
-| Policy evidence | `POST /api/v1/knowledge/search` | Explicit demo-policy panel; English lexical search and original citations. No private-policy ingestion or coverage approval. |
+| Policy evidence | `GET /api/v1/knowledge/evidence` | Explicit demo-policy panel; the whole demo policy with original citations. No private-policy ingestion or coverage approval. |
 | Speech | `POST /api/v1/voice/speech` | Reviewed draft, separate Gradium consent, selected approved own voice or explicitly selected standard voice. Binary WAV with playback/download; no silent fallback. |
 | Native Live conversation | `POST /api/v1/live/tokens`, Gemini WebSocket, `POST /api/v1/live/tool-calls` | Native PCM audio and transcripts; locked ephemeral token; backend tool results. |
 | Voice enrollment | React home → Record my voice | Local 10–25 second recording, clone/localization/preview/save and approved German emergency rehearsal. |
