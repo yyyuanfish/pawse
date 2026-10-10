@@ -1,0 +1,15 @@
+{
+  "tool_use_id": "toolu_01DgBzWGj8VrWNi3TM3dWTMY",
+  "agent_id": "a0e35434a0be0d147",
+  "subagent_type": "general-purpose",
+  "task_description": "Add keyless OSM clinic adapter",
+  "token_usage": {
+    "input_tokens": 64,
+    "cache_creation_tokens": 87611,
+    "cache_read_tokens": 2126482,
+    "output_tokens": 348,
+    "api_call_count": 32
+  },
+  "started_at": "2026-10-10T13:22:03.283858144Z",
+  "completed_at": "2026-10-10T13:30:41.073491801Z"
+}

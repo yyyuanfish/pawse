@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K0HXJC7EQGFAATCE4AFVBD",
   "strategy": "manual-commit",
   "branch": "test/browser-voice-contract",
-  "checkpoints_count": 2,
+  "checkpoints_count": 4,
   "files_touched": [
     "docs/VALIDATION.md",
     "docs/WEB_AGENT_INTEGRATION.md",
@@ -35,13 +35,27 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": "/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 54,
-    "cache_creation_tokens": 76051,
-    "cache_read_tokens": 4822524,
-    "output_tokens": 27419,
-    "api_call_count": 27
+    "input_tokens": 106,
+    "cache_creation_tokens": 109053,
+    "cache_read_tokens": 7879419,
+    "output_tokens": 38987,
+    "api_call_count": 51,
+    "subagent_tokens": {
+      "input_tokens": 38,
+      "cache_creation_tokens": 22871,
+      "cache_read_tokens": 1437353,
+      "output_tokens": 220,
+      "api_call_count": 18
+    }
   }
 }
