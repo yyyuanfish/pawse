@@ -45,6 +45,11 @@ Ranking, cost calculations and execution control use deterministic tools. The co
 - German scripts with paired subtitles, own-voice recording, and Gradium cloning/localization adapters.
 - Agent execution traces, care-request SSE progress and partial-result handling.
 - A bridge to existing CatAgent chat and analysis capabilities, subject to their runtime dependencies.
+- **Gradium voice in the live conversation:** Gradium streaming STT hears the owner and Gradium speaks Pawse's replies (voice picker on the call screen; Emma/Annika by default, Gemini's native voice optional). The browser streams to Gradium with one-use server-minted tokens.
+- **Real phone calls (Twilio):** "Pawse calls now" rings the demo line, Pawse discloses it is an AI, speaks with Gradium, hears the callee with Twilio speech recognition and lets Gemini drive the conversation to a booked slot, with a live transcript in the app.
+- **Add to calendar:** a slot booked on a call becomes a prefilled Google Calendar event or an `.ics` file (Zurich time, 1-hour reminder).
+- **Photo injury check:** take or upload a cat photo during the call; Gemini reports visible wounds or blood-like material (never a diagnosis) and a suspected wound leads straight to "Find a vet now".
+- **Accounts and history:** sign in, create an account or continue as a guest on first open; assessments and calls (outcome, slot, transcript) are saved in SQLite and follow the account across devices.
 
 ---
 
@@ -132,7 +137,24 @@ The story rehearsal and local demo-policy evidence work without provider keys. S
 
 Run the automated checks with `pip install -r requirements-dev.txt` followed by `pytest -q tests`. Tests use mocked providers; live model access checks are a separate opt-in script. See the [validation record](docs/VALIDATION.md).
 
+### Phone calls (Twilio, optional)
+
+Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` and `DEMO_PHONE_NUMBER` (a number verified on the Twilio account) in `.env`, expose the backend and point `PUBLIC_URL` at it, then restart:
+
+```sh
+cloudflared tunnel --url http://localhost:8765   # prints https://<name>.trycloudflare.com
+# PUBLIC_URL=https://<name>.trycloudflare.com in .env, then: bash scripts/dev.sh
+```
+
+The vet/insurer page then shows **Pawse calls now**. Trial accounts allow neither Media Streams nor most call parameters, so calls run turn by turn on TwiML webhooks (`<Play>` Gradium audio, `<Gather>` speech); every call rings `DEMO_PHONE_NUMBER`, whatever clinic is chosen. Calls are capped at 5 minutes, one per session, and phone numbers are never logged or sent to the browser.
+
+### Accounts and data
+
+Accounts (scrypt-hashed passwords), sessions and history live in SQLite at `PAWSE_DB_PATH` (default `.pawse-private/pawse.db`, mounted into Docker). The Cloud Run demo is one always-on instance, so data lasts until the next deploy; a managed database only needs changes in `pawse/store.py`.
+
 ### Public demo (Cloud Run)
+
+**Deploy latest `main`:** every push to `main` runs the `deploy` GitHub Action (Actions tab → *deploy* → *Run workflow* deploys on demand). It needs a one-time setup by the GCP project owner: repository variable `GCP_PROJECT_ID` and secret `GCP_SA_KEY` (a service-account JSON key with Cloud Run Admin, Cloud Build Editor, Artifact Registry Writer, Storage Admin and Service Account User). Without them the workflow skips with a warning. It keeps the service's existing secrets; use the script below for the first deploy or to change keys.
 
 The `Dockerfile` builds the React app in `web/` and runs it with the API as one container. `scripts/deploy_cloudrun.sh <gcp-project>` deploys it to Cloud Run with one instance (the case cache is in memory), provider keys from Secret Manager and these public-demo settings. Each deploy syncs the keys set in `.env` (`GEMINI_API_KEY`, `GRADIUM_API_KEY`, `GOOGLE_PLACES_API_KEY`) to the secrets `pawse-gemini-key`, `pawse-gradium-key` and `pawse-places-key`, adding a version only when a value changed, and mounts them; a key missing from `.env` keeps the deployed secret. Add a new provider key to `KEYS` in the script:
 
@@ -151,9 +173,9 @@ This is a local hackathon prototype:
 - The Gemini Live backend (tokens and tools) is verified against the real API; the browser client (`/app`, Gemini Live with Gradium speech) is built and covered by fake-socket browser tests. A human-microphone check in real Chrome is still pending (see [VALIDATION](docs/VALIDATION.md)).
 - Live clinic results require a configured provider. Unknown opening hours, services and insurance coverage remain unknown.
 - Gradium adapters are contract-tested; real cloning and voice quality still need a configured key and an owner sample. Chinese and Hindi input use Gemini; Gradium output in this app is German.
-- Telephone transport, calendar access, actual appointments, taxi bookings and claim submission are not connected. Dial links open a device dialer; generated audio is not injected into a phone call.
+- Phone calls work on a Twilio trial and therefore only ring the verified demo line, turn by turn; taxi bookings, claim submission and calendar sync (beyond add-to-calendar links) are not connected.
 - Policy evidence is the whole demo policy and an English adaptation of its terms, handed to Gemini to cite (no search). Real-policy ingestion is future work.
-- Legacy device, report and knowledge services require their own configuration. Public multi-user hosting needs authentication and durable ownership controls.
+- Legacy device, report and knowledge services require their own configuration. Accounts are basic (no password reset or email verification) and the deployed SQLite file resets on redeploy.
 
 Pawse provides care navigation, not a diagnosis or a guarantee of treatment, coverage or response time. AI, location and voice sharing are separate opt-ins. Photos and recordings are not written to disk; care summaries expire from the local cache after 15 minutes. Gradium-created voices remain in the provider account until deleted. See [voice lifecycle details](docs/VOICE_CONCIERGE.md).
 

@@ -13,6 +13,9 @@ import { validateTriage } from '../contracts.js';
 import { gradiumSupports, gradiumVoiceName, resolveVoiceChoice } from '../agents/gradiumVoice.js';
 import VoicePicker from '../components/VoicePicker.jsx';
 import { saveAssessment } from '../agents/account.js';
+import { observePhoto, observationMessage } from '../agents/petVision.js';
+
+const injured = (r) => r?.injury?.wound === 'suspected' || r?.injury?.blood_like_material === 'suspected';
 import { primeAudio } from '../agents/nativeAudio.js';
 
 // Pawse's voice in a live call: a Gradium voice id (default) or 'gemini' (Gemini Live native audio). Remembered per browser.
@@ -71,6 +74,12 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   const videoRef = useRef(null);
   const fileRef = useRef(null);
+  const captureRef = useRef(null);
+  const photoRequest = useRef(null);
+  const contextMessages = useRef(new Set()); // photo findings sent to Pawse as text, not shown as the owner's words
+  const [photoMenu, setPhotoMenu] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoResult, setPhotoResult] = useState(null);
   const agentRef = useRef(null);
   const photoUrls = useRef([]);
   const onTriageRef = useRef(onTriage);
@@ -93,7 +102,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
       switch (e.type) {
         case 'transcript':
           if (e.role === 'ai') setAiLine(e.text);
-          else {
+          else if (!contextMessages.current.has(e.text)) {
             setUserLine(e.text);
             setUserPartial(!!e.partial);
           }
@@ -171,6 +180,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   useEffect(
     () => () => {
+      photoRequest.current?.abort();
       photoUrls.current.forEach((u) => URL.revokeObjectURL(u));
     },
     []
@@ -202,14 +212,72 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
     setDraft('');
   };
 
-  const onPhoto = (e) => {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = '';
-    if (!file) return;
+  // A photo: live mode checks it for visible injuries (POST /api/v1/vision/observations) and gives
+  // Pawse the findings as context; the scripted demo just shows it.
+  async function submitPhoto(file) {
+    if (!file || photoRequest.current) return;
+    setPhotoMenu(false);
+    setError('');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 3000000) {
+      setError('Use a JPEG, PNG or WebP photo up to 3 MB.');
+      return;
+    }
     const url = URL.createObjectURL(file);
     photoUrls.current.push(url);
     setPhotos((p) => [...p, { url, received: false }]);
-    agentRef.current && agentRef.current.sendImage(file);
+    if (!IS_LIVE_VOICE) {
+      agentRef.current && agentRef.current.sendImage(file);
+      return;
+    }
+    const controller = new AbortController();
+    photoRequest.current = controller;
+    setPhotoBusy(true);
+    setPhotoResult(null);
+    const timer = setTimeout(() => controller.abort(), 45000);
+    try {
+      const result = await observePhoto(file, consent, controller.signal);
+      setPhotoResult(result);
+      setPhotos((p) => p.map((x) => (x.url === url ? { ...x, received: true } : x)));
+      const message = observationMessage(result);
+      contextMessages.current.add(message);
+      agentRef.current?.sendText(message);
+    } catch (e) {
+      setError(controller.signal.aborted ? 'The photo check took too long. Please try again.' : e.message);
+    } finally {
+      clearTimeout(timer);
+      photoRequest.current = null;
+      setPhotoBusy(false);
+    }
+  }
+  const onPhoto = (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    submitPhoto(file);
+  };
+  // Phones open the camera app from the file input; laptops ignore `capture`, so show the live camera
+  // in the call and snap a frame from it instead.
+  const takePhoto = () => {
+    setPhotoMenu(false);
+    if (globalThis.matchMedia?.('(pointer: coarse)').matches) captureRef.current?.click();
+    else setCamOn(true);
+  };
+  const snapFrame = () => {
+    const video = videoRef.current;
+    if (!video?.videoWidth) {
+      setError('The camera is not ready yet. Allow camera access, or upload a photo.');
+      return;
+    }
+    const canvas = document.createElement('canvas');
+    const scale = Math.min(1, 1280 / video.videoWidth);
+    canvas.width = Math.round(video.videoWidth * scale);
+    canvas.height = Math.round(video.videoHeight * scale);
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob((blob) => {
+      if (blob) {
+        setCamOn(false);
+        submitPhoto(new File([blob], 'cat-camera.jpg', { type: 'image/jpeg' }));
+      }
+    }, 'image/jpeg', 0.85);
   };
 
   const toggleMic = () => {
@@ -282,6 +350,12 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
                 <Icon name="x" size={18} />
               </button>
             </div>
+            {cam.stream && (
+              <button type="button" className="cam-snap" onClick={snapFrame} disabled={photoBusy || (IS_LIVE_VOICE && !consent)} aria-label="Take photo and check it">
+                <span aria-hidden="true" />
+                Snap &amp; check
+              </button>
+            )}
           </div>
         ) : (
           <div className={`avatar-stage ${speaking === 'ai' ? 'talking' : ''} ${listening ? 'listening' : ''} ${hearing ? 'hearing' : ''}`}>
@@ -350,9 +424,29 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               )
             )}
             {lastPhoto && (
-              <div className="cap-photo">
+              <div className={`photo-check ${injured(photoResult) ? 'alert' : ''}`}>
                 <img src={lastPhoto.url} alt={t.photoSent} />
-                <span>{lastPhoto.received ? `✓ ${t.photoSent}` : '…'}</span>
+                <div>
+                  {photoBusy ? (
+                    <p className="photo-check-title"><span className="dots" aria-hidden="true"><i /><i /><i /></span> Checking the photo…</p>
+                  ) : photoResult ? (
+                    injured(photoResult) ? (
+                      <>
+                        <p className="photo-check-title">⚠️ Possible wound{photoResult.injury.location && photoResult.injury.location !== 'unknown' ? ` · ${photoResult.injury.location}` : ''}</p>
+                        <p>{photoResult.injury.description}</p>
+                        <p className="muted">Contact a vet today. Heavy bleeding, collapse or trouble breathing: emergency vet now.</p>
+                        <button type="button" className="btn primary photo-check-cta" onClick={() => onCall('vet')}>Find a vet now</button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="photo-check-title">{photoResult.cat_detected ? '✓ No visible wound seen' : 'No cat clearly visible'}</p>
+                        <p className="muted">{photoResult.cat_detected ? "A photo can't rule out an injury. Pawse will ask what you've noticed." : 'Try a closer, well-lit photo of your cat.'}</p>
+                      </>
+                    )
+                  ) : (
+                    <p className="photo-check-title">{lastPhoto.received ? `✓ ${t.photoSent}` : '…'}</p>
+                  )}
+                </div>
               </div>
             )}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
@@ -377,7 +471,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               send(draft);
             }}
           >
-            <button type="button" className="type-icon" onClick={() => fileRef.current && fileRef.current.click()} aria-label={t.photo} title={t.photo}>
+            <button type="button" className={`type-icon ${photoMenu ? 'on' : ''}`} disabled={photoBusy || (IS_LIVE_VOICE && !consent)} onClick={() => setPhotoMenu((v) => !v)} aria-label={t.photo} aria-expanded={photoMenu} title={t.photo}>
               <Icon name="camera" size={20} />
             </button>
             <input
@@ -393,7 +487,21 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               <Icon name="send" size={18} />
             </button>
           </form>
-          <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} />
+          {photoMenu && (
+            <div className="photo-menu" role="menu" aria-label="Add a photo">
+              <button type="button" role="menuitem" onClick={takePhoto}>
+                <span className="photo-menu-icon"><Icon name="camera" size={22} /></span>
+                <span><strong>Take a photo</strong><small>Use your camera</small></span>
+              </button>
+              <button type="button" role="menuitem" onClick={() => fileRef.current?.click()}>
+                <span className="photo-menu-icon">🖼️</span>
+                <span><strong>Upload a photo</strong><small>JPEG, PNG or WebP · up to 3 MB</small></span>
+              </button>
+              <p className="muted">Pawse checks it for visible wounds. It is not a diagnosis.</p>
+            </div>
+          )}
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onPhoto} />
+          <input ref={captureRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto} />
 
           <nav className="call-controls" aria-label="Call controls">
             <button

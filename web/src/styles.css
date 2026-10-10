@@ -642,3 +642,27 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .welcome { max-width: 440px; margin: 0 auto; padding: 32px var(--gutter); display: grid; gap: 14px; justify-items: center; text-align: center; }
 .welcome .card { width: 100%; display: grid; gap: 10px; text-align: left; }
 .welcome h1 { font-size: 28px; }
+
+/* Photo menu (above the type bar) and the photo-check card in the captions. */
+.photo-menu { display: grid; gap: 8px; padding: 10px; margin: 0 0 8px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(200, 72, 122, 0.14); animation: menu-in 0.15s ease-out; }
+.photo-menu button { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 0; border-radius: 14px; background: var(--soft); text-align: left; min-height: 56px; }
+.photo-menu button:hover { background: var(--petal); }
+.photo-menu button strong { display: block; font-size: 15px; }
+.photo-menu button small { display: block; font-size: 12px; color: var(--muted); }
+.photo-menu-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: var(--surface); color: var(--brand); font-size: 20px; flex: none; }
+.photo-menu .muted { font-size: 12px; text-align: center; margin: 2px 0 0; }
+.type-icon.on { background: var(--brand); color: var(--brand-ink); }
+@keyframes menu-in { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .photo-menu { animation: none; } }
+.photo-check { display: flex; gap: 12px; align-items: flex-start; padding: 10px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); text-align: left; }
+.photo-check img { width: 64px; height: 64px; object-fit: cover; border-radius: 12px; flex: none; }
+.photo-check p { margin: 0; font-size: 14px; }
+.photo-check .muted { font-size: 12.5px; margin-top: 4px; }
+.photo-check-title { font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.photo-check.alert { background: #fff1f1; border-color: #f2b8bd; }
+.photo-check.alert .photo-check-title { color: var(--red); }
+.photo-check-cta { margin-top: 8px; min-height: 40px; padding: 8px 16px; font-size: 14px; }
+.cam-card { position: relative; }
+.cam-snap { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px 10px 10px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.95); color: var(--brand-strong); font-weight: 800; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); }
+.cam-snap span { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); box-shadow: inset 0 0 0 4px #fff, 0 0 0 2px var(--brand); }
+.cam-snap:disabled { opacity: 0.6; }
