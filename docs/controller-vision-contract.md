@@ -6,7 +6,7 @@ See generated [OpenAPI](openapi.json) and [TypeScript](../schemas/pawse.ts).
 Request: `photo: {mime_type, data}` (base64 JPEG/PNG/WebP, max 3 MB),
 `share_with_ai: true`, optional `red_flags` using the existing care warning-sign enum.
 Consent is required server-side. Photos are forwarded inline to Gemini, not saved locally.
-`GEMINI_VISION_MODEL` defaults to the access-tested `gemini-3.8-flash`.
+`GEMINI_VISION_MODEL` defaults to `gemini-3-flash-preview` with low thinking, matching the current main integration. Override it with a model available to your project.
 
 Response: nullable `cat_detected`, `face_assessable`, `image_quality`, five named
 `visible_observations`, `limitations`, `questions_for_owner`, `model`, `urgency`, `disclaimer`.
