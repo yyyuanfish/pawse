@@ -1,0 +1,207 @@
+Hw I get?: GOOGLE_PLACES_API_KEY
+
+---
+
+cehck other agents past coentx
+
+---
+
+and twherr I can somehw ge/conect it from:
+-_
+
+
+<pasted_content id="0504">
+Skip to main content
+API Keys
+Group by
+Filter by
+All projects
+Key    Project    
+Created
+Billing Tier    
+...Hdhk
+Workshop API key
+agentic26zrh-2030
+Oct 7, 2026    Account (...7F15)
+Tier 1    
+Can't find your API keys here?
+
+This list only shows API keys for projects imported into Google AI Studio. Import other projects to manage their associated API Keys. You can also create a new API Key above. Learn more
+
+</pasted_content id="0504">
+
+<
+-
+
+---
+
+gogogle project
+
+---
+
+<pasted_content id="0504">
+
+Console Logo
+
+Product details
+
+Places API (New)
+Google Enterprise API
+
+Next generation of the Places API with access to more than 200 million places
+
+Loading
+Overview
+Pricing
+Documentation
+Related Products
+Overview
+The new version of the Google Places API gives you access to more than 200 million businesses and points of interest, including an expanded list of place details and types. Show users new place attributes such real-time data for EV charging stations, wheelchair accessible establishments, and whether a restaurant allows dogs. Updates also include an enhanced search experience, modern security with OAuth-based authentication, and simplifications to pricing.
+Text search : Search for place information based on a text string.
+Nearby search : Search for matching place types within a specified area.
+Place details : Return detailed information about a specific place, including user reviews.
+Place photo : Return the most relevant photos for a place from Google users and business owners.
+Additional details
+Type: SaaS & APIs
+Last product update: 9/11/26
+Category: Maps
+Service name: places.googleapis.com
+Pricing
+Flexible pricing that scale to fit your needs. Build more for free and access more discounts online with Google Maps Platform updates. Learn more. 
+
+Autocomplete Requests
+
+Autocomplete Requests (India)
+
+Autocomplete Session Usage
+
+Autocomplete Session Usage (India)
+
+Places API Categorical Search
+
+Places API Place Details Enterprise
+
+Places API Place Details Enterprise (India)
+
+Places API Place Details Pro
+
+Places API Place Details Pro (India)
+
+Places API Place Details Essentials (IDs Only)
+
+Places API Place Details Essentials (IDs Only) (India)
+
+Places API Place Details Essentials
+
+Places API Place Details Essentials (India)
+
+Places API Place Details Enterprise + Atmosphere
+
+Places API Place Details Enterprise + Atmosphere (India)
+
+Places API Place Details Photos
+
+Places API Place Details Photos (India)
+
+Place Reviews & Photos
+
+Place Reviews & Photos (India)
+
+Places API Nearby Search Enterprise
+
+Places API Nearby Search Enterprise (India)
+
+Places API Nearby Search Pro
+
+Places API Nearby Search Pro (India)
+
+Places API Nearby Search Enterprise + Atmosphere
+
+Places API Nearby Search Enterprise + Atmosphere (India)
+
+Places API Text Search Enterprise
+
+Places API Text Search Enterprise (India)
+
+Places API Text Search Pro
+
+Places API Text Search Pro (India)
+
+Places API Text Search Essentials (IDs Only)
+
+Places API Text Search Essentials (IDs Only) (India)
+
+Places API Text Search Enterprise + Atmosphere
+
+Places API Text Search Enterprise + Atmosphere (India)
+FREE
+
+USD 0.00
+/1K count
+Starting after: 0
+count/month
+TIER 1
+
+USD 2.83
+/1K count
+Starting after: 10K
+count/month
+TIER 2
+
+USD 2.27
+/1K count
+Starting after: 100K
+count/month
+TIER 3
+
+USD 1.70
+/1K count
+Starting after: 500K
+count/month
+TIER 4
+
+USD 0.85
+/1K count
+Starting after: 1M
+count/month
+TIER 5
+
+USD 0.21
+/1K count
+Starting after: 5M
+count/month
+If you pay in a currency other than USD, the prices listed in your currency on Google Cloud SKUs  apply. Please refer to Google Cloud Price List  for the latest pricing.
+Tutorials and documentation
+Documentation 
+Pricing 
+Terms of Service
+By using this product you agree to the terms and conditions of the following license: Google Maps Platform.
+
+Related Products
+Customers who use this product also use the following products
+
+Geocoding API
+Google Enterprise API
+Convert between addresses and geographic coordinates.
+
+
+Gmail API
+Google Enterprise API
+View and manage Gmail mailbox data.
+
+
+Google Drive API
+Google Enterprise API
+Create and manage resources in Google Drive.
+
+
+Google Sheets API
+Google Enterprise API
+Read and write Google Sheets data
+
+
+Maps JavaScript API
+Google
+Maps for your website
+
+</pasted_content id="0504">

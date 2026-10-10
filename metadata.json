@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K4TW13MV8JQY1TM47RFPSR",
   "strategy": "manual-commit",
   "branch": "fix/clinic-search-endpoint",
-  "checkpoints_count": 18,
+  "checkpoints_count": 21,
   "files_touched": [
     "pawse/providers.py",
     "tests/test_care.py",
@@ -42,14 +42,21 @@
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
+      "prompt": "/4/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 118,
-    "cache_creation_tokens": 56393,
-    "cache_read_tokens": 4380265,
-    "output_tokens": 19205,
-    "api_call_count": 45,
+    "input_tokens": 138,
+    "cache_creation_tokens": 97608,
+    "cache_read_tokens": 4892429,
+    "output_tokens": 23916,
+    "api_call_count": 55,
     "subagent_tokens": {
       "input_tokens": 142,
       "cache_creation_tokens": 163722,
