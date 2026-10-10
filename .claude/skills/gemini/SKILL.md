@@ -47,7 +47,7 @@ results back.
   `newSessionExpireTime`, `bidiGenerateContentSetup` = the locked setup; token in `name`) and runs tool calls at
   `POST /api/v1/live/tool-calls`. The browser connects with `@google/genai` (`apiKey: token`, `apiVersion: v1alpha`).
   Raw WebSocket: `.../ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained?access_token=`.
-  Contract and browser to-do: [docs/GEMINI_LIVE.md](../../../docs/GEMINI_LIVE.md).
+  Contract: [docs/GEMINI_LIVE.md](../../../docs/GEMINI_LIVE.md).
 - `gemini-3.8-live` calls functions asynchronously by default (`behavior: NON_BLOCKING`): the cat keeps
   talking while a tool runs. Send results back with `sendToolResponse` (JS) / `send_tool_response` (Python); show task status in the UI meanwhile.
 - Ask before anything that cannot be undone (purchase, send, post, delete): the app confirms with the user

@@ -6,6 +6,9 @@ WORKDIR /web
 COPY web/package.json web/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY web/ ./
+# Gemini Live drives the /app conversation by default (Gradium stays STT/TTS); ?demo=1 forces the scripted rehearsal.
+ARG VITE_VOICE_AGENT=live
+ENV VITE_VOICE_AGENT=$VITE_VOICE_AGENT
 RUN npm run build
 
 FROM python:3.12-slim

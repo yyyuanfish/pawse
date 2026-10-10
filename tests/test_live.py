@@ -165,3 +165,13 @@ def test_assess_searches_clinics_near_the_owner_or_falls_back_to_zurich(monkeypa
     expected = context.get('location') or live.ZURICH.model_dump()
     assert req.location.model_dump() == expected
     assert r.json()['response']['location_source'] == source
+
+
+def test_token_response_never_contains_the_server_api_key(monkeypatch):
+    sentinel = 'SENTINEL-KEY-do-not-leak-0123456789'
+    monkeypatch.setenv('GEMINI_API_KEY', sentinel)
+    upstream(monkeypatch, lambda req: httpx.Response(200, json={'name': 'auth_tokens/ephemeral'}))
+    with TestClient(app) as c:
+        r = c.post('/api/v1/live/tokens', json={'share_with_gemini': True})
+    assert r.status_code == 201
+    assert sentinel not in r.text and sentinel not in json.dumps(dict(r.headers))

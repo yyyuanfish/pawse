@@ -46,6 +46,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const [camOn, setCamOn] = useState(false);
   const [facing, setFacing] = useState('environment');
   const [micOn, setMicOn] = useState(!IS_LIVE_VOICE);
+  const [fellBack, setFellBack] = useState(false); // Live could not start: the simulated rehearsal plays instead
+  const wantsAudio = VOICE_WANTS_AUDIO && !fellBack;
   const [soundOn, setSoundOn] = useState(!isSpeechMuted());
   const [aiLine, setAiLine] = useState('');
   const [userLine, setUserLine] = useState('');
@@ -69,16 +71,17 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const onTriageRef = useRef(onTriage);
   onTriageRef.current = onTriage;
 
-  const mic = useUserMedia({ enabled: VOICE_WANTS_AUDIO && consent && micOn, audio: true });
+  const mic = useUserMedia({ enabled: wantsAudio && consent && micOn, audio: true });
   const cam = useUserMedia({ enabled: camOn, video: true, facing });
   // Recording = the mic is open and the agent is taking it in. The meter shows the owner it hears them.
-  const recording = VOICE_WANTS_AUDIO && micOn && !!mic.stream && listening;
+  const recording = wantsAudio && micOn && !!mic.stream && listening;
   const level = useMicLevel(recording ? mic.stream : null);
   const hearing = recording && level >= 0.15;
 
   // ---- the conversation with Pawse
   useEffect(() => {
     if (IS_LIVE_VOICE && !consent) return;
+    setFellBack(false);
     const agent = createVoiceAgent({ lang, shareWithGemini: consent, voice: gradiumVoice ? { engine: 'gradium', voiceId: gradiumVoice } : null });
     agentRef.current = agent;
     const off = agent.on((e) => {
@@ -114,6 +117,9 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
           setSheetOpen(true);
           break;
         }
+        case 'fallback':
+          setFellBack(true);
+          break;
         case 'error':
           setError(e.message || '');
           break;
@@ -214,7 +220,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   };
 
   const status = listening ? null : speaking === 'ai' ? t.aiSpeaking : aiLine ? '' : t.connecting;
-  const needsMic = VOICE_WANTS_AUDIO && consent && !micOn && !mic.error;
+  const needsMic = wantsAudio && consent && !micOn && !mic.error;
   const bars = [0.55, 0.85, 1, 0.85, 0.55];
   const sheetVisible = triage && sheetOpen;
   const lastPhoto = photos[photos.length - 1];
@@ -344,7 +350,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
             )}
             {aiLine && <p className="cap-ai">{aiLine}</p>}
             {error && <p className="cap-error">{error}</p>}
-            {VOICE_WANTS_AUDIO && mic.error && <p className="cap-error">{t.micUnavailable}</p>}
+            {wantsAudio && mic.error && <p className="cap-error">{t.micUnavailable}</p>}
           </div>
 
           {chips.length > 0 && (
