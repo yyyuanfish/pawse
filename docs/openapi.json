@@ -2977,9 +2977,11 @@
             "type": "string",
             "enum": [
               "my_voice",
-              "standard"
+              "standard",
+              "callee"
             ],
             "title": "Voice",
+            "description": "callee: the simulated other side of a Pawse call (vet, insurer) in a second Gradium voice; needs a known call_id.",
             "default": "my_voice"
           },
           "call_id": {

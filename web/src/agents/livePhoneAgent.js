@@ -1,7 +1,7 @@
 // Live phone agent for Pawse. There is NO telephony: the German script and the numbers come from
 // the backend (GET /api/v1/demo/mimi), every AI line is spoken with the same Gradium German voice
-// (POST /api/v1/voice/speech, only with explicit consent), and every callee reply and the result
-// stay marked `simulated: true`. Nothing is ever dialled or booked. Implements ../contracts.js.
+// (POST /api/v1/voice/speech, only with explicit consent), the simulated callee replies use a second Gradium
+// voice (voice: 'callee'), and every callee reply and the result stay marked `simulated: true`. Nothing is ever dialled or booked. Implements ../contracts.js.
 //
 // One call = one server-issued call id: the first AI line carries the AI disclosure and the server
 // answers with an X-Pawse-Call-Id header; later lines send that id so the server does not repeat
@@ -42,21 +42,26 @@ function createGradiumLines(base, voice, state) {
   let chain = Promise.resolve();
   let callId = null;
   let failed = false;
+  let calleeFailed = false;
 
-  const request = async (text) => {
-    if (failed || state.ended) return null;
+  // who='callee': the simulated reply in a second Gradium voice. It needs the call id, and if it fails
+  // only the replies move to browser speech; Pawse keeps its Gradium voice.
+  const request = async (text, who) => {
+    const callee = who === 'callee';
+    if (failed || state.ended || (callee && (calleeFailed || !callId))) return null;
     try {
       const res = await fetch(`${base}/api/v1/voice/speech`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, language: 'de', voice, share_with_gradium: true, ...(callId ? { call_id: callId } : {}) }),
+        body: JSON.stringify({ text, language: 'de', voice: callee ? 'callee' : voice, share_with_gradium: true, ...(callId ? { call_id: callId } : {}) }),
       });
       if (!res.ok) throw new Error(`speech ${res.status}`);
       const id = res.headers && typeof res.headers.get === 'function' ? res.headers.get('x-pawse-call-id') : null;
       if (id) callId = id;
       return await res.blob();
     } catch {
-      failed = true; // stay on browser speech for the rest of this call
+      if (callee) calleeFailed = true;
+      else failed = true; // stay on browser speech for the rest of this call
       return null;
     }
   };
@@ -66,9 +71,9 @@ function createGradiumLines(base, voice, state) {
       return failed;
     },
     /** Promise<Blob|null> for line `key`; queued behind every earlier request. */
-    fetch(key, text) {
+    fetch(key, text, who = 'ai') {
       if (!cache.has(key)) {
-        const p = chain.then(() => request(text));
+        const p = chain.then(() => request(text, who));
         chain = p;
         cache.set(key, p);
       }
@@ -204,15 +209,14 @@ export function createLivePhoneCall({ target = 'vet', lang = 'zh', context = {},
   async function say(lines, i) {
     const line = lines[i];
     if (line.who === 'ai' && !useGradium()) announceVoice(false);
-    if (line.who === 'ai' && useGradium()) {
-      const blob = await gradium.fetch(i, line.original);
-      // Preload the next AI line while this one plays.
-      const next = lines.findIndex((l, j) => j > i && l.who === 'ai');
-      if (next >= 0 && useGradium()) gradium.fetch(next, lines[next].original);
+    if (useGradium()) {
+      const blob = await gradium.fetch(i, line.original, line.who);
+      // Preload the next line while this one plays.
+      if (i + 1 < lines.length && useGradium()) gradium.fetch(i + 1, lines[i + 1].original, lines[i + 1].who);
       if (state.ended) return;
-      announceVoice(!!blob);
+      if (line.who === 'ai') announceVoice(!!blob);
       if (await playBlob(blob, state)) return;
-      announceVoice(false); // Gradium failed or was not playable: the browser voice speaks this line
+      if (line.who === 'ai') announceVoice(false); // Gradium failed or was not playable: the browser voice speaks this line
     }
     if (state.ended) return;
     await speak(line.original, 'de', { speed, pitch: line.who === 'callee' ? 0.8 : 1.15 });

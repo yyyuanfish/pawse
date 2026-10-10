@@ -529,3 +529,27 @@ def test_clone_does_not_reuse_a_voice_another_session_owns(monkeypatch):
         voice.voices['someone-else'] = {'source_id': 'taken123'}
         r = c.post('/api/v1/voice/clone', json={'audio': audio(), 'sample_language': 'en', 'own_voice_consent': True, 'share_with_gradium': True})
         assert r.json()['source_id'] == 'fresh123' and r.json()['reused_existing_clone'] is False
+
+
+def test_callee_lines_use_a_second_voice_without_disclosure_only_inside_a_call(monkeypatch):
+    monkeypatch.setenv('GRADIUM_API_KEY', 'test')
+    spoken = []
+    def handler(req):
+        body = json.loads(req.content)
+        spoken.append((body['voice_id'], body['text']))
+        return httpx.Response(200, content=wav(1))
+    upstream(monkeypatch, handler)
+    line = {'share_with_gradium': True}
+    with TestClient(app) as c, TestClient(app) as other:
+        # Without a call Pawse disclosed first, a callee line is refused (no undisclosed audio of arbitrary text).
+        assert c.post('/api/v1/voice/speech', json=line | {'voice': 'callee', 'text': 'Hallo'}).status_code == 409
+        assert c.post('/api/v1/voice/speech', json=line | {'voice': 'callee', 'text': 'Hallo', 'call_id': 'x' * 24}).status_code == 409
+        call_id = c.post('/api/v1/voice/speech', json=line | {'voice': 'standard', 'text': 'Meine Katze hinkt.'}).headers['x-pawse-call-id']
+        pawse_voice = spoken[-1][0]
+        r = c.post('/api/v1/voice/speech', json=line | {'voice': 'callee', 'text': 'Kommen Sie um 16:30.', 'call_id': call_id})
+        assert r.status_code == 200 and r.headers['x-pawse-call-id'] == call_id
+        assert spoken[-1] == ('5qR8zYpVfe4BpilC', 'Kommen Sie um 16:30.'), 'spoken as is, in the callee voice'
+        assert spoken[-1][0] != pawse_voice
+        # Another session cannot borrow the call id.
+        assert other.post('/api/v1/voice/speech', json=line | {'voice': 'callee', 'text': 'Hallo', 'call_id': call_id}).status_code == 409
+        assert c.post('/api/v1/voice/speech', json={'voice': 'callee', 'text': 'Hallo', 'call_id': call_id}).status_code == 422

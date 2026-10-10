@@ -16,13 +16,14 @@ const story = {
 const calls = [];
 const speech = []; // bodies sent to /voice/speech
 let gradiumUp = false; // false: /voice/speech answers 503 (no key)
+let calleeUp = true; // false: only voice 'callee' answers 503
 globalThis.fetch = async (url, opts) => {
   calls.push(String(url));
   if (String(url).endsWith('/api/v1/demo/mimi')) return { ok: true, status: 200, json: async () => story };
   if (String(url).endsWith('/api/v1/voice/speech')) {
     const body = JSON.parse(opts.body);
     speech.push(body);
-    if (!gradiumUp) return { ok: false, status: 503, headers: new Map(), blob: async () => null };
+    if (!gradiumUp || (body.voice === 'callee' && !calleeUp)) return { ok: false, status: 503, headers: new Map(), blob: async () => null };
     // Server behaviour: no or unknown call id -> issue one; known id -> echo it.
     const id = body.call_id || `call-${speech.length}-abcdefghijklmnop`;
     return { ok: true, status: 200, headers: new Map([['x-pawse-call-id', id]]), blob: async () => ({ size: 1 }) };
@@ -72,20 +73,34 @@ for (const [target, ctx] of [['vet', { clinic: { name: 'Praxis X' } }], ['insura
   assert.ok(!ev.some((e) => e.type === 'error'), 'no error event');
 }
 
-// Gradium on, key present: every AI line goes through /voice/speech, in order, with one call id.
+// Gradium on, key present: every line goes through /voice/speech, in order, with one call id;
+// Pawse in the owner's chosen voice, the simulated replies in the second ('callee') voice.
 for (const target of ['vet', 'insurance']) {
   gradiumUp = true; speech.length = 0; played = 0;
   const { ev } = await runCall(target, { gradiumConsent: true, voice: 'my_voice' });
-  const aiLines = ev.filter((e) => e.type === 'line' && e.who === 'ai').map((e) => e.original);
-  assert.ok(aiLines.length >= 2, 'test story has several AI lines');
-  assert.deepEqual(speech.map((b) => b.text), aiLines, `${target}: every AI line sent to Gradium, in order`);
-  assert.ok(speech.every((b) => b.share_with_gradium === true && b.voice === 'my_voice' && b.language === 'de'));
+  const lines = ev.filter((e) => e.type === 'line');
+  assert.ok(lines.filter((e) => e.who === 'ai').length >= 2 && lines.some((e) => e.who === 'callee'), 'test story has AI and callee lines');
+  assert.deepEqual(speech.map((b) => b.text), lines.map((e) => e.original), `${target}: every line sent to Gradium, in order`);
+  assert.deepEqual(speech.map((b) => b.voice), lines.map((e) => (e.who === 'ai' ? 'my_voice' : 'callee')), `${target}: callee lines use the callee voice`);
+  assert.ok(speech.every((b) => b.share_with_gradium === true && b.language === 'de'));
   assert.equal(speech[0].call_id, undefined, 'first line asks the server for a call id');
   const ids = new Set(speech.slice(1).map((b) => b.call_id));
   assert.equal(ids.size, 1, `${target}: later lines reuse one call id`);
   assert.equal([...ids][0], 'call-1-abcdefghijklmnop', 'the id the server issued');
-  assert.equal(played, aiLines.length, 'every AI line played as Gradium audio');
+  assert.equal(played, lines.length, 'every line played as Gradium audio');
+  assert.ok(lines.filter((e) => e.who === 'callee').every((e) => e.simulated === true), 'replies stay marked simulated');
   assert.ok(!ev.some((e) => e.type === 'error'));
+}
+
+// Only the callee voice fails: replies move to browser speech, Pawse keeps Gradium.
+{
+  gradiumUp = true; calleeUp = false; speech.length = 0; played = 0;
+  const { ev } = await runCall('vet', { gradiumConsent: true, voice: 'standard' });
+  const ai = ev.filter((e) => e.type === 'line' && e.who === 'ai').length;
+  assert.equal(speech.filter((b) => b.voice === 'callee').length, 1, 'one failed callee request, then browser speech for replies');
+  assert.equal(played, ai, 'every AI line still played as Gradium audio');
+  assert.ok(!ev.some((e) => e.type === 'provider' && e.voice === 'browser'), 'Pawse voice never switches to browser');
+  calleeUp = true;
 }
 
 // Gradium answers 503: the call still completes on browser speech and stops asking after the failure.

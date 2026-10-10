@@ -116,7 +116,8 @@ class SaveVoice(VoiceConsent):
 class SpeechRequest(VoiceConsent):
     text: str = Field(min_length=1, max_length=3500)
     language: Literal["de"] = "de"
-    voice: Literal["my_voice", "standard"] = "my_voice"
+    voice: Literal["my_voice", "standard", "callee"] = Field(default="my_voice",
+        description="callee: the simulated other side of a Pawse call (vet, insurer) in a second Gradium voice; needs a known call_id.")
     call_id: str | None = Field(default=None, min_length=16, max_length=64, pattern=r"^[A-Za-z0-9_-]+$",
         description=f"Id from the {CALL_HEADER} response header of an earlier line in the same call. "
                     "Known id: the line is spoken as is. Absent, unknown or expired: DISCLOSURE is prepended and a new id is issued.")
@@ -480,6 +481,13 @@ SPEECH_RESPONSES = {200: {"content": {"audio/wav": {"schema": {"type": "string",
 async def speak(payload: SpeechRequest, request: Request):
     owner = request.state.owner
     async with operation(owner), httpx.AsyncClient() as client:
+        if payload.voice == "callee":
+            # A simulated reply, not Pawse: no AI disclosure, and only inside a call whose first line disclosed Pawse.
+            if not disclosed_call(owner, payload.call_id):
+                raise HTTPException(409, "Callee lines are only spoken inside a Pawse call: send its call_id.")
+            response = await tts(client, os.getenv("GRADIUM_CALLEE_VOICE_ID_DE", "5qR8zYpVfe4BpilC"), payload.text)
+            response.headers[CALL_HEADER] = payload.call_id
+            return response
         voice_id = os.getenv("GRADIUM_STANDARD_VOICE_ID_DE", "p6Uutkyi3j2iNAUu") if payload.voice == "standard" else profile(owner).get("german_id") or os.getenv("GRADIUM_VOICE_ID_DE")
         if not voice_id:
             raise HTTPException(409, "Record your voice and save its German version first, or select the standard voice.")

@@ -152,7 +152,7 @@ export interface CloneRequest {
 export interface SpeechRequest {
   text: string;
   language?: "de";
-  voice?: "my_voice" | "standard";
+  voice?: "my_voice" | "standard" | "callee";
   share_with_gradium: true;
   /** From the X-Pawse-Call-Id header of an earlier line in the same call; the server then skips the disclosure it already spoke. */
   call_id?: string | null;
