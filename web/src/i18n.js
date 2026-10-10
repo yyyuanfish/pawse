@@ -38,6 +38,7 @@ export const strings = {
 
     adviceTitle: 'Pawse 的建议',
     nowDo: '现在可以做',
+    askVet: '可以问兽医',
     transferTitle: '让 Pawse 帮你打电话',
     aiNote: 'Pawse 用德语打电话，并先说明自己是 AI 助手。结果用中文告诉你。',
     callVet: '转接兽医',
@@ -161,6 +162,7 @@ export const strings = {
 
     adviceTitle: "Pawse's advice",
     nowDo: 'Right now',
+    askVet: 'Ask the vet',
     transferTitle: 'Let Pawse make the calls',
     aiNote: 'Pawse makes the call in German and always says it is an AI assistant. You get everything back in English.',
     callVet: 'Call the vet',

@@ -49,6 +49,12 @@ ok('sendText -> user transcript -> valid triage via /api/v1/care/requests');
 
 assert.equal(mapCareResult({ assessment: { urgency: 'emergency', summary: 's' } }).level, 'red');
 assert.deepEqual(validateTriage(mapCareResult({ assessment: { urgency: 'unknown', summary: 's' } })), []);
+// Gemini's questions are for the vet, not things the owner does now (issue #58).
+const careCard = mapCareResult({ assessment: { urgency: 'contact_vet', summary: 's', questions: ['Is it fractured?'], services_to_ask_about: ['Radiographs'] } });
+assert.deepEqual(careCard.askVet, ['Is it fractured?', 'Radiographs']);
+assert.ok(!careCard.steps.includes('Is it fractured?') && !careCard.steps.includes('Radiographs'), 'questions leaked into Right now');
+assert.deepEqual(validateTriage(careCard), []);
+assert.deepEqual(validateTriage({ ...careCard, askVet: 'x' }), ['askVet must be an array of strings']);
 ok('urgency mapping (emergency=red, else yellow) and empty questions still valid');
 
 await until(() => ev.filter((e) => e.type === 'speaking' && e.who === 'ai').length >= 2);

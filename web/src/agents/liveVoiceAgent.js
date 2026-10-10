@@ -13,6 +13,7 @@ const T = {
     chips: ['Limping', 'Not eating', 'Vomiting', 'Breathing fast'],
     headline: { red: 'See an emergency vet now', yellow: 'Contact a vet today', green: 'Keep watching' },
     fallbackStep: 'Call a veterinarian and describe what you see.',
+    emergencyStep: 'Go to an emergency vet now. Call ahead on the way if you can.',
     noSpeech: "I couldn't make out what you said. Please try again or type it.",
     errTranscribe: 'Could not transcribe your voice. Please try again or type your message.',
     errCare: 'Could not get advice right now. Please try again in a moment.',
@@ -25,6 +26,7 @@ const T = {
     chips: ['一瘸一拐', '不吃东西', '呕吐', '呼吸急促'],
     headline: { red: '请立即去急诊', yellow: '今天联系兽医', green: '继续观察' },
     fallbackStep: '联系兽医并说明你看到的情况。',
+    emergencyStep: '马上去急诊兽医，路上尽量先打电话通知。',
     noSpeech: '我没听清，请再说一次或直接打字。',
     errTranscribe: '语音识别失败，请重试或直接打字。',
     errCare: '暂时无法给出建议，请稍后再试。',
@@ -49,13 +51,14 @@ export function mapCareResult(res, lang = 'en') {
   const t = T[lang] || T.en;
   const a = (res && res.assessment) || {};
   const level = urgencyToLevel(a.urgency);
-  const steps = [...(a.questions || []), ...(a.services_to_ask_about || [])].filter(Boolean);
-  if (!steps.length) steps.push(t.fallbackStep);
+  // Gemini's questions and services are for the vet; "Right now" is what the owner does next.
+  const askVet = [...(a.questions || []), ...(a.services_to_ask_about || [])].filter(Boolean);
   const out = {
     type: 'triage',
     level,
     headline: t.headline[level],
-    steps,
+    steps: [level === 'red' ? t.emergencyStep : t.fallbackStep],
+    askVet,
     summary: a.summary || (res && res.handoff) || t.headline[level],
   };
   if (level === 'red') out.escalation = a.summary || t.headline.red;
