@@ -1,0 +1,14 @@
+{
+  "tool_use_id": "toolu_01RPYYZ2g6LajgnxMRZkVfWw",
+  "agent_id": "aeaf4789b677dc55a",
+  "task_description": "Fetch FLEURS backup recordings",
+  "token_usage": {
+    "input_tokens": 22,
+    "cache_creation_tokens": 41345,
+    "cache_read_tokens": 513191,
+    "output_tokens": 110,
+    "api_call_count": 11
+  },
+  "started_at": "2026-10-10T15:21:54.003736366Z",
+  "completed_at": "2026-10-10T15:28:09.573924096Z"
+}
