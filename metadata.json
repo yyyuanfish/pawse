@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K399G2B5BM7ZDDH5NAMN62",
   "strategy": "manual-commit",
   "branch": "feat/deploy-web-app",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
     "pawse/static/index.html"
   ],
@@ -28,13 +28,20 @@
       "compact_transcript": "/2/transcript.jsonl",
       "content_hash": "/2/content_hash.txt",
       "prompt": "/2/prompt.txt"
+    },
+    {
+      "metadata": "/3/metadata.json",
+      "transcript": "/3/full.jsonl",
+      "compact_transcript": "/3/transcript.jsonl",
+      "content_hash": "/3/content_hash.txt",
+      "prompt": "/3/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 38,
-    "cache_creation_tokens": 72485,
-    "cache_read_tokens": 1595541,
-    "output_tokens": 9230,
-    "api_call_count": 19
+    "input_tokens": 54,
+    "cache_creation_tokens": 97302,
+    "cache_read_tokens": 1959623,
+    "output_tokens": 11880,
+    "api_call_count": 27
   }
 }

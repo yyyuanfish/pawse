@@ -1,0 +1,6 @@
+AMke sure depoyed:
+-_
+❯ ⚠️ Redeploy after merges: the site does not update itself. After teammates merge, run bash
+  scripts/deploy_cloudrun.sh agentic26zrh-2030, about 3 minutes. Do it once more just before you submit.
+--
+or let me know if i haev to fix soem blocekr for t
