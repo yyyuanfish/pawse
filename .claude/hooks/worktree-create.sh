@@ -77,6 +77,6 @@ fi
 # Carry the git-ignored .env (never printed).
 if [ -f "$root/.env" ]; then cp -p "$root/.env" "$dir/.env" || fail "could not copy .env"; fi
 
-printf 'worktree-create: %s on branch %s (from %s). Make a venv there and run cd web && npm install (check.sh needs it).\n' \
+printf 'worktree-create: %s on branch %s (from %s). Make a venv there; npm install in web/ only to run or build the React app.\n' \
   "$dir" "$branch" "$base_ref" >&2
 printf '%s\n' "$dir"

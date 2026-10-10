@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import {createGeminiLiveAgent} from '../src/agents/geminiLiveAgent.js';
 import {pcm16Base64,decodePCM,createNativeAudio} from '../src/agents/nativeAudio.js';
-import {micLevel} from '../src/hooks/useMicLevel.js';
+import {micLevel} from '../src/utils/micLevel.js';
 assert.equal(micLevel(new Float32Array(512)),0);assert.equal(micLevel(new Float32Array(512).fill(1)),1);
 assert.ok(micLevel(new Float32Array(512).fill(.05))>.3,'normal speech moves the meter');
 const decoded=decodePCM(pcm16Base64(new Float32Array([-1,0,.5,1])));

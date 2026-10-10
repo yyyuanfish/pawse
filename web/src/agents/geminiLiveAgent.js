@@ -1,4 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
 import { VOICE_AGENT_URL } from '../config.js';
 import { mapCareResult } from './liveVoiceAgent.js';
 import { createNativeAudio } from './nativeAudio.js';
@@ -10,7 +9,7 @@ import { getLocation } from './location.js';
 // voice={engine:'gradium',voiceId}: Gemini Live still runs the conversation and tools, but Gradium hears the
 // owner (streaming STT, its text goes to Live) and speaks Pawse's replies from Live's transcript.
 export function createGeminiLiveAgent({lang='en',shareWithGemini=false,voice=null,
-  clientFactory=options=>new GoogleGenAI(options), audioFactory=createNativeAudio, locate=getLocation,
+  clientFactory=async options=>new (await import('@google/genai')).GoogleGenAI(options), audioFactory=createNativeAudio, locate=getLocation,
   sttFactory=createGradiumStt, replyFactory=createGradiumReply}={}) {
   const listeners=new Set(), pending=new Set(), toolIds=new Set(), cancelledTools=new Set();
   let started=false, ended=false, session=null, audio=null, media=null, muted=true, outputMuted=false, timer=null;
@@ -104,7 +103,7 @@ export function createGeminiLiveAgent({lang='en',shareWithGemini=false,voice=nul
         audio=audioFactory(frame=>{if(muted||!session||ended)return;if(gradium)stt?.send(frame);else send({audio:{data:frame,mimeType:'audio/pcm;rate=16000'}});}, speaking=>emit({type:'speaking',who:speaking?'ai':'none'}));
         audio.setMuted(outputMuted);
         const token=await post('tokens',{language:lang,share_with_gemini:true});if(ended)return;
-        const ai=clientFactory({apiKey:token.token,httpOptions:{apiVersion:token.api_version}});
+        const ai=await clientFactory({apiKey:token.token,httpOptions:{apiVersion:token.api_version}});
         const connected=await ai.live.connect({model:token.model,config:{responseModalities:['AUDIO']},callbacks:{onmessage:message,onerror:()=>{error('Gemini Live connection failed. Restart or use text fallback.');end();},onclose:()=>{if(!ended){error('Gemini Live disconnected. Start a new session.');end();}}}});
         if(ended){connected.close();return;}session=connected;
         if(gradium){

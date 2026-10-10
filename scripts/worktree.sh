@@ -57,8 +57,8 @@ Env:            $env_note
 Next steps:
   cd $dir
   python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
-  (cd web && npm install)        # scripts/check.sh needs it; never symlink node_modules
-  bash scripts/check.sh          # before you push
+  bash scripts/check.sh          # before you push (no npm install needed)
+  (cd web && npm install)        # only to run or build the React app; never symlink node_modules
   git push -u origin HEAD        # then gh pr create --base main, or push straight to main (gp skill)
 After merge: git -C $root worktree remove $dir && git -C $root branch -D $branch
 NEXT
