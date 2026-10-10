@@ -30,7 +30,7 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: pip install -r requirements-e2e.txt
-      - run: python -m playwright install --with-deps chromium
+      - run: python -m playwright install --with-deps chromium webkit # webkit: test_browser_webkit_audio.py
       # The suite builds web/dist itself; installing here keeps a broken lockfile from hiding as a test failure.
       - run: npm ci
         working-directory: web
