@@ -13,6 +13,7 @@ export function createFallbackVoiceAgent({ makeLive, makeMock, notice = FALLBACK
     cur = wire(makeMock());
     cur.setMicMuted?.(micMuted); cur.setOutputMuted?.(outMuted);
     if (media) cur.attachMedia?.(media);
+    fan({ type: 'fallback' }); // the page closes the mic: the rehearsal does not listen
     fan({ type: 'error', message: notice });
     cur.start();
   }
