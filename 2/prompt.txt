@@ -1,0 +1,15 @@
+theres now GOOGLE_PLACES_API_KEY, cehck wher disatnces wrks
+
+---
+
+make sure the relevat keys also get depyoed wehn depyeing the app
+
+---
+
+<task-notification>
+<task-id>b2xqkyejb</task-id>
+<tool-use-id>toolu_012pAgJFKXv8mxXjxBR6M5wi</tool-use-id>
+<output-file>/tmp/claude-1000/-home-azureuser-pawse/abbd5329-e9b7-4793-9b17-11b65fb12ad2/tasks/b2xqkyejb.output</output-file>
+<status>completed</status>
+<summary>Background command "Set up venv and web deps in the worktree" completed (exit code 0)</summary>
+</task-notification>
