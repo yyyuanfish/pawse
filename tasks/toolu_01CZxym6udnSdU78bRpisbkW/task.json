@@ -1,0 +1,14 @@
+{
+  "tool_use_id": "toolu_01CZxym6udnSdU78bRpisbkW",
+  "agent_id": "a0b8192a33a8503ec",
+  "task_description": "Port worktree convention to pawse",
+  "token_usage": {
+    "input_tokens": 54,
+    "cache_creation_tokens": 98538,
+    "cache_read_tokens": 2304295,
+    "output_tokens": 478,
+    "api_call_count": 27
+  },
+  "started_at": "2026-10-10T14:49:38.016852285Z",
+  "completed_at": "2026-10-10T14:55:21.189027358Z"
+}
