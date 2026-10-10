@@ -1,0 +1,1 @@
+Check why thsi VM was inaccessible for a whil (whic is why I dealocated)
