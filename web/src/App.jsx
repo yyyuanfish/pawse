@@ -16,6 +16,7 @@ import { stepState } from './utils/steps.js';
 import StepRail from './components/StepRail.jsx';
 import { IS_LIVE_PHONE, IS_MOCK } from './agents/index.js';
 import { PHONE_AGENT_URL } from './config.js';
+import { watchLocation } from './agents/location.js';
 
 const GRADIUM_KEY = 'pawse.gradium';
 const GUEST_KEY = 'pawse.guest';
@@ -64,6 +65,11 @@ export default function App() {
       /* storage unavailable */
     }
   };
+
+  // Follow the owner's position from the start, so nearby care is ready when they need it.
+  useEffect(() => {
+    watchLocation();
+  }, []);
 
   // Live phone calls only: is Gradium configured, and does this session have its own German voice?
   useEffect(() => {

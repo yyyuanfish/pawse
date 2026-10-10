@@ -327,8 +327,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .tag.near { background: var(--brand); color: #fff; }
 .tag.plain { background: var(--soft); color: var(--brand-strong); }
 .clinic-addr { color: var(--muted); }
-.clinic-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-.clinic-actions .btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+.clinic-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.clinic-actions .btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
 .clinic-actions a.btn { color: var(--brand-strong); }
 .clinic-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 0; text-align: center; }
 .note { font-size: 13.5px; color: var(--yellow-ink); background: #fff1d6; border-radius: 12px; padding: 8px 12px; }
@@ -667,3 +667,30 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
 .cam-snap span { width: 34px; height: 34px; border-radius: 50%; background: var(--brand); box-shadow: inset 0 0 0 4px #fff, 0 0 0 2px var(--brand); }
 .cam-snap:disabled { opacity: 0.6; }
 .history-scope { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin: 6px 4px 0; }
+
+
+/* Live location, map, taxis and insurer next to the clinic list */
+.loc-status { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; font-size: 13.5px; color: var(--muted); margin: 0; }
+.loc-status.ok { color: #1d6b43; font-weight: 700; }
+.loc-status.err { color: #a8202d; }
+.loc-dot { width: 9px; height: 9px; border-radius: 50%; background: #2f8f5f; box-shadow: 0 0 0 0 rgba(47, 143, 95, 0.6); animation: loc-pulse 1.6s infinite; }
+@keyframes loc-pulse { to { box-shadow: 0 0 0 8px rgba(47, 143, 95, 0); } }
+.live-map { display: flex; flex-direction: column; gap: 10px; }
+.live-map-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.live-map-head h2 { font-size: 17px; }
+.live-map-head .loc-status { justify-content: flex-end; }
+.map-tabs { display: flex; gap: 6px; overflow-x: auto; }
+.map-tabs .chip { white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.map-frame { border-radius: 16px; overflow: hidden; border: 1.5px solid var(--line); background: var(--soft); min-height: 240px; display: grid; place-items: center; }
+.map-frame iframe { width: 100%; height: 260px; border: 0; display: block; }
+.nearby-card { display: flex; flex-direction: column; gap: 8px; }
+.nearby-card h2 { font-size: 17px; }
+.place-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.place-row { display: flex; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
+.place-row:first-child { border-top: 0; padding-top: 0; }
+.place-row p { margin: 2px 0 0; }
+.place-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.place-actions .btn { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
+.map-frame { position: relative; }
+.map-loading { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; pointer-events: none; z-index: 0; }
+.map-frame iframe { position: relative; z-index: 1; background: transparent; }

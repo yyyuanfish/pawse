@@ -1148,6 +1148,88 @@
         }
       }
     },
+    "/api/v1/places/nearby": {
+      "post": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Nearby",
+        "operationId": "nearby_api_v1_places_nearby_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NearbyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacesResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/places/insurer": {
+      "post": {
+        "tags": [
+          "Places"
+        ],
+        "summary": "Insurer",
+        "operationId": "insurer_api_v1_places_insurer_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InsurerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacesResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/agents/graph": {
       "get": {
         "tags": [
@@ -2606,6 +2688,37 @@
         ],
         "title": "InsuredCat"
       },
+      "InsurerRequest": {
+        "properties": {
+          "company": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Company"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "share_location": {
+            "type": "boolean",
+            "title": "Share Location",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "company"
+        ],
+        "title": "InsurerRequest"
+      },
       "KnowledgeResult": {
         "properties": {
           "scope": {
@@ -2764,6 +2877,38 @@
         ],
         "title": "Me"
       },
+      "NearbyRequest": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "taxi",
+            "title": "Kind",
+            "default": "taxi"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "radius_km": {
+            "type": "number",
+            "maximum": 30.0,
+            "minimum": 0.5,
+            "title": "Radius Km",
+            "default": 5
+          },
+          "share_location": {
+            "type": "boolean",
+            "const": true,
+            "title": "Share Location"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "location",
+          "share_location"
+        ],
+        "title": "NearbyRequest"
+      },
       "Photo": {
         "properties": {
           "mime_type": {
@@ -2788,6 +2933,155 @@
           "data"
         ],
         "title": "Photo"
+      },
+      "Place": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address",
+            "default": ""
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "call_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Call Url"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          },
+          "maps_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maps Url"
+          },
+          "rating": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rating"
+          },
+          "opening_hours": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 14,
+            "title": "Opening Hours"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "google_places",
+              "gemini_maps"
+            ],
+            "title": "Source"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "source",
+          "retrieved_at"
+        ],
+        "title": "Place"
+      },
+      "PlacesResult": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "taxi",
+              "insurer"
+            ],
+            "title": "Kind"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "places": {
+            "items": {
+              "$ref": "#/components/schemas/Place"
+            },
+            "type": "array",
+            "title": "Places"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "places",
+          "warnings",
+          "note"
+        ],
+        "title": "PlacesResult"
       },
       "PolicyView": {
         "properties": {

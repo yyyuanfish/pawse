@@ -3,6 +3,8 @@ import { me } from '../agents/account.js';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
 import InsuranceProfileForm from '../components/InsuranceProfileForm.jsx';
+import LocationStatus from '../components/LocationStatus.jsx';
+import useLiveLocation from '../hooks/useLiveLocation.js';
 
 const PETALS = [
   { left: '8%', delay: '0s', dur: '11s', size: 12 },
@@ -25,6 +27,7 @@ function AccountLink({ onClick }) {
 }
 
 export default function Home({ t, lang, setLang, onStart, onOwnVoice, onHistory }) {
+  const loc = useLiveLocation();
   return (
     <main className="home">
       <div className="petals" aria-hidden="true">
@@ -70,6 +73,7 @@ export default function Home({ t, lang, setLang, onStart, onOwnVoice, onHistory 
         </button>
         <p className="muted">{t.startHint}</p>
         {onHistory && <button type="button" className="btn soft home-history" onClick={onHistory}>My history &amp; account</button>}
+        <LocationStatus t={t} loc={loc} />
         <details className="home-settings">
           <summary>{t.settings}</summary>
           <button className="btn soft" onClick={onOwnVoice}>Record my voice · emergency rehearsal</button>

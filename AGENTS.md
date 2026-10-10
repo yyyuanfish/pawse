@@ -32,7 +32,7 @@ instead of 510) → Pawse confirms the vet, books a cat-friendly taxi, and hands
 | 0:30–0:58 | German call to the vet: 16:30 or a home visit, ~CHF 600 + 150 | `voice.py` German script + subtitles, Gradium speech | ✅ script · ⚠️ own voice needs a Gradium key · 🎭 call and reply simulated (no telephony) |
 | 0:58–1:30 | Insurer call: accident covered, home visit and physio not; clinic CHF 385 vs home CHF 510 | `knowledge.py` cited AVB clauses, `demo.py` cost maths, `research/pet-insurance/` | ✅ citations + maths (real AVB terms, synthetic policyholder) · 🎭 insurer reply simulated |
 | 1:30–1:42 | Pawse confirms 16:30 with the vet, asks for an itemised invoice | `voice.py` script | ✅ script · 🎭 reply and booking simulated |
-| 1:42–1:54 | Taxi for 16:05 that accepts a cat in a carrier | `voice.py` script | ✅ script · 🎭 reply and booking simulated |
+| 1:42–1:54 | Taxi for 16:05 that accepts a cat in a carrier | `voice.py` script, `places.py` nearby taxis | ✅ script · ✅ real nearby taxi listings with phone numbers · 🎭 reply and booking simulated |
 | 1:54–2:00 | Case summary + claim checklist (keep video, itemised invoice, 30 days) | `demo.py`, frontend | ✅ |
 
 The in-app rehearsal (`GET /api/v1/demo/mimi`, shown at `/?demo=1`; plain `/` is the production page) plays the whole story with no keys. It is the

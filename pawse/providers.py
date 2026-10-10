@@ -108,12 +108,13 @@ async def google_clinics(req, client):
             continue
         phone = p.get("internationalPhoneNumber")
         opening = p.get("currentOpeningHours", {}).get("openNow")
+        hours = p.get("regularOpeningHours", {}).get("weekdayDescriptions") or []
         result.append(Clinic(id=p["id"], name=p["displayName"]["text"], address=p.get("formattedAddress", ""),
                              phone=phone, call_url=phone_uri(phone), location=location,
                              distance_km=distance(req.location, location), rating=p.get("rating"),
                              maps_url=safe_url(p.get("googleMapsUri")), website=safe_url(p.get("websiteUri")),
                              open_now=opening if isinstance(opening, bool) else None,
-                             source="google_places", retrieved_at=now()))
+                             opening_hours=[str(h) for h in hours][:14], source="google_places", retrieved_at=now()))
     return result
 
 
@@ -177,8 +178,8 @@ VET_WORDS = ("veterin", "tierarzt", "tierärzt", "tierklinik", "tierspital", "kl
 MAPS_FIELD = re.compile(r"^\*\s+\*\*(Address|Phone|Website|Rating|Description):\*\*\s*(.+)$", re.M)
 
 
-def parse_maps_place(chunk):
-    """Read a Google Maps grounding source. Facts come only from the source, never from model text."""
+def maps_listing(chunk, keep):
+    """One Google Maps grounding source as plain fields, or None. Facts come only from the source, never model text."""
     maps = chunk.get("maps") if isinstance(chunk, dict) else None
     if not isinstance(maps, dict) or not maps.get("placeId") or not isinstance(maps.get("text"), str):
         return None
@@ -186,7 +187,7 @@ def parse_maps_place(chunk):
     if not title or title.startswith("Review of"):
         return None
     fields = {k: v.strip() for k, v in MAPS_FIELD.findall(maps["text"])}
-    if not any(word in f"{title} {fields.get('Description', '')} ".lower() for word in VET_WORDS):
+    if not keep(f"{title} {fields.get('Description', '')} ".lower()):
         return None
     hours = []
     if "**Opening Hours:**" in maps["text"]:
@@ -201,38 +202,54 @@ def parse_maps_place(chunk):
     except (ValueError, IndexError):
         rating = None
     phone = fields.get("Phone")
-    return Clinic(id="gmaps:" + str(maps["placeId"]), name=title, address=fields.get("Address", ""),
-                  phone=phone if phone_uri(phone) else None, call_url=phone_uri(phone),
-                  website=safe_url(fields.get("Website")), maps_url=safe_url(maps.get("uri")),
-                  rating=rating if rating is not None and 0 <= rating <= 5 else None, open_now=None,
-                  opening_hours=hours[:14], source="gemini_maps", retrieved_at=now(),
-                  availability_note="Google Maps listing via Gemini; call to confirm hours, services and whether they see cats.")
+    return {"id": "gmaps:" + str(maps["placeId"]), "name": title, "address": fields.get("Address", ""),
+            "phone": phone if phone_uri(phone) else None, "call_url": phone_uri(phone),
+            "website": safe_url(fields.get("Website")), "maps_url": safe_url(maps.get("uri")),
+            "rating": rating if rating is not None and 0 <= rating <= 5 else None,
+            "opening_hours": hours[:14], "source": "gemini_maps", "retrieved_at": now()}
 
 
-async def gemini_maps_clinics(req, client):
+def is_vet(text):
+    return any(word in text for word in VET_WORDS)
+
+
+def parse_maps_place(chunk):
+    listing = maps_listing(chunk, is_vet)
+    return Clinic(**listing, open_now=None, availability_note="Google Maps listing via Gemini; call to confirm hours, services "
+                  "and whether they see cats.") if listing else None
+
+
+async def maps_grounding(client, prompts, location, keep):
+    """Ask Gemini with Grounding with Google Maps; return deduplicated listings that pass `keep`."""
     key = os.getenv("GEMINI_API_KEY")
     if not key:
         raise ProviderError("gemini_maps_not_configured")
     model = os.getenv("GEMINI_MAPS_MODEL", "gemini-3.5-flash-lite")
-    # Only coordinates and a generic clinic query leave the server, never symptoms, photo or insurance data.
-    async def one(topic):
+    config = {"retrievalConfig": {"latLng": {"latitude": location.lat, "longitude": location.lng}}} if location else {}
+    async def one(prompt):
         r = await client.post(MAPS_URL.format(quote(model, safe="")), headers={"x-goog-api-key": key}, json={
-            "contents": [{"role": "user", "parts": [{"text": f"Use Google Maps to find {topic} within {req.radius_km:g} km "
-                                                            "of the given location. List up to 20 distinct places, nearest first, names only."}]}],
-            "tools": [{"googleMaps": {}}],
-            "toolConfig": {"retrievalConfig": {"latLng": {"latitude": req.location.lat, "longitude": req.location.lng}}}}, timeout=25)
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}], "tools": [{"googleMaps": {}}], "toolConfig": config}, timeout=25)
         r.raise_for_status()
         return r.json()["candidates"][0].get("groundingMetadata", {}).get("groundingChunks", [])
-    results = await asyncio.gather(*(one(q) for q in MAPS_QUERIES), return_exceptions=True)
+    results = await asyncio.gather(*(one(p) for p in prompts), return_exceptions=True)
     if all(isinstance(x, BaseException) for x in results):
         raise ProviderError("gemini_maps_unavailable")
-    places = {}
+    listings = {}
     for chunks in results:
         for chunk in [] if isinstance(chunks, BaseException) else chunks:
-            clinic = parse_maps_place(chunk)
-            if clinic and clinic.id not in places:
-                places[clinic.id] = clinic
-    return list(places.values())
+            listing = maps_listing(chunk, keep)
+            if listing and listing["id"] not in listings:
+                listings[listing["id"]] = listing
+    return list(listings.values())
+
+
+async def gemini_maps_clinics(req, client):
+    # Only coordinates and a generic clinic query leave the server, never symptoms, photo or insurance data.
+    prompts = [f"Use Google Maps to find {topic} within {req.radius_km:g} km of the given location. "
+               "List up to 20 distinct places, nearest first, names only." for topic in MAPS_QUERIES]
+    listings = await maps_grounding(client, prompts, req.location, is_vet)
+    return [Clinic(**l, open_now=None, availability_note="Google Maps listing via Gemini; call to confirm hours, services "
+                   "and whether they see cats.") for l in listings]
 
 
 def snapshot_path():

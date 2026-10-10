@@ -93,6 +93,38 @@ export interface ClinicSearchResult {
   search_url: string;
   completeness: string;
 }
+// POST /api/v1/places/nearby and /api/v1/places/insurer: live listings, never stored or booked.
+export interface Place {
+  id: string;
+  name: string;
+  address: string;
+  phone: string | null;
+  call_url: string | null;
+  website: string | null;
+  maps_url: string | null;
+  rating: number | null;
+  opening_hours: string[];
+  source: "google_places" | "gemini_maps";
+  retrieved_at: string;
+}
+export interface NearbyRequest {
+  kind?: "taxi";
+  location: Location;
+  radius_km?: number;
+  share_location: true;
+}
+export interface InsurerRequest {
+  company: string;
+  location?: Location | null;
+  share_location?: boolean;
+}
+export interface PlacesResult {
+  kind: "taxi" | "insurer";
+  status: "complete" | "unavailable";
+  places: Place[];
+  warnings: string[];
+  note: string;
+}
 export type CareEvent =
   | { type: "created"; request_id: string }
   | { type: "safety" | "assessment"; assessment: Assessment }

@@ -4,7 +4,11 @@ import { searchClinics, IS_LIVE_CLINICS } from '../agents/index.js';
 import ProviderChips from '../components/ProviderChips.jsx';
 import { clinicProviders } from '../agents/providers.js';
 import { validateClinics } from '../contracts.js';
-import { getLocation, ZURICH } from '../agents/location.js';
+import { waitForLocation, ZURICH } from '../agents/location.js';
+import useLiveLocation from '../hooks/useLiveLocation.js';
+import LiveMap from '../components/LiveMap.jsx';
+import NearbyTaxis from '../components/NearbyTaxis.jsx';
+import InsurerContact from '../components/InsurerContact.jsx';
 
 // Attribution for each clinic source; OSM data is ODbL and Google Maps content must be credited.
 const SOURCE_LABELS = {
@@ -21,6 +25,8 @@ function liveSubtitle(t, state) {
   return `${sorted} · ${t.clinicsSubLive}`;
 }
 
+const SHORT_LIST = 8; // the best-ranked clinics; taxis and insurer follow without a long scroll
+
 function retrievedTime(iso) {
   const d = new Date(iso);
   return iso && !Number.isNaN(d.getTime()) ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
@@ -28,10 +34,17 @@ function retrievedTime(iso) {
 
 export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
   const [state, setState] = useState({ status: 'loading', clinics: [], located: true });
+  const loc = useLiveLocation();
+  const [focus, setFocus] = useState(null);
+  const [showAll, setShowAll] = useState(false);
+  const showOnMap = (place) => {
+    setFocus(place);
+    globalThis.scrollTo?.({ top: 0, behavior: 'smooth' });
+  };
 
   const load = useCallback(async () => {
     setState((s) => ({ ...s, status: 'loading' }));
-    const location = await getLocation();
+    const location = await waitForLocation(8000); // the live position started when the app opened
     try {
       const res = await searchClinics({ lang, location: location || ZURICH, triage });
       const problems = validateClinics(res);
@@ -47,6 +60,12 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
     load();
   }, [load]);
 
+  // The first search ran without a position (permission still pending): search again once it arrives.
+  const lateLocation = state.status === 'ok' && !state.located && !!loc.location;
+  useEffect(() => {
+    if (lateLocation) load();
+  }, [lateLocation, load]);
+
   const firstOpen = state.clinics.find((c) => c.openNow);
 
   return (
@@ -61,6 +80,8 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
           <p className="muted small">{IS_LIVE_CLINICS ? liveSubtitle(t, state) : t.clinicsSub}</p>
         </div>
       </header>
+      <LiveMap t={t} lang={lang} loc={loc} focus={focus} />
+
       {state.status !== 'loading' && (
         <ProviderChips t={t} items={clinicProviders({ live: IS_LIVE_CLINICS, clinics: state.clinics, failed: state.status === 'error' })} />
       )}
@@ -98,7 +119,7 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
               </button>
             </div>
           )}
-          {state.clinics.map((c) => (
+          {(showAll ? state.clinics : state.clinics.slice(0, SHORT_LIST)).map((c) => (
             <article key={c.id} className={c.openNow || c.openUnknown ? 'clinic' : 'clinic closed'}>
               <div className="clinic-top">
                 <h2>{c.name}</h2>
@@ -125,9 +146,12 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
               <p className="muted small"><span translate="no">{SOURCE_LABELS[c.source] || c.source}</span>{retrievedTime(c.retrievedAt) && ` · ${t.retrievedAt} ${retrievedTime(c.retrievedAt)}`}</p>
               <p className="clinic-addr small">{c.address}</p>
               <div className="clinic-actions">
+                <button type="button" className="btn ghost small" onClick={() => showOnMap(c)}>
+                  <Icon name="pin" size={16} /> {t.nearby.showOnMap}
+                </button>
                 {c.mapsUrl && (
                   <a className="btn ghost small" href={c.mapsUrl} target="_blank" rel="noreferrer">
-                    <Icon name="pin" size={16} /> {t.map}
+                    {t.map} ↗
                   </a>
                 )}
                 <button type="button" className="btn primary small" disabled={!c.openNow && !c.openUnknown} onClick={() => onPick(c)}>
@@ -136,9 +160,17 @@ export default function ClinicList({ t, lang, triage, rail, onPick, onBack }) {
               </div>
             </article>
           ))}
+          {!showAll && state.clinics.length > SHORT_LIST && (
+            <button type="button" className="btn soft wide" onClick={() => setShowAll(true)}>
+              {t.nearby.showAll.replace('{n}', state.clinics.length)}
+            </button>
+          )}
           <p className="ai-note center">{t.aiNote}</p>
         </div>
       )}
+
+      {IS_LIVE_CLINICS && <NearbyTaxis t={t} location={loc.location} onFocus={showOnMap} />}
+      {IS_LIVE_CLINICS && <InsurerContact t={t} location={loc.location} onFocus={showOnMap} />}
     </main>
   );
 }
