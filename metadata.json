@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4KA54PZGQ0SSP7RQP00YFB6",
   "strategy": "manual-commit",
   "branch": "fix/demo-repeat-3",
-  "checkpoints_count": 1,
+  "checkpoints_count": 4,
   "files_touched": [
     "demo/real/README.md",
     "demo/real/check-take.py",
@@ -16,13 +16,20 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 8,
-    "cache_creation_tokens": 3577,
-    "cache_read_tokens": 514510,
-    "output_tokens": 2276,
-    "api_call_count": 4
+    "input_tokens": 30,
+    "cache_creation_tokens": 12203,
+    "cache_read_tokens": 2479001,
+    "output_tokens": 4487,
+    "api_call_count": 12
   }
 }
