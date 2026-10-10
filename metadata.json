@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K7H1PK82ADBW19D5KT29ER",
   "strategy": "manual-commit",
   "branch": "feat/demo-story-beats",
-  "checkpoints_count": 4,
+  "checkpoints_count": 6,
   "files_touched": [
     "pawse/demo.py",
     "pawse/live.py",
@@ -38,6 +38,13 @@
       "compact_transcript": "/3/transcript.jsonl",
       "content_hash": "/3/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/4/metadata.json",
+      "transcript": "/4/full.jsonl",
+      "compact_transcript": "/4/transcript.jsonl",
+      "content_hash": "/4/content_hash.txt",
+      "prompt": "/4/prompt.txt"
     }
   ],
   "token_usage": {
