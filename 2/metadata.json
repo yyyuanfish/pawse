@@ -1,0 +1,51 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K8ZW4FR5QH5F3388Q3MM6E",
+  "session_id": "abbd5329-e9b7-4793-9b17-11b65fb12ad2",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T16:05:33.119167343Z",
+  "branch": "test/e2e-green",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/e2e-nightly.yml",
+    "docs/VALIDATION.md",
+    "tests/e2e/README.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "204830bbcd93",
+  "checkpoint_transcript_start": 632,
+  "transcript_lines_at_start": 632,
+  "compact_transcript_start": 96,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0
+  },
+  "session_metrics": {
+    "turn_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T16:05:32.988636484Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 87,
+    "human_modified": 8,
+    "human_removed": 0,
+    "total_committed": 87,
+    "total_lines_changed": 95,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
