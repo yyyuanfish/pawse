@@ -60,6 +60,8 @@ def test_clone_localize_preview_approve_speak_delete_and_session_isolation(monke
         path = req.url.path; seen.append((req.method, path))
         if req.method == 'DELETE':
             return httpx.Response(204)
+        if req.method == 'GET' and path.endswith('/voices/'):
+            return httpx.Response(200, json=[])
         if path.endswith('/voices/'):
             assert b'name="language"\r\n\r\nen' in req.content
             assert b'RIFF' in req.content
@@ -435,3 +437,78 @@ def test_stream_token_upstream_failure_is_502(monkeypatch):
     upstream(monkeypatch, lambda req: httpx.Response(200, json={'unexpected': True}))
     with TestClient(app) as c:
         assert c.post('/api/v1/voice/stream-tokens', json={'share_with_gradium': True}).status_code == 502
+
+
+def test_pending_clone_survives_restart_for_its_own_session_only(monkeypatch):
+    from pawse import voice_store
+    monkeypatch.setenv('GRADIUM_API_KEY', 'test')
+    seen = []
+    def handler(req):
+        seen.append((req.method, req.url.path))
+        if req.method == 'GET' and req.url.path.endswith('/voices/'):
+            return httpx.Response(200, json=[])
+        if req.method == 'DELETE':
+            return httpx.Response(204)
+        return httpx.Response(201, json={'uid': 'source123'})
+    upstream(monkeypatch, handler)
+    consent = {'share_with_gradium': True}
+    with TestClient(app) as a, TestClient(app) as b:
+        b.get('/api/v1/voice/status')
+        assert a.post('/api/v1/voice/clone', json=consent | {'audio': audio(), 'sample_language': 'en', 'own_voice_consent': True}).status_code == 201
+        voice.voices.clear()  # Equivalent to a process restart before the voice was approved.
+        assert a.get('/api/v1/voice/status').json()['source_id'] == 'source123'
+        assert b.get('/api/v1/voice/status').json()['source_id'] is None
+        assert voice_store.read() == {}  # Not promoted to the approved local voice.
+        assert a.delete('/api/v1/voice/profile').status_code == 204
+        voice.voices.clear()
+        assert a.get('/api/v1/voice/status').json()['source_id'] is None
+    assert ('DELETE', '/api/voices/source123') in seen
+
+
+def test_pending_candidate_survives_restart(monkeypatch):
+    monkeypatch.setenv('GRADIUM_API_KEY', 'test')
+    def handler(req):
+        if req.url.path.endswith('/localize'):
+            return httpx.Response(201, json={'embeddings': [{'embedding_id': 'vox_emb_test', 'ready': True}]})
+        if req.method == 'GET':
+            return httpx.Response(200, json=[])
+        return httpx.Response(201, json={'uid': 'source123'})
+    upstream(monkeypatch, handler)
+    consent = {'share_with_gradium': True}
+    with TestClient(app) as c:
+        c.post('/api/v1/voice/clone', json=consent | {'audio': audio(), 'sample_language': 'en', 'own_voice_consent': True})
+        assert c.post('/api/v1/voice/localizations', json=consent).status_code == 202
+        voice.voices.clear()
+        status = c.get('/api/v1/voice/status').json()
+        assert status['candidate_pending'] is True and status['candidate_ready'] is True
+
+
+def test_clone_reuses_unclaimed_pawse_voice_instead_of_uploading_again(monkeypatch):
+    monkeypatch.setenv('GRADIUM_API_KEY', 'test')
+    seen = []
+    def handler(req):
+        seen.append(req.method)
+        assert req.method == 'GET', 'must not upload a second clone'
+        return httpx.Response(200, json=[
+            {'uid': 'catalog', 'name': 'Pawse — my voice', 'is_catalog': True, 'language': 'en'},
+            {'uid': 'other-lang', 'name': 'Pawse — my voice', 'is_catalog': False, 'language': 'de'},
+            {'uid': 'orphan123', 'name': 'Pawse — my voice', 'is_catalog': False, 'language': 'en'}])
+    upstream(monkeypatch, handler)
+    with TestClient(app) as c:
+        r = c.post('/api/v1/voice/clone', json={'audio': audio(), 'sample_language': 'en', 'own_voice_consent': True, 'share_with_gradium': True})
+        assert r.status_code == 201
+        assert r.json()['source_id'] == 'orphan123' and r.json()['reused_existing_clone'] is True
+
+
+def test_clone_does_not_reuse_a_voice_another_session_owns(monkeypatch):
+    monkeypatch.setenv('GRADIUM_API_KEY', 'test')
+    def handler(req):
+        if req.method == 'GET':
+            return httpx.Response(200, json=[{'uid': 'taken123', 'name': 'Pawse — my voice', 'is_catalog': False, 'language': 'en'}])
+        return httpx.Response(201, json={'uid': 'fresh123'})
+    upstream(monkeypatch, handler)
+    with TestClient(app) as c:
+        c.get('/api/v1/voice/status')
+        voice.voices['someone-else'] = {'source_id': 'taken123'}
+        r = c.post('/api/v1/voice/clone', json={'audio': audio(), 'sample_language': 'en', 'own_voice_consent': True, 'share_with_gradium': True})
+        assert r.json()['source_id'] == 'fresh123' and r.json()['reused_existing_clone'] is False

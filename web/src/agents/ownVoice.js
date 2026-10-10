@@ -7,7 +7,7 @@ export async function prepareGermanPreview({api, profile, sample, language, sign
     onProfile(p);
   }
   if(!p.german_voice_id&&!p.candidate_pending){
-    onStage('Your source voice is saved. Creating its German version…');
+    onStage(p.reused_existing_clone?'Reusing the voice clone you made earlier, so this recording was not uploaded again. Creating its German version…':'Your source voice is saved. Creating its German version…');
     p=await api('localizations',{share_with_gradium:true},false,signal);onProfile(p);
   }
   for(let i=0;!p.german_voice_id&&!p.candidate_ready&&i<20;i++){

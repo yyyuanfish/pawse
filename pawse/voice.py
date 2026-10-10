@@ -24,7 +24,8 @@ BASE = "https://api.gradium.ai/api"
 DISCLOSURE = "Guten Tag, hier ist Pawse, die KI-Assistenz im Auftrag der Katzenhalterin oder des Katzenhalters."
 PREVIEW = DISCLOSURE + " Ich rufe wegen der Katze Mimi an. Sie hinkt nach einem Sprung. Können wir heute vorbeikommen?"
 LANGUAGES = {"en": "English", "zh": "Mandarin Chinese", "de": "German", "hi": "Hindi"}
-# Only IDs are retained. Pending enrollment is session-local; approved local voices persist.
+# Only IDs are retained. Pending enrollment persists per browser session; approved local voices persist.
+CLONE_NAME = "Pawse — my voice"
 voices: dict[str, dict] = {}
 voice_active: set[str] = set()
 # Calls whose first spoken line carried DISCLOSURE: owner -> {call_id: expiry}. Only server-issued ids
@@ -184,7 +185,10 @@ def uid(response, allow_preparing=False):
 
 
 def profile(owner):
-    state = voices.get(owner, {})
+    state = voices.get(owner)
+    if state is None and (state := voice_store.read_pending(owner)):
+        voices[owner] = state  # Back after a restart: keep mutating the same record.
+    state = state or {}
     if not public.enabled() and state.get("approved"):
         return voice_store.read()
     return state or voice_store.read()
@@ -320,6 +324,24 @@ async def script(payload: ScriptRequest, request: Request):
         return await draft_script(client, payload.message, payload.recipient, payload.input_language, payload.subtitle_language)
 
 
+async def unclaimed_clone(client, language):
+    """A clone this app made earlier that no session holds any more, so a retry does not burn another slot."""
+    if public.enabled():
+        return None  # Never hand one visitor's voice to another.
+    try:
+        rows = (await gradium(client, "GET", "/voices/", request_timeout=15)).json()
+    except (HTTPException, ValueError):
+        return None
+    if not isinstance(rows, list):
+        return None
+    claimed = voice_store.pending_ids() | {v for state in [*voices.values(), voice_store.read()] for k, v in state.items() if k.endswith("_id")}
+    for row in rows:
+        if (isinstance(row, dict) and row.get("name") == CLONE_NAME and row.get("is_catalog") is False
+                and row.get("language") == language and isinstance(row.get("uid"), str) and row["uid"] not in claimed):
+            return row["uid"]
+    return None
+
+
 @router.post("/voice/clone", status_code=201)
 async def clone(payload: CloneRequest, request: Request):
     owner = request.state.owner
@@ -329,13 +351,15 @@ async def clone(payload: CloneRequest, request: Request):
         if len(voices) >= 100:
             raise HTTPException(429, "Local voice session capacity reached. Delete an existing session voice first.")
         raw, _ = inspect_wav(payload.audio.data)
-        r = await gradium(client, "POST", "/voices/", request_timeout=90, files={"audio_file": ("my-voice.wav", raw, "audio/wav")},
-                          data={"name": "Pawse — my voice", "language": payload.sample_language, "input_format": "wav", "start_s": "0", "timeout_s": "20"})
-        source = uid(r, allow_preparing=True)
-        voices[owner] = {"source_id": source, "sample_language": payload.sample_language}
+        source = await unclaimed_clone(client, payload.sample_language)
+        if not source:
+            r = await gradium(client, "POST", "/voices/", request_timeout=90, files={"audio_file": ("my-voice.wav", raw, "audio/wav")},
+                              data={"name": CLONE_NAME, "language": payload.sample_language, "input_format": "wav", "start_s": "0", "timeout_s": "20"})
+        state = voices[owner] = {"source_id": source or uid(r, allow_preparing=True), "sample_language": payload.sample_language}
         if payload.sample_language == "de":
-            voices[owner]["german_id"] = source
-        return await voice_status(request)
+            state["german_id"] = state["source_id"]
+        voice_store.write(state, owner)  # Before anything else can fail: a restart must not orphan the clone.
+        return await voice_status(request) | {"reused_existing_clone": bool(source)}
 
 
 @router.post("/voice/localizations", status_code=202)
@@ -352,6 +376,7 @@ async def localize(payload: VoiceConsent, request: Request):
             if not isinstance(value, str) or not value.startswith("vox_emb_"):
                 raise ValueError()
             state.update(candidate_id=value, candidate_ready=candidate.get("ready") is True)
+            voice_store.write(state, owner)
         except (ValueError, KeyError, IndexError, TypeError):
             raise HTTPException(502, "No German candidate was returned. Check Gradium before retrying.") from None
         return await voice_status(request)
@@ -368,6 +393,7 @@ async def localization_status(request: Request):
         try:
             rows = r.json()["embeddings"]
             state["candidate_ready"] = any(e.get("embedding_id") == state["candidate_id"] and e.get("ready") is True for e in rows)
+            voice_store.write(state, owner)
         except (ValueError, KeyError, TypeError, AttributeError):
             raise HTTPException(502, "Could not read the voice candidate's status.") from None
         return await voice_status(request)
@@ -383,6 +409,7 @@ async def preview(payload: VoiceConsent, request: Request):
             raise HTTPException(409, "Create a German candidate and wait until it is ready.")
         response = await tts(client, voice_id, PREVIEW)
         state["previewed"] = True
+        voice_store.write(state, owner)
         return response
 
 
@@ -392,7 +419,7 @@ async def save_voice(payload: SaveVoice, request: Request):
     async with operation(owner), httpx.AsyncClient() as client:
         state = require_profile(owner)
         if state.get("approved") and state.get("german_id"):
-            voice_store.write(state)
+            voice_store.write(state, owner)
             return await voice_status(request)
         if not (state.get("previewed") and (state.get("german_id") or state.get("candidate_ready"))):
             raise HTTPException(409, "Generate and listen to the German preview before saving.")
@@ -400,7 +427,7 @@ async def save_voice(payload: SaveVoice, request: Request):
             r = await gradium(client, "POST", "/voices/from-embedding", json={"voxium_embedding_id": state["candidate_id"], "name": "Pawse — my German voice"})
             state["german_id"] = uid(r)
         state["approved"] = True
-        voice_store.write(state)
+        voice_store.write(state, owner)
         return await voice_status(request)
 
 
@@ -422,8 +449,8 @@ async def delete_voice(request: Request):
             for k in list(state):
                 if k.endswith("_id") and state[k] == value:
                     state.pop(k)
-            voice_store.write(state)
-        voice_store.clear()
+            voice_store.write(state, owner)
+        voice_store.clear(owner)
         voices.pop(owner, None)
 
 
