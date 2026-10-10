@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K6FXZY7C5SYJR6D1PXXGEV",
   "strategy": "manual-commit",
   "branch": "fix/places-vets-only",
-  "checkpoints_count": 3,
+  "checkpoints_count": 4,
   "files_touched": [
     "docs/MAPIFY_ADAPTER.md",
     "pawse/providers.py",
@@ -23,13 +23,20 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 28,
-    "cache_creation_tokens": 48899,
-    "cache_read_tokens": 830355,
-    "output_tokens": 13381,
-    "api_call_count": 14
+    "input_tokens": 36,
+    "cache_creation_tokens": 54856,
+    "cache_read_tokens": 1454429,
+    "output_tokens": 15265,
+    "api_call_count": 18
   }
 }
