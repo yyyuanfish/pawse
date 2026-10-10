@@ -58,7 +58,8 @@
  * Events:
  *   {type:'status', state:'dialing'|'connected'|'ended'}
  *   {type:'speaking', who:'ai'|'callee'|'none'}
- *   {type:'line', who:'ai'|'callee', original:string, text:string}   original language + translation
+ *   {type:'line', who:'ai'|'callee', original:string, text:string, simulated?:true}
+ *       original language + translation; a callee line that was not really heard is simulated:true
  *   {type:'progress', text}                         plain-language step in the owner's language
  *   {type:'question', id, text, options:[{id, label}]}   the call waits until answer() is called
  *   {type:'answered', id, optionId}
@@ -68,6 +69,8 @@
  * The owner never has to read German: the page shows progress, questions and the result in their
  * language; the German lines are only an optional transcript.
  *
+ * Every result carries simulated:boolean. There is no telephony yet, so it is true for now:
+ * the page labels it "simulated" and never says "booked".
  * result for 'vet':       {kind:'appointment', time, place, estimate:number, currency, note?,
  *                          homeVisitFee?:number (part of estimate, not reimbursed)}
  * result for 'insurance': {kind:'coverage', covered, currency, deductible, rate, estimate,
@@ -105,6 +108,7 @@ export function validateClinics(res) {
 export function validateResult(target, r) {
   const p = [];
   if (!r || typeof r !== 'object') return ['result is not an object'];
+  if (typeof r.simulated !== 'boolean') p.push('simulated must be true/false (true unless a real call happened)');
   if (target === 'vet') {
     if (r.kind !== 'appointment') p.push("vet result kind must be 'appointment'");
     if (!r.time) p.push('time missing');

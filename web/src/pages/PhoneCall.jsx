@@ -15,7 +15,7 @@ function ResultCard({ t, target, result }) {
   if (target === 'vet') {
     return (
       <div className="result-card">
-        <h3>✓ {t.appointment}</h3>
+        <h3>{result.simulated ? t.appointmentSim : `✓ ${t.appointment}`}</h3>
         {result.simulated && <span className="sim-badge">{t.simulated}</span>}
         <div className="result-big">{result.time}</div>
         <p>{result.place}</p>
