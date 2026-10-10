@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4JZSQRAPGBQZ5CT1T45WMTG",
   "strategy": "manual-commit",
   "branch": "feat/insurance-policy-view",
-  "checkpoints_count": 2,
+  "checkpoints_count": 4,
   "files_touched": [
     "docs/openapi.json",
     "pawse/knowledge.py",
@@ -27,6 +27,13 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
@@ -34,6 +41,13 @@
     "cache_creation_tokens": 47273,
     "cache_read_tokens": 6599918,
     "output_tokens": 26068,
-    "api_call_count": 35
+    "api_call_count": 35,
+    "subagent_tokens": {
+      "input_tokens": 16,
+      "cache_creation_tokens": 161151,
+      "cache_read_tokens": 1103316,
+      "output_tokens": 154,
+      "api_call_count": 8
+    }
   }
 }

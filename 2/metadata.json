@@ -1,0 +1,62 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JZSQRAPGBQZ5CT1T45WMTG",
+  "session_id": "7f2c18b7-2547-4e16-96f5-65d7f3324a4d",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-10T13:24:58.835702573Z",
+  "branch": "feat/insurance-policy-view",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "docs/openapi.json",
+    "pawse/knowledge.py",
+    "pawse/static/app.js",
+    "pawse/static/index.html",
+    "pawse/static/style.css",
+    "schemas/pawse.ts",
+    "tests/test_knowledge.py"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "7bf30987f170",
+  "checkpoint_transcript_start": 398,
+  "transcript_lines_at_start": 398,
+  "compact_transcript_start": 54,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 0,
+    "api_call_count": 0,
+    "subagent_tokens": {
+      "input_tokens": 16,
+      "cache_creation_tokens": 161151,
+      "cache_read_tokens": 1103316,
+      "output_tokens": 154,
+      "api_call_count": 8
+    }
+  },
+  "session_metrics": {
+    "turn_count": 8
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-10T13:24:58.735933865Z",
+    "agent_lines": 578,
+    "agent_removed": 2,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 578,
+    "total_lines_changed": 580,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
