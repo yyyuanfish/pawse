@@ -1,0 +1,18 @@
+FInsih:
+
+
+<pasted_content id="bc10">
+ ⚠️ Uncommitted work in your main checkout /home/azureuser/pawse:
+   - Favicon fix (pawse/static/icon.svg, index.html, tests/test_static.py): finished and tested (96 pass), waiting for your OK to commit.
+   - Recording feedback (useMicLevel.js, VoiceCall.jsx, styles.css and other web/ files): the voice-recording session tested it in a headless browser but never committed it.
+   - The checkout is also 5 commits behind origin/main.
+</pasted_content id="bc10">
+
+---
+
+⚠️ I didn't walk through the Mimi demo in a real browser after the rebase. The earlier session only tested the recording feedback in a headless browser, so a quick look in a real browser on /app is still worth doing.
+yeah sure do
+
+---
+
+donz use too much memory
