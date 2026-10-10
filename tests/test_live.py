@@ -202,3 +202,7 @@ def test_token_response_never_contains_the_server_api_key(monkeypatch):
         r = c.post('/api/v1/live/tokens', json={'share_with_gemini': True})
     assert r.status_code == 201
     assert sentinel not in r.text and sentinel not in json.dumps(dict(r.headers))
+
+
+def test_live_voice_is_asked_to_speak_briskly_without_changing_playback_pitch():
+    assert 'speak briskly, in short sentences' in live.instruction('en')
