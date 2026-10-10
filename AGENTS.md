@@ -118,9 +118,7 @@ should open the file named in the row.
 | [gp](.claude/skills/gp/SKILL.md) | Pushing: straight to main or PR + CI + squash-merge |
 | [create-skill](.claude/skills/create-skill/SKILL.md) | Adding or changing a skill (then `python scripts/validate_skills.py`) |
 
-<!-- entire-graph:begin -->
-This repo has the entire-graph code graph installed. Before exploring code with
-grep/find/whole-file reads, read .entire/graph-agent.md — resolution-first guidance
-for using graph retrieval, focused source inspection, and verification.
-@.entire/graph-agent.md
-<!-- entire-graph:end -->
+<!-- entire-agent:begin -->
+Read .entire/agent-guide.md for this repository's workflow, source inspection, and verification guidance.
+@.entire/agent-guide.md
+<!-- entire-agent:end -->
