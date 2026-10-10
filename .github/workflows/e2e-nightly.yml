@@ -1,0 +1,69 @@
+name: e2e-nightly
+on:
+  # Not a PR gate. Runs the Playwright browser suite (tests/e2e, issue #25) every night and on request:
+  # gh workflow run e2e-nightly --ref <branch>
+  schedule:
+    - cron: "17 2 * * *" # 02:17 UTC
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write # open, update or close the single `e2e-red` tracking issue
+concurrency:
+  group: e2e-nightly-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.11" # README minimum
+          cache: pip
+          cache-dependency-path: requirements*.txt
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: pip install -r requirements-e2e.txt
+      - run: python -m playwright install --with-deps chromium
+      # The suite builds web/dist itself; installing here keeps a broken lockfile from hiding as a test failure.
+      - run: npm ci
+        working-directory: web
+      # No API keys: the suite blanks provider keys and mocks the provider-backed routes.
+      - id: suite
+        run: |
+          set -o pipefail
+          PAWSE_E2E=1 python -m pytest tests/e2e -q -rfE 2>&1 | tee e2e.log
+      - name: Open or update the e2e-red issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create e2e-red --color B60205 --description "Nightly browser suite is failing" 2>/dev/null || true
+          summary=$(grep -E '^(FAILED|ERROR) |passed|failed|error' e2e.log 2>/dev/null | tail -40 || true)
+          body=$(printf 'Nightly browser suite failed on `%s` (%s).\n\nRun: %s\n\n```\n%s\n```\n\nReproduce: `PAWSE_E2E=1 python -m pytest tests/e2e` (see tests/e2e/README.md). This issue closes itself on the next green run.\n' \
+            "${GITHUB_SHA::7}" "$(date -u +%F)" "$RUN_URL" "${summary:-no pytest summary, see the run log}")
+          issue=$(gh issue list --label e2e-red --state open --limit 1 --json number -q '.[0].number')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "$body"
+          else
+            gh issue create --title "e2e: nightly browser suite is red" --label e2e-red --body "$body"
+          fi
+      - name: Close the e2e-red issue when green again
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          issue=$(gh issue list --label e2e-red --state open --limit 1 --json number -q '.[0].number')
+          if [ -n "$issue" ]; then
+            gh issue close "$issue" --comment "Green again on \`${GITHUB_SHA::7}\`: $RUN_URL"
+          fi

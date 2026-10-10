@@ -8,7 +8,7 @@ speech. They drive the shipped pages: the React app at `/app` (built from `web/`
 
 ```bash
 pip install -r requirements-e2e.txt && python -m playwright install chromium webkit
-PAWSE_E2E=1 python -m pytest tests/e2e                      # 62 browser tests, no keys, about 75 s
+PAWSE_E2E=1 python -m pytest tests/e2e                      # COUNT_TBD
 PAWSE_E2E=1 python -m pytest tests/e2e -k live_voice --headed   # watch one file
 ```
 
