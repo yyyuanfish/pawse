@@ -1,13 +1,14 @@
 import { IS_LIVE_PHONE } from '../agents/index.js';
 import { nextAction } from '../utils/steps.js';
+import { taxiOffered } from '../agents/story.js';
 // Pawse's advice + the two "let Pawse call for you" actions.
 // Used as the bottom sheet on the video call and at the top of the plan page.
 
 const GLYPH = { red: '!', yellow: '◷', green: '✓' };
 
-function ActionRow({ icon, title, sub, doneText, button, next, onClick }) {
+function ActionRow({ icon, title, sub, doneText, button, next, onClick, beat }) {
   return (
-    <div className={doneText ? 'action-row done' : 'action-row'}>
+    <div className={doneText ? 'action-row done' : 'action-row'} data-beat={beat}>
       <span className="action-icon" aria-hidden="true">{icon}</span>
       <div className="action-text">
         <strong>{title}</strong>
@@ -20,12 +21,20 @@ function ActionRow({ icon, title, sub, doneText, button, next, onClick }) {
   );
 }
 
-export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
+export default function PlanPanel({ t, triage, vet, insurance, choice, confirm, taxi, facts, onCall }) {
   if (!triage) return null;
   // A live "prepared" result is only a script; it never reads as a booking or a confirmed cover.
   const vetDone = vet ? (vet.prepared ? `✓ ${t.prepared}` : `✓ ${vet.simulated === false ? t.booked : t.slotSim} ${vet.time} · ≈ ${vet.currency || 'CHF'} ${vet.estimate}`) : '';
   const insDone = insurance ? (insurance.prepared ? `✓ ${t.prepared}` : `✓ ${t.outOfPocket} ≈ ${insurance.currency || 'CHF'} ${insurance.outOfPocket}`) : '';
-  const next = nextAction({ vet, insurance });
+  const next = nextAction({ vet, insurance, choice, confirm, taxi });
+  const cur = (facts && facts.currency) || 'CHF';
+  const choiceDone = choice && facts
+    ? `✓ ${choice === 'home' ? t.choseHome : t.choseClinic} · ${t.youPayAbout} ≈ ${cur} ${choice === 'home' ? facts.home : facts.clinic}`
+    : '';
+  const confirmDone = confirm ? `✓ ${confirm.time} · ${t.simulated}` : '';
+  const taxiDone = taxi ? `✓ ${t.todayTaxi(taxi.pickup)} · ≈ ${taxi.currency || 'CHF'} ${taxi.fare} · ${t.simulated}` : '';
+  // The second half of the story appears once both first calls are done: options → confirm → taxi.
+  const secondHalf = !!vet && !!insurance;
 
   return (
     <div className="plan-panel">
@@ -79,6 +88,42 @@ export default function PlanPanel({ t, triage, vet, insurance, onCall }) {
             button={insurance ? t.callAgain : IS_LIVE_PHONE ? t.prepare : t.call}
             onClick={() => onCall('insurance')}
           />
+          {secondHalf && (
+            <ActionRow
+              beat="row-options"
+              icon="⚖️"
+              title={t.rowOptions}
+              sub={t.rowOptionsSub}
+              doneText={choiceDone}
+              next={next === 'options'}
+              button={t.choose}
+              onClick={() => onCall('options')}
+            />
+          )}
+          {secondHalf && choice && (
+            <ActionRow
+              beat="row-confirm"
+              icon={t.callees.confirm.icon}
+              title={t.rowConfirm}
+              sub={t.rowConfirmSub}
+              doneText={confirmDone}
+              next={next === 'confirm'}
+              button={confirm ? t.callAgain : t.call}
+              onClick={() => onCall('confirm')}
+            />
+          )}
+          {secondHalf && taxiOffered(choice) && confirm && (
+            <ActionRow
+              beat="row-taxi"
+              icon={t.callees.taxi.icon}
+              title={t.rowTaxi}
+              sub={t.rowTaxiSub}
+              doneText={taxiDone}
+              next={next === 'taxi'}
+              button={taxi ? t.callAgain : t.call}
+              onClick={() => onCall('taxi')}
+            />
+          )}
         </div>
         <p className="ai-note">{IS_LIVE_PHONE ? 'Review the script before sharing. Audio playback does not place a call.' : t.aiNote}</p>
       </section>

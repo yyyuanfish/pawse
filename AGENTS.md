@@ -29,11 +29,11 @@ instead of 510) → Pawse confirms the vet, books a cat-friendly taxi, and hands
 |---|---|---|---|
 | 0:00–0:17 | Owner records Mimi and says "My cat is limping" in English | `voice.py` transcription, `/care` intake | ✅ photo + audio via Gemini · ⚠️ video intake not connected |
 | 0:17–0:30 | Triage card 🟡, follow-up "fall or jump?", nearest open practice | `providers.py` care guidance + clinic adapters, `orchestration.py` ranking | ✅ Gemini guidance · ✅ live clinic search uses Google Places with distances and phone numbers (verified on Cloud Run 2026-10-10) · Gemini Maps grounding is the fallback: it gives no coordinates, so a listing gets a distance (and radius filter) only from the OSM snapshot row of the same practice, else it shows "distance unknown" and ranks after clinics with a known distance · ⚠️ OSM snapshot fallback only when `tmp/crawling/zurich-vets-initial.json` exists (not in the deployed image) |
-| 0:30–0:58 | German call to the vet: 16:30 or a home visit, ~CHF 600 + 150 | `voice.py` German script + subtitles, Gradium speech | ✅ script · ⚠️ own voice needs a Gradium key · 🎭 call and reply simulated (no telephony) |
-| 0:58–1:30 | Insurer call: accident covered, home visit and physio not; clinic CHF 385 vs home CHF 510 | `knowledge.py` cited AVB clauses, `demo.py` cost maths, `research/pet-insurance/` | ✅ citations + maths (real AVB terms, synthetic policyholder) · 🎭 insurer reply simulated |
-| 1:30–1:42 | Pawse confirms 16:30 with the vet, asks for an itemised invoice | `voice.py` script | ✅ script · 🎭 reply and booking simulated |
-| 1:42–1:54 | Taxi for 16:05 that accepts a cat in a carrier | `voice.py` script | ✅ script · 🎭 reply and booking simulated |
-| 1:54–2:00 | Case summary + claim checklist (keep video, itemised invoice, 30 days) | `demo.py`, frontend | ✅ |
+| 0:30–0:58 | German call to the vet: 16:30 or a home visit, ~CHF 600 + 150; calendar sheet "free from 16:00" | `voice.py` German script + subtitles, Gradium speech, React `CalendarSheet` | ✅ script, German audio at 1.15× (pitch kept) · ✅ demo calendar (synthetic, no titles) · ⚠️ own voice needs a Gradium key · 🎭 call and reply simulated (no telephony) |
+| 0:58–1:30 | Insurer call: accident covered, home visit and physio not; option cards 🅰 clinic CHF 385 / 🅱 home CHF 510 | `knowledge.py` cited AVB clauses, `demo.py` cost maths, React `Options` + `agents/story.js`, `research/pet-insurance/` | ✅ citations + maths (real AVB terms, synthetic policyholder) · ✅ tap-to-choose option cards (live: backend costs) · 🎭 insurer reply simulated |
+| 1:30–1:42 | Pawse confirms 16:30 with the vet, asks for an itemised invoice | `demo.py` steps[4] (home_lines for 🅱), React call kind `confirm` | ✅ script, spoken in the app · 🎭 reply simulated, nothing booked |
+| 1:42–1:54 | Taxi for 16:05 that accepts a cat in a carrier (clinic option only, not insured) | `demo.py` steps[5], React call kind `taxi` | ✅ script, spoken in the app · 🎭 reply simulated, nothing booked |
+| 1:54–2:00 | "16:05 taxi → 16:30 vet", case summary + claim checklist (keep video, itemised invoice, 30 days) | `demo.py` claim_days, React `Plan` | ✅ (timeline labelled simulated) |
 
 The in-app rehearsal (`GET /api/v1/demo/mimi`, shown at `/?demo=1`; plain `/` is the production page) plays the whole story with no keys. It is the
 fallback, not the goal.

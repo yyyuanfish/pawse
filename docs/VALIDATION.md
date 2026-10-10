@@ -43,6 +43,24 @@ The existing localhost rehearsal was also walked through all six clinic-path sce
 
 `gemini-2.5-flash` appeared in the model listing but returned HTTP 404 for generation in this project. Credentials and recordings are not included in test fixtures or publication artifacts.
 
+## React app: the whole Mimi story (10 October 2026)
+
+The React app now plays the second half of the 2-minute script in mock mode (`/app/`) and in the live
+rehearsal (`/app/?live=1`, vet hand-off → More → "Open simulated Mimi phone rehearsal"): a demo calendar
+("free from 16:00", no event titles) during the vet call, option cards A clinic today 16:30 ≈ CHF 385 incl. ~25 taxi /
+B home visit tonight ≈ CHF 510 (live numbers from `/api/v1/demo/mimi` costs, mock from the same formulas in
+`web/src/agents/story.js`), a confirmation call to the vet (`steps[4]`, `home_lines` for B), a taxi call (`steps[5]`,
+clinic only, not insured), and a plan with "16:05 taxi → 16:30 vet" and the claim checklist (video, itemised invoice,
+`claim_days` = 30). Every reply and result is labelled simulated; nothing is dialled or booked. German call audio plays at
+1.15× with pitch preserved (browser speech 1.1×); Gemini Live is asked to speak briskly instead of being sped up.
+
+Verified: `bash scripts/check.sh` (172 backend tests incl. a check that the React mock speaks the backend's `steps[4]`/`[5]`
+German lines word for word, plus `web/scripts/check-story.mjs`); a headless Chromium walk of both mock paths
+(clinic and home visit) with no console errors; `tests/e2e/test_browser_story.py` walks the live rehearsal against the real
+server with FakeLive and mocked provider routes. The full e2e suite has the same 5 failures as `origin/main`
+(denied-mic / own-voice / one Live tool-call test), none in the new flow. Not verified: real Gradium audio pace on a device,
+real telephony (none exists).
+
 ## React backend handoff (10 October 2026)
 
 The merged teammate React frontend was integrated on top of `dd99088`. After rebasing onto the teammate’s Gradium whole-call update (#42), the local check passed 86 backend tests plus all six frontend check scripts; production compilation passed. New checks cover handoff consent, four language codes, binary audio/error propagation, backend ranking preservation and service-worker exclusion of private API responses. Real local HTTP checks exercised workflow traces, demo policy citations and missing-provider/voice-profile errors without paid provider calls. Browser verification at `/app/?live=1` covered the consent gate, typed concern, care result, insurer preparation and rendered policy excerpts with source IDs/hashes and `insurance_approval: not_obtained`; console error list was empty.

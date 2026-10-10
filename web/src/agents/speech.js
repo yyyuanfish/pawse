@@ -1,6 +1,8 @@
 // Tiny wrapper around the browser's built-in text-to-speech, used ONLY by the mock agents
 // so the demo actually talks. The live agents play their own audio.
 
+import { VOICE_PACE } from '../config.js';
+
 const hasTTS = () =>
   typeof window !== 'undefined' && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined';
 
@@ -71,7 +73,7 @@ export function stopSpeech() {
  * Speak `text`; resolves when finished. speed > 1 (tests / rehearsal) skips the voice.
  * silent: don't play it, just wait as long as it would take (a call running in the background).
  */
-export function speak(text, lang, { speed = 1, pitch = 1, rate = 1, silent = false } = {}) {
+export function speak(text, lang, { speed = 1, pitch = 1, rate = VOICE_PACE.speech, silent = false } = {}) {
   const est = estimateMs(text, lang);
   if (speed > 1 || silent || muted || !hasTTS()) return new Promise((r) => setTimeout(r, est / speed));
 

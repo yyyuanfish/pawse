@@ -209,3 +209,7 @@ def test_injury_advice_precedes_questions_in_live_setup():
     assert 'heavy or uncontrolled bleeding' in prompt
     assert 'Do not delay urgent advice for a photo, location, clinic search or voice generation' in prompt
     assert 'A still photo cannot establish active bleeding' in prompt
+
+
+def test_live_voice_is_asked_to_speak_briskly_without_changing_playback_pitch():
+    assert 'speak briskly, in short sentences' in live.instruction('en')
