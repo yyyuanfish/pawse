@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K8YYFP2TFRYAA0SHR6GY1A",
   "strategy": "manual-commit",
   "branch": "fix/places-vet-guard",
-  "checkpoints_count": 11,
+  "checkpoints_count": 12,
   "files_touched": [
     "docs/MAPIFY_ADAPTER.md",
     "pawse/providers.py",
@@ -16,6 +16,13 @@
       "transcript": "/0/full.jsonl",
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
       "prompt": ""
     }
   ],
