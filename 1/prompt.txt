@@ -1,0 +1,9 @@
+cehck where stil somethig to do hwer or teammate did it?:
+_-
+7. ⚠️ Orphaned Gradium voice clone. Pawse — my voice (pzr2ZdBxk7wooDGu) exists in your Gradium library but the app doesn't know about it, and it counts against your 6 free clones. The session restarted the server on 8765 and was waiting for you to retry the clone.
+--
+
+---
+
+Proper fix (recommended): when the server receives a recording to clone, save the clone's ID to the private voice file right away, not only after approval. Also, before creating a new clone, check Gradium for an existing "Pawse — my voice" and reuse it. Then a restart can't leave a clone behind again. This would follow /bugfix: a failing test first, in a worktree.
+<- ok go ahead
