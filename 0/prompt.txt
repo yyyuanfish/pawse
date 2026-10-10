@@ -164,3 +164,7 @@ I added in /home/azureuser/pawse/.env
 ---
 
 erstaret and tets it works
+
+---
+
+yeah fix
