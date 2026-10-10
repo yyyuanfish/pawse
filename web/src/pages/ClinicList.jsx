@@ -14,6 +14,18 @@ const SOURCE_LABELS = {
   mapify: 'Mapify',
 };
 
+// Live results only claim distance order when the provider shared distances (Google Maps grounding does not).
+function liveSubtitle(t, state) {
+  if (state.status !== 'ok') return t.clinicsSubLive;
+  const sorted = state.clinics.some((c) => Number.isFinite(c.distanceKm)) ? t.clinicsSubDistance : t.clinicsSubMaps;
+  return `${sorted} · ${t.clinicsSubLive}`;
+}
+
+function retrievedTime(iso) {
+  const d = new Date(iso);
+  return iso && !Number.isNaN(d.getTime()) ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+}
+
 export default function ClinicList({ t, lang, triage, onPick, onBack }) {
   const [state, setState] = useState({ status: 'loading', clinics: [], located: true });
 
@@ -45,7 +57,7 @@ export default function ClinicList({ t, lang, triage, onPick, onBack }) {
         </button>
         <div>
           <h1>{t.clinicsTitle}</h1>
-          <p className="muted small">{t.clinicsSub}</p>
+          <p className="muted small">{IS_LIVE_CLINICS ? liveSubtitle(t, state) : t.clinicsSub}</p>
         </div>
       </header>
       {state.status !== 'loading' && (
@@ -109,7 +121,7 @@ export default function ClinicList({ t, lang, triage, onPick, onBack }) {
                   {c.hoursList.map((h) => <div key={h}>{h}</div>)}
                 </details>
               )}
-              <p className="muted small"><span translate="no">{SOURCE_LABELS[c.source] || c.source}</span> {c.retrievedAt}</p>
+              <p className="muted small"><span translate="no">{SOURCE_LABELS[c.source] || c.source}</span>{retrievedTime(c.retrievedAt) && ` · ${t.retrievedAt} ${retrievedTime(c.retrievedAt)}`}</p>
               <p className="clinic-addr small">{c.address}</p>
               <div className="clinic-actions">
                 {c.mapsUrl && (

@@ -36,6 +36,8 @@ export default function OwnVoice({onBack}) {
   }
   async function record(){
     if(busy||recording)return;
+    // A missing recorder is a browser limit, not a refused permission: say which one it is.
+    if(typeof MediaRecorder==='undefined'||!navigator.mediaDevices?.getUserMedia){setError('This browser cannot record audio here. Use a current Chrome, Edge, Firefox or Safari (14.1 or newer).');return;}
     setBusy(true);setError('');setSample(null);setSampleUrl('');
     try{
       const stream=await navigator.mediaDevices.getUserMedia({audio:true});

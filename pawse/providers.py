@@ -280,9 +280,11 @@ async def discover(req, client):
 
 def rank_clinics(clinics):
     # Live provider results first, as one block, then the offline community snapshot. Within each block prefer
-    # provider-reported open, then unknown, then reported closed; nearest within each group.
+    # provider-reported open, then unknown, then reported closed; nearest within each group (stable sort).
     ranked = sorted(clinics, key=lambda c: (c.source == "openstreetmap", 0 if c.open_now is True else 2 if c.open_now is False else 1,
-                                          c.distance_km if c.distance_km is not None else float("inf"), -(c.rating or 0)))
+                                          c.distance_km if c.distance_km is not None else float("inf"),
+                                          # Without a distance keep the provider's own (nearness) order; rating only breaks distance ties.
+                                          -(c.rating or 0) if c.distance_km is not None else 0))
     for c in ranked:
         c.reasons = []
         if c.open_now is True:
