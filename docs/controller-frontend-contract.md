@@ -200,3 +200,13 @@ Reference: [FGS official observation guidance](https://www.felinegrimacescale.co
 checked 2026-10-10. The original scale requires an undisturbed observation, with sleeping/eating/
 grooming/vocalising cats excluded until appropriate. A still photo cannot confirm that condition.
 The model and this application are not endorsed or clinically validated by the FGS authors.
+
+### Camera and upload are separate actions
+
+The conversation composer uses a **+ / Add photo** button with two labelled choices:
+**Upload photo** opens an existing-image file chooser; **Take photo** starts a local camera preview
+via getUserMedia, preferring the rear camera. It must not invoke a file chooser. The owner captures
+one frame, reviews it, then explicitly chooses **Send photo for analysis**, **Retake photo**, or
+**Cancel photo**. Capturing stops the camera tracks. Only Send submits the captured frame to the
+existing vision endpoint. No continuous camera video is uploaded. Camera errors show a permission/
+secure-context hint and leave Upload as a separate action; there is no automatic picker fallback.

@@ -177,3 +177,11 @@ Validation: 203 tests passed, 8 skipped; frontend checks, generated OpenAPI and 
 build passed. Browser smoke check covered guest entry, home at 390 px and Live consent screen.
 This is not physical iPhone/Android camera or microphone verification. LAN HTTP can test the
 file-input capture/upload path; real-time camera, mic and location require a secure origin.
+### Separate camera and upload actions — 2026-10-10
+
+Reproduction: the former Take photo button triggered a capture-hinted file input, which could open
+an ordinary picker on desktop. It now requests a local getUserMedia preview. Browser rehearsal
+confirmed camera readiness, Capture photo, and the unsent-photo review with Send/Retake/Cancel;
+the captured image was cancelled without provider submission. Upload photo separately produced
+a filechooser event. Capture closes the preview and media tracks; camera layout does not collapse
+when conversation content grows. Physical mobile hardware remains untested.

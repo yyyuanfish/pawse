@@ -67,7 +67,10 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const [chips, setChips] = useState([]);
   const [draft, setDraft] = useState('');
   const [photoBusy,setPhotoBusy]=useState(false),[photoResult,setPhotoResult]=useState(null),[photoMenu,setPhotoMenu]=useState(false);
-  const photoRequest=useRef(null), captureRef=useRef(null);
+  const photoRequest=useRef(null);
+  const [cameraReady,setCameraReady]=useState(false);
+  const [cameraPhoto,setCameraPhoto]=useState(null);
+  const cameraPhotoUrl=useRef(null);
   const [photos, setPhotos] = useState([]); // { url, received }
   const [error, setError] = useState('');
   const [sheetOpen, setSheetOpen] = useState(true);
@@ -168,6 +171,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
 
   // ---- media → <video> and → agent
   useEffect(() => {
+    setCameraReady(false);
     if (videoRef.current) videoRef.current.srcObject = cam.stream || null;
   }, [cam.stream, camOn]);
 
@@ -183,6 +187,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   useEffect(
     () => () => {
       photoRequest.current?.abort();
+      if(cameraPhotoUrl.current)URL.revokeObjectURL(cameraPhotoUrl.current);
       photoUrls.current.forEach((u) => URL.revokeObjectURL(u));
     },
     []
@@ -233,13 +238,24 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
     finally {clearTimeout(timer);photoRequest.current=null;setPhotoBusy(false);}
   }
   const onPhoto=e=>{const file=e.target.files?.[0];e.target.value='';submitPhoto(file);};
+  const clearCameraPhoto=()=>{
+    if(cameraPhotoUrl.current)URL.revokeObjectURL(cameraPhotoUrl.current);
+    cameraPhotoUrl.current=null;setCameraPhoto(null);
+  };
+  const openPhotoCamera=()=>{
+    clearCameraPhoto();setPhotoMenu(false);setError('');setFacing('environment');setCamOn(true);
+  };
   const takeFrame=()=>{
     const video=videoRef.current;
     if(!video?.videoWidth){setError('Camera is not ready. Allow camera access or upload a photo.');return;}
     const canvas=document.createElement('canvas');const scale=Math.min(1,1280/video.videoWidth);
     canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);
     canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
-    canvas.toBlob(blob=>{if(blob)submitPhoto(new File([blob],'cat-camera.jpg',{type:'image/jpeg'}));},'image/jpeg',0.85);
+    canvas.toBlob(blob=>{
+      if(!blob){setError('Could not capture a photo. Please try again.');return;}
+      clearCameraPhoto();const file=new File([blob],'cat-camera.jpg',{type:'image/jpeg'});
+      cameraPhotoUrl.current=URL.createObjectURL(blob);setCameraPhoto({file,url:cameraPhotoUrl.current});setCamOn(false);
+    },'image/jpeg',0.85);
   };
 
   const toggleMic = () => {
@@ -263,7 +279,7 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
   const lastPhoto = photos[photos.length - 1];
 
   return (
-    <main className="vcall">
+    <main className={`vcall ${camOn||cameraPhoto ? 'camera-mode' : ''}`}>
       {IS_LIVE_VOICE && !consent && <section className="card">
         <VoicePicker lang={lang} value={gradiumVoice} onChange={setVoiceChoice} />
         {!gradiumSupports(lang) && <p className="muted">Gradium voices speak English and German; this language uses the Gemini voice.</p>}
@@ -290,11 +306,11 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
         </button>
       </div>
 
-      <section className="stage">
+      <section className={`stage ${camOn ? 'camera-stage' : ''}`}>
         {camOn ? (
           <div className="cam-card">
             {cam.stream ? (
-              <video ref={videoRef} className={facing === 'user' ? 'mirror' : ''} autoPlay playsInline muted />
+              <video ref={videoRef} className={facing === 'user' ? 'mirror' : ''} autoPlay playsInline muted onLoadedData={()=>setCameraReady(true)} />
             ) : (
               <div className="cam-msg">
                 <Icon name="videoOff" size={28} />
@@ -411,8 +427,8 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               send(draft);
             }}
           >
-            <button type="button" className="type-icon" disabled={photoBusy || (IS_LIVE_VOICE && !consent)} onClick={() => setPhotoMenu(v=>!v)} aria-label={t.photo} title={t.photo}>
-              <Icon name="camera" size={20} />
+            <button type="button" className="type-icon" disabled={photoBusy || (IS_LIVE_VOICE && !consent)} onClick={() => setPhotoMenu(v=>!v)} aria-label="Add photo" title="Add photo" aria-expanded={photoMenu} aria-controls="photo-options">
+              <Icon name="plus" size={20} />
             </button>
             <input
               disabled={IS_LIVE_VOICE && !consent}
@@ -427,11 +443,21 @@ export default function VoiceCall({ t, lang, triage, vet, insurance, onTriage, r
               <Icon name="send" size={18} />
             </button>
           </form>
-          {photoMenu&&<div className="kw-chips" role="group" aria-label="Photo options"><button type="button" onClick={()=>fileRef.current?.click()}>Upload photo</button><button type="button" onClick={()=>captureRef.current?.click()}>Take photo</button></div>}
+          {photoMenu&&<div id="photo-options" className="photo-options" role="group" aria-label="Photo options" onKeyDown={e=>{if(e.key==='Escape')setPhotoMenu(false);}}>
+            <button type="button" onClick={()=>{setPhotoMenu(false);fileRef.current?.click();}}><Icon name="upload" size={20}/><span>Upload photo<small>Choose an existing image</small></span></button>
+            <button type="button" onClick={openPhotoCamera}><Icon name="camera" size={20}/><span>Take photo<small>Open camera and capture</small></span></button>
+          </div>}
           <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={onPhoto}/>
-          <input ref={captureRef} type="file" accept="image/*" capture="environment" hidden onChange={onPhoto}/>
-          {camOn&&<button className="btn soft" disabled={photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={takeFrame}>Capture and analyze</button>}
-          {cam.error&&<p role="alert">Camera unavailable. Allow access or upload a photo.</p>}
+
+          {camOn&&<button type="button" className="btn soft" disabled={!cameraReady||photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={takeFrame}><Icon name="camera" size={20}/> Capture photo</button>}
+          {cameraPhoto&&<section className="card camera-review" aria-label="Review captured photo">
+            <img src={cameraPhoto.url} alt="Captured photo preview"/>
+            <p>This photo has not been sent yet.</p>
+            <button type="button" className="btn primary" disabled={photoBusy||(IS_LIVE_VOICE&&!consent)} onClick={()=>{const file=cameraPhoto.file;clearCameraPhoto();submitPhoto(file);}}>Send photo for analysis</button>
+            <button type="button" className="btn soft" onClick={openPhotoCamera}>Retake photo</button>
+            <button type="button" className="btn ghost" onClick={clearCameraPhoto}>Cancel photo</button>
+          </section>}
+          {cam.error&&<p role="alert">Camera unavailable. Allow camera access in your browser. On a phone, use HTTPS; plain network HTTP cannot access the camera. You can separately choose Upload photo.</p>}
 
           <nav className="call-controls" aria-label="Call controls">
             <button
