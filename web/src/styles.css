@@ -549,6 +549,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); out
   .mic-ring, .level-bars i, .ctl.rec { transition: none; }
 }
 
+/* Rehearsal label above every screen while any agent is scripted (App.jsx). */
+.sim-banner { position: relative; z-index: 2; margin: 0; padding: 6px 16px; text-align: center; font-size: 12.5px; font-weight: 600; background: #fff3cd; color: #7a5b00; border-bottom: 1px solid #e6cf80; }
 .sim-badge { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: #fff3cd; color: #7a5b00; border: 1px solid #e6cf80; vertical-align: middle; }
 
 /* Reviewed backend handoff shares existing app colours and spacing. */

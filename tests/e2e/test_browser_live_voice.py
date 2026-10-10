@@ -132,7 +132,7 @@ def test_tool_call_is_forwarded_answered_and_rendered(page: Page, app_server):
 
     call = live.tool_requests[0]
     assert (call["id"], call["name"], call["args"], call["share_with_gemini"]) == ("fc-1", "search_policy", {"query": "accident cover"}, True)
-    assert call["context"] == {"language": "en", "share_location": False}  # no location without consent
+    assert call["context"] == {"language": "en", "share_location": False, "insurance": None}  # no location without consent; no saved policy
     [answer] = live.frames("toolResponse")[0]["functionResponses"]
     assert (answer["id"], answer["name"], answer["response"]) == ("fc-1", "search_policy", {"ok": True, "echo": "fc-1"})
     card = page.locator("details", has_text="search_policy")
@@ -177,7 +177,7 @@ def test_denied_microphone_is_explained_and_typing_still_works(page: Page):
     live = FakeLive(page)
     open_call(page, live)
     mic_button(page).click()
-    expect(page.locator(".cap-error")).to_contain_text("Couldn't open the microphone")
+    expect(page.locator(".cap-error", has_text="Couldn't open the microphone")).to_be_visible()
     box = page.get_by_role("textbox")
     box.fill("My cat is limping")
     box.press("Enter")
