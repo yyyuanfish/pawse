@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4K3HPVF56Y2PV9KZBHS8SYC",
+  "strategy": "manual-commit",
+  "branch": "fix/clinic-search-endpoint",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "schemas/pawse.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 57500,
+    "cache_read_tokens": 1430422,
+    "output_tokens": 12919,
+    "api_call_count": 22,
+    "subagent_tokens": {
+      "input_tokens": 36,
+      "cache_creation_tokens": 70590,
+      "cache_read_tokens": 1000400,
+      "output_tokens": 205,
+      "api_call_count": 18
+    }
+  }
+}

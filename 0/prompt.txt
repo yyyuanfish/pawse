@@ -1,0 +1,12 @@
+DO this testing and finish/fix if isues who up?:
+-
+
+
+<pasted_content id="6156">
+9. ⚠️ Not yet tested:
+   - Mic recording in real Safari, which needs a Mac or iPhone.
+   - On the live site: clinic search, which has no Places or Mapify key, plus Gradium cloning and Gemini Live.
+   - The 3-try retry on clinic search is a stopgap. The real fix is a backend lookup that doesn't wait on the one-request-per-user limit.
+</pasted_content id="6156">
+
+--
