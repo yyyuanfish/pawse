@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.11.4",
+  "checkpoint_id": "01M4JYA9W5T55CZD3FRCNZ8PG8",
+  "strategy": "manual-commit",
+  "branch": "test/web-browser",
+  "checkpoints_count": 3,
+  "files_touched": [
+    ".gitignore",
+    "web/README.md",
+    "web/e2e/live-path.mjs",
+    "web/e2e/mock-path.mjs",
+    "web/e2e/recorder-probe.mjs",
+    "web/scripts/check-agents.mjs",
+    "web/scripts/check-clinics.mjs",
+    "web/src/agents/liveClinicSearch.js",
+    "web/src/agents/mockPhoneAgent.js",
+    "web/src/components/PlanPanel.jsx",
+    "web/src/contracts.js",
+    "web/src/i18n.js",
+    "web/src/pages/PhoneCall.jsx",
+    "web/src/styles.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 46,
+    "cache_creation_tokens": 55082,
+    "cache_read_tokens": 1205225,
+    "output_tokens": 10436,
+    "api_call_count": 23
+  }
+}
