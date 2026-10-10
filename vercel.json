@@ -13,21 +13,12 @@
       "devCommand": "node ../scripts/preview_site.mjs --landing"
     },
     "web": {
-      "root": ".",
+      "root": "web",
       "framework": "vite",
-      "installCommand": "npm ci --prefix web",
-      "buildCommand": "node scripts/build_site.mjs",
-      "outputDirectory": "dist",
-      "functions": {
-        "api/gateway.mjs": {
-          "maxDuration": 60
-        }
-      },
+      "installCommand": "npm ci",
+      "buildCommand": "npm run build && node ../scripts/package_web_service.mjs",
+      "outputDirectory": "deploy",
       "rewrites": [
-        {
-          "source": "/api/:route*",
-          "destination": "/api/gateway?route=:route"
-        },
         {
           "source": "/app",
           "destination": "/app/index.html"
@@ -37,14 +28,25 @@
           "destination": "/app/index.html"
         }
       ],
-      "devCommand": "node scripts/preview_site.mjs"
+      "devCommand": "node ../scripts/preview_site.mjs"
+    },
+    "gateway": {
+      "root": "gateway",
+      "runtime": "node",
+      "entrypoint": "index.mjs",
+      "devCommand": "node ../scripts/preview_site.mjs",
+      "functions": {
+        "index.mjs": {
+          "maxDuration": 60
+        }
+      }
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": {
-        "service": "web"
+        "service": "gateway"
       }
     },
     {

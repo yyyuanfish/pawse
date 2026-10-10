@@ -50,3 +50,4 @@ demo/playwright-report/
 /test-results/
 
 .vercel/
+/web/deploy/

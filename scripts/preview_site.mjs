@@ -2,7 +2,7 @@ import http from 'node:http';
 import {readFile,stat} from 'node:fs/promises';
 import {resolve,extname,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import gateway from '../api/gateway.mjs';
+import gateway from '../gateway/index.mjs';
 const project=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const root=resolve(project,process.argv.includes('--landing')?'site':'dist');
 const port=Number(process.env.PORT||8895);
