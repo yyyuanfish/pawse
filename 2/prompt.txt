@@ -1,0 +1,113 @@
+Plan hwo to avoid this and finsih the video:
+-_
+🛑 Likely cause: /home/azureuser/pawse-demo-rec/demo/real/make-cut.py builds one ffmpeg command that cuts the single input video into many pieces and joins them back together. ffmpeg decodes the video once, so while it writes piece 1 it has to hold the frames waiting for every later piece. Those frames are kept fully uncompressed. For a multi-minute recording at desktop resolution that can be tens of GB within a minute or two, which would explain going from 17 GB free to stalled.
+--
+
+---
+
+4. ⚠️ The real 2-minute demo recording (issue #7) was cut off mid-task. /home/azureuser/pawse-demo-rec has 16 uncommitted files: about 295 changed lines in orchestration.py, providers.py, models.py, the tests and the OpenAPI file, plus a new demo/real/ recorder. The session was building the step that trims silences to fit 2:00 when it stopped. The older mocked video is at /home/azureuser/pawse-wt-demo/demo/demo-out/pawse-demo.mp4.
+
+---
+
+<task-notification>
+<task-id>bzcbkd0a2</task-id>
+<tool-use-id>toolu_01HSyQGeXiVckZXUx38xokTz</tool-use-id>
+<output-file>/tmp/claude-1000/-home-azureuser-pawse/662ecbea-dc48-4bc6-8283-035c11f05a44/tasks/bzcbkd0a2.output</output-file>
+<status>completed</status>
+<summary>Background command "Check repo state, find raw take, recorder ffmpeg args" completed (exit code 0)</summary>
+</task-notification>
+
+---
+
+yeah commit and rerecord
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[2.9s] [console] error Failed to load resource: the server responded with a status of 404 (File not found)
+[6.9s] [console] error Permissions policy violation: screen-wake-lock is not allowed in this document.</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[12.4s] [console] error Failed to load resource: the server responded with a status of 404 (File not found)</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[12.7s] greeting</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[39.7s] triage</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[39.7s] triage level Contact a vet today</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[58.5s] [api] POST /api/v1/clinics/search</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[59.0s] clinics</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[77.6s] draft</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[139.7s] vet done</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>b7i5kamrj</task-id>
+<summary>Monitor event: "real-app take beats and failures"</summary>
+<event>[208.1s] insurer done</event>
+If this event is something the user would act on now, send a PushNotification. Routine or benign output doesn't need one.
+</task-notification>
