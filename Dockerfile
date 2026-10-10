@@ -9,6 +9,9 @@ COPY web/ ./
 # Gemini Live drives the /app conversation by default (Gradium stays STT/TTS); ?demo=1 forces the scripted rehearsal.
 ARG VITE_VOICE_AGENT=live
 ENV VITE_VOICE_AGENT=$VITE_VOICE_AGENT
+# Phone calls: backend Mimi script spoken with the Gradium German voice; replies stay simulated (no telephony).
+ARG VITE_PHONE_AGENT=live
+ENV VITE_PHONE_AGENT=$VITE_PHONE_AGENT
 RUN npm run build
 
 FROM python:3.12-slim
