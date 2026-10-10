@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K9PFAV85CN1J0JDF1Y0JD2",
   "strategy": "manual-commit",
   "branch": "test/e2e-welcome",
-  "checkpoints_count": 7,
+  "checkpoints_count": 8,
   "files_touched": [
     "docs/VALIDATION.md",
     "tests/e2e/README.md",
@@ -27,6 +27,13 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
@@ -34,6 +41,13 @@
     "cache_creation_tokens": 28654,
     "cache_read_tokens": 2541816,
     "output_tokens": 13051,
-    "api_call_count": 21
+    "api_call_count": 21,
+    "subagent_tokens": {
+      "input_tokens": 6,
+      "cache_creation_tokens": 2225,
+      "cache_read_tokens": 355075,
+      "output_tokens": 67,
+      "api_call_count": 3
+    }
   }
 }
