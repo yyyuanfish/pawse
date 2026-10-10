@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K9XXDMBH29GAGDRQ0A6ZGF",
   "strategy": "manual-commit",
   "branch": "fix/demo-camera-replay",
-  "checkpoints_count": 7,
+  "checkpoints_count": 8,
   "files_touched": [
     "demo/real/record-real.mjs"
   ],
@@ -21,6 +21,13 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
@@ -28,6 +35,13 @@
     "cache_creation_tokens": 32319,
     "cache_read_tokens": 2869530,
     "output_tokens": 17621,
-    "api_call_count": 19
+    "api_call_count": 19,
+    "subagent_tokens": {
+      "input_tokens": 10,
+      "cache_creation_tokens": 2604,
+      "cache_read_tokens": 604827,
+      "output_tokens": 76,
+      "api_call_count": 5
+    }
   }
 }
