@@ -1,16 +1,46 @@
 #!/usr/bin/env bash
 # Deploy the public demo to Cloud Run: bash scripts/deploy_cloudrun.sh <gcp-project> [region]
 # One instance (min=max=1): the case cache in pawse/state.py is in memory.
-# Before the first run, put the keys in Secret Manager, for example:
-#   printf %s "$KEY" | gcloud secrets create pawse-gemini-key --data-file=- --project <gcp-project>
+# Provider keys come from .env (PAWSE_ENV_FILE overrides; a worktree without .env uses the root checkout's):
+# each one set there is synced to its Secret Manager secret (a new version only when the value changed) and
+# mounted. A key missing from .env keeps the secret already deployed. Values are never printed.
 set -euo pipefail
 PROJECT="${1:?usage: deploy_cloudrun.sh <gcp-project> [region]}"
 REGION="${2:-europe-west6}"
-SECRETS="GEMINI_API_KEY=pawse-gemini-key:latest"
-if gcloud secrets describe pawse-gradium-key --project "$PROJECT" >/dev/null 2>&1; then
-  SECRETS="$SECRETS,GRADIUM_API_KEY=pawse-gradium-key:latest"
-fi
 cd "$(dirname "$0")/.."
+# ENV_VAR=secret-name for every key the app reads. Add new provider keys here.
+KEYS="GEMINI_API_KEY=pawse-gemini-key GRADIUM_API_KEY=pawse-gradium-key GOOGLE_PLACES_API_KEY=pawse-places-key"
+ENV_FILE="${PAWSE_ENV_FILE:-.env}"
+[ -f "$ENV_FILE" ] || ENV_FILE="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")/.env"
+env_value() {  # last NAME=value line, surrounding quotes removed
+  [ -f "$ENV_FILE" ] || return 0
+  sed -n "s/^[[:space:]]*\(export[[:space:]]\+\)\?$1[[:space:]]*=[[:space:]]*//p" "$ENV_FILE" | tail -n 1 | sed -e 's/[[:space:]]*$//' -e "s/^[\"']\(.*\)[\"']$/\1/"
+}
+RUNTIME_SA="$(gcloud projects describe "$PROJECT" --format 'value(projectNumber)')-compute@developer.gserviceaccount.com"
+SECRETS=""
+for pair in $KEYS; do
+  var="${pair%%=*}" secret="${pair#*=}" value="$(env_value "${pair%%=*}")"
+  if [ -n "$value" ]; then
+    if ! gcloud secrets describe "$secret" --project "$PROJECT" >/dev/null 2>&1; then
+      printf %s "$value" | gcloud secrets create "$secret" --project "$PROJECT" --replication-policy automatic --data-file=- --quiet
+      echo "$var: created secret $secret"
+    elif [ "$(gcloud secrets versions access latest --secret "$secret" --project "$PROJECT")" != "$value" ]; then
+      printf %s "$value" | gcloud secrets versions add "$secret" --project "$PROJECT" --data-file=- --quiet
+      echo "$var: new version of $secret"
+    else
+      echo "$var: $secret is up to date"
+    fi
+    gcloud secrets add-iam-policy-binding "$secret" --project "$PROJECT" --member "serviceAccount:$RUNTIME_SA" \
+      --role roles/secretmanager.secretAccessor --quiet >/dev/null
+  elif gcloud secrets describe "$secret" --project "$PROJECT" >/dev/null 2>&1; then
+    echo "$var: not in $ENV_FILE, keeping the deployed secret $secret"
+  else
+    echo "$var: not set, skipped"
+    continue
+  fi
+  SECRETS="${SECRETS:+$SECRETS,}$var=$secret:latest"
+done
+case ",$SECRETS" in *,GEMINI_API_KEY=*) ;; *) echo "GEMINI_API_KEY is required: set it in $ENV_FILE" >&2; exit 1 ;; esac
 deploy() {
   gcloud run deploy pawse --project "$PROJECT" --region "$REGION" --source . \
     --allow-unauthenticated --min-instances 1 --max-instances 1 --timeout 3600 \

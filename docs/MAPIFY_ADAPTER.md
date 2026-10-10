@@ -24,8 +24,8 @@ Only actual provided phones become call actions, and only if they parse as inter
 
 ## Alternative source
 
-`GOOGLE_PLACES_API_KEY` enables the official Nearby Search API with type `veterinary_care`. This source takes precedence when both are configured. It returns up to 20 nearby places, including phone and current opening state when available. It requires Maps Platform API enablement, restrictions and billing; a Gemini key alone is not proof of Places access. There is no silent fallback between paid providers.
+`GOOGLE_PLACES_API_KEY` enables the official Text Search API with the query "Tierarztpraxis Kleintierpraxis Tierklinik", type `veterinary_care` with strict type filtering, ranked by distance; places outside the radius are dropped. Nearby Search by type alone also returned homeopaths, associations and a psychologist in Zurich (2026-10-10). This source takes precedence when both are configured. It returns up to 20 places, including phone and current opening state when available. It requires Maps Platform API enablement, restrictions and billing; a Gemini key alone is not proof of Places access. There is no silent fallback between paid providers.
 
 No live clinic lookup was verified in this workspace because neither a Mapify backend URL nor a Places key was supplied. Both adapters have contract tests against synthetic HTTP responses.
 
-Sources: [Nearby Search](https://developers.google.com/maps/documentation/places/web-service/nearby-search), [upstream controller contract](https://github.com/qing-dai/MapifyAI/blob/main/doc/controller-frontend-contract.md), [upstream requests controller](https://github.com/qing-dai/MapifyAI/blob/main/backend/app/api/requests.py).
+Sources: [Text Search](https://developers.google.com/maps/documentation/places/web-service/text-search), [upstream controller contract](https://github.com/qing-dai/MapifyAI/blob/main/doc/controller-frontend-contract.md), [upstream requests controller](https://github.com/qing-dai/MapifyAI/blob/main/backend/app/api/requests.py).

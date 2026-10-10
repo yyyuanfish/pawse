@@ -134,7 +134,7 @@ Run the automated checks with `pip install -r requirements-dev.txt` followed by 
 
 ### Public demo (Cloud Run)
 
-The `Dockerfile` builds the React app in `web/` and runs it with the API as one container. `scripts/deploy_cloudrun.sh <gcp-project>` deploys it to Cloud Run with one instance (the case cache is in memory), keys from Secret Manager (`pawse-gemini-key`, optional `pawse-gradium-key`) and these public-demo settings:
+The `Dockerfile` builds the React app in `web/` and runs it with the API as one container. `scripts/deploy_cloudrun.sh <gcp-project>` deploys it to Cloud Run with one instance (the case cache is in memory), provider keys from Secret Manager and these public-demo settings. Each deploy syncs the keys set in `.env` (`GEMINI_API_KEY`, `GRADIUM_API_KEY`, `GOOGLE_PLACES_API_KEY`) to the secrets `pawse-gemini-key`, `pawse-gradium-key` and `pawse-places-key`, adding a version only when a value changed, and mounts them; a key missing from `.env` keeps the deployed secret. Add a new provider key to `KEYS` in the script:
 
 | Setting | Purpose |
 | --- | --- |
