@@ -3,7 +3,7 @@
   "checkpoint_id": "01M4K4XRRP6T8S49ZKVMJA0GYS",
   "strategy": "manual-commit",
   "branch": "chore/worktree-convention",
-  "checkpoints_count": 12,
+  "checkpoints_count": 13,
   "files_touched": [
     "AGENTS.md",
     "docs/AGENT_DEVELOPMENT.md",
@@ -24,13 +24,20 @@
       "compact_transcript": "/1/transcript.jsonl",
       "content_hash": "/1/content_hash.txt",
       "prompt": ""
+    },
+    {
+      "metadata": "/2/metadata.json",
+      "transcript": "/2/full.jsonl",
+      "compact_transcript": "/2/transcript.jsonl",
+      "content_hash": "/2/content_hash.txt",
+      "prompt": ""
     }
   ],
   "token_usage": {
-    "input_tokens": 4,
-    "cache_creation_tokens": 3182,
-    "cache_read_tokens": 211413,
-    "output_tokens": 1434,
-    "api_call_count": 2
+    "input_tokens": 30,
+    "cache_creation_tokens": 20367,
+    "cache_read_tokens": 1851179,
+    "output_tokens": 8124,
+    "api_call_count": 15
   }
 }
